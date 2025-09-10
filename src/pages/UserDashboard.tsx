@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -14,9 +15,11 @@ import {
   Recycle,
   Bell
 } from "lucide-react";
+import ReportGarbage from "@/components/ReportGarbage";
 
 const UserDashboard = () => {
   const navigate = useNavigate();
+  const [activeView, setActiveView] = useState<string | null>(null);
 
   const dashboardItems = [
     {
@@ -25,7 +28,7 @@ const UserDashboard = () => {
       icon: AlertTriangle,
       color: "text-destructive",
       bgColor: "bg-destructive/10",
-      action: () => console.log("Report dumping")
+      action: () => setActiveView("report-dumping")
     },
     {
       title: "View Nearby Facilities", 
@@ -68,6 +71,37 @@ const UserDashboard = () => {
       action: () => console.log("View training")
     }
   ];
+
+  // Show ReportGarbage component when active
+  if (activeView === "report-dumping") {
+    return (
+      <div className="min-h-screen bg-gradient-subtle">
+        <header className="bg-white shadow-card">
+          <div className="container mx-auto px-4 py-4">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center space-x-3">
+                <Button 
+                  variant="ghost" 
+                  onClick={() => setActiveView(null)}
+                  className="mr-2"
+                >
+                  ← Back
+                </Button>
+                <div className="p-2 bg-gradient-primary rounded-lg">
+                  <Recycle className="h-6 w-6 text-white" />
+                </div>
+                <div>
+                  <h1 className="text-xl font-bold text-civic-dark">Report Illegal Dumping</h1>
+                  <p className="text-sm text-muted-foreground">Submit a new waste report</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </header>
+        <ReportGarbage />
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gradient-subtle">

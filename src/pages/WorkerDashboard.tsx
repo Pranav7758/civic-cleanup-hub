@@ -13,9 +13,11 @@ import {
   Recycle,
   Bell,
   MapPin,
-  Calendar
+  Calendar,
+  Eye
 } from "lucide-react";
 import { toast } from "sonner";
+import WorkerTaskView from "@/components/WorkerTaskView";
 
 interface Task {
   id: string;
@@ -29,6 +31,7 @@ interface Task {
 
 const WorkerDashboard = () => {
   const navigate = useNavigate();
+  const [activeView, setActiveView] = useState<string | null>(null);
   
   const [tasks, setTasks] = useState<Task[]>([
     {
@@ -107,6 +110,37 @@ const WorkerDashboard = () => {
     }
   };
 
+  // Show WorkerTaskView component when active
+  if (activeView === "detailed-tasks") {
+    return (
+      <div className="min-h-screen bg-gradient-subtle">
+        <header className="bg-white shadow-card">
+          <div className="container mx-auto px-4 py-4">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center space-x-3">
+                <Button 
+                  variant="ghost" 
+                  onClick={() => setActiveView(null)}
+                  className="mr-2"
+                >
+                  ← Back
+                </Button>
+                <div className="p-2 bg-gradient-primary rounded-lg">
+                  <Recycle className="h-6 w-6 text-white" />
+                </div>
+                <div>
+                  <h1 className="text-xl font-bold text-civic-dark">Task Details</h1>
+                  <p className="text-sm text-muted-foreground">Detailed task management</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </header>
+        <WorkerTaskView />
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-gradient-subtle">
       {/* Header */}
@@ -123,6 +157,14 @@ const WorkerDashboard = () => {
               </div>
             </div>
             <div className="flex items-center space-x-2">
+              <Button 
+                variant="default"
+                size="sm"
+                onClick={() => setActiveView("detailed-tasks")}
+              >
+                <Eye className="h-4 w-4 mr-2" />
+                View Task Details
+              </Button>
               <Button variant="ghost" size="sm">
                 <Bell className="h-4 w-4" />
               </Button>
