@@ -5,9 +5,11 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Home from "./pages/Home";
 import Login from "./pages/Login";
-import WorkerLogin from "./pages/WorkerLogin";
-import UserDashboard from "./pages/UserDashboard";
+import CitizenDashboard from "./pages/CitizenDashboard";
 import WorkerDashboard from "./pages/WorkerDashboard";
+import NgoDashboard from "./pages/NgoDashboard";
+import ScrapDashboard from "./pages/ScrapDashboard";
+import AdminDashboard from "./pages/AdminDashboard";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -21,12 +23,11 @@ const App = () => (
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/login" element={<Login />} />
-          <Route path="/worker-login" element={<WorkerLogin />} />
-          <Route path="/ngo-login" element={<Login />} />
-          <Route path="/scrap-login" element={<Login />} />
-          <Route path="/admin-login" element={<Login />} />
-          <Route path="/user-dashboard" element={<UserDashboard />} />
-          <Route path="/worker-dashboard" element={<WorkerDashboard />} />
+          <Route path="/citizen/*" element={<CitizenDashboard />} />
+          <Route path="/worker/*" element={<WorkerDashboard />} />
+          <Route path="/ngo/*" element={<NgoDashboard />} />
+          <Route path="/scrap/*" element={<ScrapDashboard />} />
+          <Route path="/admin/*" element={<AdminDashboard />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>
