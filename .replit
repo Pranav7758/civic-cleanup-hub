@@ -46,3 +46,4 @@ externalPort = 3000
 [userenv]
 
 [userenv.shared]
+SUPABASE_URL = "https://bpzreeqlemkkrzjapfaa.supabase.co"
