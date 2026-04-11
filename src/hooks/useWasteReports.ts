@@ -65,7 +65,7 @@ export function useCreateReport() {
     }) => {
       const { data, error } = await supabase
         .from("waste_reports")
-        .insert({ ...report, citizen_id: user!.id })
+        .insert({ ...report, citizen_id: user!.id } as any)
         .select()
         .single();
       if (error) throw error;
@@ -84,7 +84,7 @@ export function useUpdateReport() {
     mutationFn: async ({ id, ...updates }: { id: string; [key: string]: any }) => {
       const { data, error } = await supabase
         .from("waste_reports")
-        .update(updates)
+        .update(updates as any)
         .eq("id", id)
         .select()
         .single();

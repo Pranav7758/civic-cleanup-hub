@@ -81,12 +81,15 @@ export function useCreateScrapListing() {
 
       const itemsToInsert = listing.items.map((item) => ({
         listing_id: sl.id,
-        ...item,
+        item_name: item.item_name,
+        category: item.category as any,
+        weight_kg: item.weight_kg,
+        price_per_kg: item.price_per_kg,
       }));
 
       const { error: itemsError } = await supabase
         .from("scrap_listing_items")
-        .insert(itemsToInsert);
+        .insert(itemsToInsert as any);
       if (itemsError) throw itemsError;
 
       return sl;

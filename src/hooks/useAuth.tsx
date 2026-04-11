@@ -93,7 +93,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     // Insert role
     const { error: roleError } = await supabase
       .from("user_roles")
-      .insert({ user_id: data.user.id, role });
+      .insert({ user_id: data.user.id, role: role as any });
 
     if (roleError) throw roleError;
 
