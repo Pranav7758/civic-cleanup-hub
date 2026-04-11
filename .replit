@@ -1,4 +1,4 @@
-modules = ["nodejs-20", "web"]
+modules = ["nodejs-20", "web", "postgresql-16"]
 [agent]
 expertMode = true
 integrations = ["javascript_database:1.0.0"]
@@ -42,3 +42,11 @@ externalPort = 80
 [[ports]]
 localPort = 24678
 externalPort = 3000
+
+[userenv]
+
+[userenv.shared]
+SUPABASE_DATABASE_URL = "postgresql://postgres:Pranav123%40gmail.com@db.bpzreeqlemkkrzjapfaa.supabase.co:5432/postgres"
+SUPABASE_URL = "https://bpzreeqlemkkrzjapfaa.supabase.co"
+SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJwenJlZXFsZW1ra3J6amFwZmFhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzU5MTI0NDgsImV4cCI6MjA5MTQ4ODQ0OH0.83RDRu75EAUFruEhmcLsVwu6H0NIC3zUaFiSsOai0iQ"
+SUPABASE_SERVICE_ROLE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJwenJlZXFsZW1ra3J6amFwZmFhIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3NTkxMjQ0OCwiZXhwIjoyMDkxNDg4NDQ4fQ.wksu8NeVBtyf-5GNN9eySoMUv6HQtIjkaKytPK-SxDs"
