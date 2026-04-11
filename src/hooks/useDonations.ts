@@ -1,5 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { supabase } from "@/integrations/supabase/client";
+import { apiClient } from "@/lib/apiClient";
 import { useAuth } from "./useAuth";
 
 export function useMyDonations() {
@@ -7,7 +7,7 @@ export function useMyDonations() {
   return useQuery({
     queryKey: ["donations", "mine", user?.id],
     queryFn: async () => {
-      const { data, error } = await supabase
+      const { data, error } = await apiClient
         .from("donations")
         .select("*, ngo:profiles!donations_ngo_id_fkey(full_name)")
         .eq("citizen_id", user!.id)
@@ -24,7 +24,7 @@ export function useNgoDonations() {
   return useQuery({
     queryKey: ["donations", "ngo", user?.id],
     queryFn: async () => {
-      const { data, error } = await supabase
+      const { data, error } = await apiClient
         .from("donations")
         .select("*, citizen:profiles!donations_citizen_id_fkey(full_name, phone, address)")
         .order("created_at", { ascending: false });
@@ -48,7 +48,7 @@ export function useCreateDonation() {
       longitude?: number;
       address?: string;
     }) => {
-      const { data, error } = await supabase
+      const { data, error } = await apiClient
         .from("donations")
         .insert({ ...donation, citizen_id: user!.id } as any)
         .select()
@@ -67,7 +67,7 @@ export function useUpdateDonation() {
 
   return useMutation({
     mutationFn: async ({ id, ...updates }: { id: string; [key: string]: any }) => {
-      const { data, error } = await supabase
+      const { data, error } = await apiClient
         .from("donations")
         .update(updates as any)
         .eq("id", id)

@@ -1,12 +1,12 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { supabase } from "@/integrations/supabase/client";
+import { apiClient } from "@/lib/apiClient";
 import { useAuth } from "./useAuth";
 
 export function useScrapPrices() {
   return useQuery({
     queryKey: ["scrap-prices"],
     queryFn: async () => {
-      const { data, error } = await supabase
+      const { data, error } = await apiClient
         .from("scrap_prices")
         .select("*")
         .order("category");
@@ -21,7 +21,7 @@ export function useMyScrapListings() {
   return useQuery({
     queryKey: ["scrap-listings", "mine", user?.id],
     queryFn: async () => {
-      const { data, error } = await supabase
+      const { data, error } = await apiClient
         .from("scrap_listings")
         .select("*, items:scrap_listing_items(*)")
         .eq("citizen_id", user!.id)
@@ -38,7 +38,7 @@ export function useDealerListings() {
   return useQuery({
     queryKey: ["scrap-listings", "dealer", user?.id],
     queryFn: async () => {
-      const { data, error } = await supabase
+      const { data, error } = await apiClient
         .from("scrap_listings")
         .select("*, items:scrap_listing_items(*), citizen:profiles!scrap_listings_citizen_id_fkey(full_name, phone, address)")
         .order("created_at", { ascending: false });
@@ -64,7 +64,7 @@ export function useCreateScrapListing() {
       const totalEstimate = listing.items.reduce((sum, i) => sum + i.weight_kg * i.price_per_kg, 0);
       const totalWeight = listing.items.reduce((sum, i) => sum + i.weight_kg, 0);
 
-      const { data: sl, error: slError } = await supabase
+      const { data: sl, error: slError } = await apiClient
         .from("scrap_listings")
         .insert({
           citizen_id: user!.id,
@@ -87,7 +87,7 @@ export function useCreateScrapListing() {
         price_per_kg: item.price_per_kg,
       }));
 
-      const { error: itemsError } = await supabase
+      const { error: itemsError } = await apiClient
         .from("scrap_listing_items")
         .insert(itemsToInsert as any);
       if (itemsError) throw itemsError;

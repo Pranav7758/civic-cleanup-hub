@@ -1,12 +1,12 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { supabase } from "@/integrations/supabase/client";
+import { apiClient } from "@/lib/apiClient";
 import { useAuth } from "./useAuth";
 
 export function useTrainingModules() {
   return useQuery({
     queryKey: ["training-modules"],
     queryFn: async () => {
-      const { data, error } = await supabase
+      const { data, error } = await apiClient
         .from("training_modules")
         .select("*")
         .order("sort_order");
@@ -21,7 +21,7 @@ export function useTrainingProgress() {
   return useQuery({
     queryKey: ["training-progress", user?.id],
     queryFn: async () => {
-      const { data, error } = await supabase
+      const { data, error } = await apiClient
         .from("training_progress")
         .select("*")
         .eq("user_id", user!.id);
@@ -39,7 +39,7 @@ export function useUpdateTrainingProgress() {
   return useMutation({
     mutationFn: async ({ moduleId, progress }: { moduleId: string; progress: number }) => {
       const completed = progress >= 100;
-      const { data, error } = await supabase
+      const { data, error } = await apiClient
         .from("training_progress")
         .upsert({
           user_id: user!.id,

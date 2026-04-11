@@ -1,7 +1,13 @@
 import { createContext, useContext, useEffect, useState, ReactNode } from "react";
-import { User, Session } from "@supabase/supabase-js";
-import { supabase } from "@/integrations/supabase/client";
-import { useNavigate } from "react-router-dom";
+import { apiClient, type Session } from "@/lib/apiClient";
+
+interface User {
+  id: string;
+  email?: string;
+  user_metadata?: {
+    full_name?: string;
+  };
+}
 
 interface Profile {
   id: string;
@@ -36,13 +42,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [loading, setLoading] = useState(true);
 
   const fetchProfile = async (userId: string) => {
-    const { data: profileData } = await supabase
+    const { data: profileData } = await apiClient
       .from("profiles")
       .select("*")
       .eq("user_id", userId)
       .maybeSingle();
     
-    const { data: rolesData } = await supabase
+    const { data: rolesData } = await apiClient
       .from("user_roles")
       .select("role")
       .eq("user_id", userId);
@@ -52,7 +58,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   useEffect(() => {
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+    const { data: { subscription } } = apiClient.auth.onAuthStateChange(
       async (_event, session) => {
         setSession(session);
         setUser(session?.user ?? null);
@@ -66,7 +72,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       }
     );
 
-    supabase.auth.getSession().then(({ data: { session } }) => {
+    apiClient.auth.getSession().then(({ data: { session } }) => {
       setSession(session);
       setUser(session?.user ?? null);
       if (session?.user) {
@@ -79,27 +85,25 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const signUp = async (email: string, password: string, fullName: string, role: string, phone?: string) => {
-    const { data, error } = await supabase.auth.signUp({
+    const { data, error } = await apiClient.auth.signUp({
       email,
       password,
       options: {
-        data: { full_name: fullName },
+        data: { full_name: fullName, phone },
       },
     });
 
     if (error) throw error;
     if (!data.user) throw new Error("Signup failed");
 
-    // Insert role
-    const { error: roleError } = await supabase
+    const { error: roleError } = await apiClient
       .from("user_roles")
       .insert({ user_id: data.user.id, role: role as any });
 
     if (roleError) throw roleError;
 
-    // Update profile with phone if provided
     if (phone) {
-      await supabase
+      await apiClient
         .from("profiles")
         .update({ phone })
         .eq("user_id", data.user.id);
@@ -107,22 +111,20 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   const signIn = async (email: string, password: string): Promise<string> => {
-    const { data, error } = await supabase.auth.signInWithPassword({
+    const { data, error } = await apiClient.auth.signInWithPassword({
       email,
       password,
     });
 
     if (error) throw error;
 
-    // Fetch user roles to determine redirect
-    const { data: rolesData } = await supabase
+    const { data: rolesData } = await apiClient
       .from("user_roles")
       .select("role")
       .eq("user_id", data.user.id);
 
     const userRoles = rolesData?.map((r: any) => r.role) || [];
     
-    // Return the primary role's dashboard route
     if (userRoles.includes("admin")) return "/admin";
     if (userRoles.includes("worker")) return "/worker";
     if (userRoles.includes("ngo")) return "/ngo";
@@ -131,7 +133,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   const signOut = async () => {
-    await supabase.auth.signOut();
+    await apiClient.auth.signOut();
     setUser(null);
     setSession(null);
     setProfile(null);

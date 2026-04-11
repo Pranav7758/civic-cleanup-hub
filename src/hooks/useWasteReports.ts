@@ -1,5 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { supabase } from "@/integrations/supabase/client";
+import { apiClient } from "@/lib/apiClient";
 import { useAuth } from "./useAuth";
 
 export function useMyReports() {
@@ -7,7 +7,7 @@ export function useMyReports() {
   return useQuery({
     queryKey: ["waste-reports", "mine", user?.id],
     queryFn: async () => {
-      const { data, error } = await supabase
+      const { data, error } = await apiClient
         .from("waste_reports")
         .select("*")
         .eq("citizen_id", user!.id)
@@ -24,7 +24,7 @@ export function useWorkerTasks() {
   return useQuery({
     queryKey: ["waste-reports", "worker", user?.id],
     queryFn: async () => {
-      const { data, error } = await supabase
+      const { data, error } = await apiClient
         .from("waste_reports")
         .select("*, citizen:profiles!waste_reports_citizen_id_fkey(full_name, phone)")
         .or(`status.eq.pending,assigned_worker_id.eq.${user!.id}`)
@@ -40,7 +40,7 @@ export function useAllReports() {
   return useQuery({
     queryKey: ["waste-reports", "all"],
     queryFn: async () => {
-      const { data, error } = await supabase
+      const { data, error } = await apiClient
         .from("waste_reports")
         .select("*, citizen:profiles!waste_reports_citizen_id_fkey(full_name)")
         .order("created_at", { ascending: false });
@@ -63,7 +63,7 @@ export function useCreateReport() {
       longitude?: number;
       address?: string;
     }) => {
-      const { data, error } = await supabase
+      const { data, error } = await apiClient
         .from("waste_reports")
         .insert({ ...report, citizen_id: user!.id } as any)
         .select()
@@ -82,7 +82,7 @@ export function useUpdateReport() {
 
   return useMutation({
     mutationFn: async ({ id, ...updates }: { id: string; [key: string]: any }) => {
-      const { data, error } = await supabase
+      const { data, error } = await apiClient
         .from("waste_reports")
         .update(updates as any)
         .eq("id", id)
@@ -98,10 +98,5 @@ export function useUpdateReport() {
 }
 
 export async function uploadImage(file: File, bucket: string): Promise<string> {
-  const ext = file.name.split(".").pop();
-  const name = `${crypto.randomUUID()}.${ext}`;
-  const { error } = await supabase.storage.from(bucket).upload(name, file);
-  if (error) throw error;
-  const { data } = supabase.storage.from(bucket).getPublicUrl(name);
-  return data.publicUrl;
+  return apiClient.uploadImage(file, bucket);
 }

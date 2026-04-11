@@ -1,12 +1,12 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { supabase } from "@/integrations/supabase/client";
+import { apiClient } from "@/lib/apiClient";
 import { useAuth } from "./useAuth";
 
 export function useEvents() {
   return useQuery({
     queryKey: ["community-events"],
     queryFn: async () => {
-      const { data, error } = await supabase
+      const { data, error } = await apiClient
         .from("community_events")
         .select("*")
         .order("starts_at", { ascending: true });
@@ -21,7 +21,7 @@ export function useMyRegistrations() {
   return useQuery({
     queryKey: ["event-registrations", user?.id],
     queryFn: async () => {
-      const { data, error } = await supabase
+      const { data, error } = await apiClient
         .from("event_registrations")
         .select("*, event:community_events(*)")
         .eq("user_id", user!.id);
@@ -38,7 +38,7 @@ export function useRegisterForEvent() {
 
   return useMutation({
     mutationFn: async (eventId: string) => {
-      const { data, error } = await supabase
+      const { data, error } = await apiClient
         .from("event_registrations")
         .insert({ event_id: eventId, user_id: user!.id })
         .select()

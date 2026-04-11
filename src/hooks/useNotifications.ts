@@ -1,5 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { supabase } from "@/integrations/supabase/client";
+import { apiClient } from "@/lib/apiClient";
 import { useAuth } from "./useAuth";
 
 export function useNotifications() {
@@ -7,7 +7,7 @@ export function useNotifications() {
   return useQuery({
     queryKey: ["notifications", user?.id],
     queryFn: async () => {
-      const { data, error } = await supabase
+      const { data, error } = await apiClient
         .from("notifications")
         .select("*")
         .eq("user_id", user!.id)
@@ -25,7 +25,7 @@ export function useMarkNotificationRead() {
 
   return useMutation({
     mutationFn: async (id: string) => {
-      const { error } = await supabase
+      const { error } = await apiClient
         .from("notifications")
         .update({ read: true })
         .eq("id", id);
@@ -42,7 +42,7 @@ export function useUnreadCount() {
   return useQuery({
     queryKey: ["notifications", "unread", user?.id],
     queryFn: async () => {
-      const { count, error } = await supabase
+      const { count, error } = await apiClient
         .from("notifications")
         .select("*", { count: "exact", head: true })
         .eq("user_id", user!.id)

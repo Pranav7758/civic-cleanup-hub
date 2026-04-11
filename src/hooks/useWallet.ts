@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import { supabase } from "@/integrations/supabase/client";
+import { apiClient } from "@/lib/apiClient";
 import { useAuth } from "./useAuth";
 
 export function useCleanlinessScore() {
@@ -7,7 +7,7 @@ export function useCleanlinessScore() {
   return useQuery({
     queryKey: ["cleanliness-score", user?.id],
     queryFn: async () => {
-      const { data, error } = await supabase
+      const { data, error } = await apiClient
         .from("cleanliness_scores")
         .select("*")
         .eq("user_id", user!.id)
@@ -24,7 +24,7 @@ export function useWalletTransactions() {
   return useQuery({
     queryKey: ["wallet-transactions", user?.id],
     queryFn: async () => {
-      const { data, error } = await supabase
+      const { data, error } = await apiClient
         .from("wallet_transactions")
         .select("*")
         .eq("user_id", user!.id)
@@ -41,7 +41,7 @@ export function useGovernmentBenefits() {
   return useQuery({
     queryKey: ["government-benefits", user?.id],
     queryFn: async () => {
-      const { data, error } = await supabase
+      const { data, error } = await apiClient
         .from("government_benefits")
         .select("*")
         .eq("user_id", user!.id)
@@ -57,7 +57,7 @@ export function useRedeemItems() {
   return useQuery({
     queryKey: ["redeem-items"],
     queryFn: async () => {
-      const { data, error } = await supabase
+      const { data, error } = await apiClient
         .from("redeem_items")
         .select("*")
         .eq("active", true);
