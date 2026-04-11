@@ -2,7 +2,8 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { AuthProvider, useAuth } from "@/hooks/useAuth";
 import Home from "./pages/Home";
 import Login from "./pages/Login";
 import CitizenDashboard from "./pages/CitizenDashboard";
@@ -20,28 +21,54 @@ import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
 
+function ProtectedRoute({ children, allowedRoles }: { children: React.ReactNode; allowedRoles?: string[] }) {
+  const { user, roles, loading } = useAuth();
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary" />
+      </div>
+    );
+  }
+
+  if (!user) return <Navigate to="/login" replace />;
+
+  if (allowedRoles && !allowedRoles.some(r => roles.includes(r))) {
+    return <Navigate to="/login" replace />;
+  }
+
+  return <>{children}</>;
+}
+
+const AppRoutes = () => (
+  <Routes>
+    <Route path="/" element={<Home />} />
+    <Route path="/login" element={<Login />} />
+    <Route path="/citizen" element={<ProtectedRoute allowedRoles={["citizen"]}><CitizenDashboard /></ProtectedRoute>} />
+    <Route path="/citizen/training" element={<ProtectedRoute allowedRoles={["citizen"]}><CitizenTraining /></ProtectedRoute>} />
+    <Route path="/citizen/wallet" element={<ProtectedRoute allowedRoles={["citizen"]}><CitizenWallet /></ProtectedRoute>} />
+    <Route path="/citizen/report" element={<ProtectedRoute allowedRoles={["citizen"]}><CitizenReportWaste /></ProtectedRoute>} />
+    <Route path="/citizen/scrap" element={<ProtectedRoute allowedRoles={["citizen"]}><CitizenScrapSell /></ProtectedRoute>} />
+    <Route path="/citizen/donate" element={<ProtectedRoute allowedRoles={["citizen"]}><CitizenDonateHub /></ProtectedRoute>} />
+    <Route path="/citizen/events" element={<ProtectedRoute allowedRoles={["citizen"]}><CommunityEvents /></ProtectedRoute>} />
+    <Route path="/worker/*" element={<ProtectedRoute allowedRoles={["worker"]}><WorkerDashboard /></ProtectedRoute>} />
+    <Route path="/ngo/*" element={<ProtectedRoute allowedRoles={["ngo"]}><NgoDashboard /></ProtectedRoute>} />
+    <Route path="/scrap/*" element={<ProtectedRoute allowedRoles={["scrap_dealer"]}><ScrapDashboard /></ProtectedRoute>} />
+    <Route path="/admin/*" element={<ProtectedRoute allowedRoles={["admin"]}><AdminDashboard /></ProtectedRoute>} />
+    <Route path="*" element={<NotFound />} />
+  </Routes>
+);
+
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
       <Toaster />
       <Sonner />
       <BrowserRouter>
-        <Routes>
-          <Route path="/" element={<Home />} />
-          <Route path="/login" element={<Login />} />
-          <Route path="/citizen" element={<CitizenDashboard />} />
-          <Route path="/citizen/training" element={<CitizenTraining />} />
-          <Route path="/citizen/wallet" element={<CitizenWallet />} />
-          <Route path="/citizen/report" element={<CitizenReportWaste />} />
-          <Route path="/citizen/scrap" element={<CitizenScrapSell />} />
-          <Route path="/citizen/donate" element={<CitizenDonateHub />} />
-          <Route path="/citizen/events" element={<CommunityEvents />} />
-          <Route path="/worker/*" element={<WorkerDashboard />} />
-          <Route path="/ngo/*" element={<NgoDashboard />} />
-          <Route path="/scrap/*" element={<ScrapDashboard />} />
-          <Route path="/admin/*" element={<AdminDashboard />} />
-          <Route path="*" element={<NotFound />} />
-        </Routes>
+        <AuthProvider>
+          <AppRoutes />
+        </AuthProvider>
       </BrowserRouter>
     </TooltipProvider>
   </QueryClientProvider>
