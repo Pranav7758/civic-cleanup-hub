@@ -16,7 +16,7 @@ const iconMap: Record<string, React.ElementType> = {
 };
 
 const colorMap: Record<string, string> = {
-  Trash2: "text-eco-green", Leaf: "text-eco-emerald", Droplets: "text-eco-sky", AlertTriangle: "text-eco-rose", BookOpen: "text-eco-purple",
+  Trash2: "text-moss", Leaf: "text-eco-emerald", Droplets: "text-eco-sky", AlertTriangle: "text-burnt-sienna", BookOpen: "text-eco-purple",
 };
 
 const CitizenTraining = () => {
@@ -71,10 +71,10 @@ const CitizenTraining = () => {
     const Icon = iconMap[activeModule.icon] || BookOpen;
 
     return (
-      <div className="min-h-screen bg-background pb-6">
+      <div className="min-h-screen bg-rice-paper pb-6">
         <AppHeader title={activeModule.title} subtitle="Training Module" moduleColor="citizen" showBack onBack={() => setActiveModuleId(null)} icon={<GraduationCap className="h-6 w-6 text-white" />} />
         <main className="container mx-auto px-4 py-6 space-y-6">
-          <Card className="border-0 shadow-card overflow-hidden">
+          <Card className="border-timber/30 shadow-soft rounded-[1.5rem] overflow-hidden">
             <div className="bg-gradient-eco p-6">
               <div className="flex items-center gap-4">
                 <div className="p-4 bg-white/20 rounded-2xl"><Icon className="h-8 w-8 text-white" /></div>
@@ -94,11 +94,11 @@ const CitizenTraining = () => {
 
           <div className="space-y-3">
             {lessons.map((lesson, i) => (
-              <Card key={i} className={`border-0 shadow-card cursor-pointer transition-all hover:shadow-hover ${lesson.completed ? "opacity-75" : ""}`}
+              <Card key={i} className={`border-timber/30 shadow-soft rounded-[1.5rem] cursor-pointer transition-all hover:shadow-float ${lesson.completed ? "opacity-75" : ""}`}
                 onClick={() => !lesson.completed && handleAdvanceLesson(activeModule.id, currentProgress, lessonCount)}>
                 <CardContent className="p-4 flex items-center gap-4">
-                  <div className={`w-10 h-10 rounded-full flex items-center justify-center shrink-0 ${lesson.completed ? "bg-eco-green/10" : "bg-muted"}`}>
-                    {lesson.completed ? <CheckCircle className="h-5 w-5 text-eco-green" /> : <Play className="h-4 w-4 text-muted-foreground" />}
+                  <div className={`w-10 h-10 rounded-full flex items-center justify-center shrink-0 ${lesson.completed ? "bg-moss/10" : "bg-muted"}`}>
+                    {lesson.completed ? <CheckCircle className="h-5 w-5 text-moss" /> : <Play className="h-4 w-4 text-muted-foreground" />}
                   </div>
                   <div className="flex-1">
                     <p className="font-medium text-sm">{lesson.title}</p>
@@ -122,10 +122,10 @@ const CitizenTraining = () => {
   }
 
   return (
-    <div className="min-h-screen bg-background pb-6">
+    <div className="min-h-screen bg-rice-paper pb-6">
       <AppHeader title="Digital Training" subtitle="Complete all modules to unlock features" moduleColor="citizen" showBack onBack={() => navigate("/citizen")} icon={<GraduationCap className="h-6 w-6 text-white" />} />
       <main className="container mx-auto px-4 py-6 space-y-6">
-        <Card className="border-0 shadow-card overflow-hidden">
+        <Card className="border-timber/30 shadow-soft rounded-[1.5rem] overflow-hidden">
           <div className="bg-gradient-eco p-6">
             <div className="flex items-center justify-between mb-4">
               <div className="text-white">
@@ -140,8 +140,8 @@ const CitizenTraining = () => {
         </Card>
 
         {completedCount < totalModules && (
-          <div className="flex items-start gap-3 p-4 rounded-xl bg-eco-amber/10 border border-eco-amber/20">
-            <AlertTriangle className="h-5 w-5 text-eco-amber shrink-0 mt-0.5" />
+          <div className="flex items-start gap-3 p-4 rounded-xl bg-clay/10 border border-eco-amber/20">
+            <AlertTriangle className="h-5 w-5 text-clay shrink-0 mt-0.5" />
             <div><p className="font-medium text-sm">Training Required</p><p className="text-xs text-muted-foreground">Complete all modules to unlock reporting, wallet, and scrap features</p></div>
           </div>
         )}
@@ -157,17 +157,17 @@ const CitizenTraining = () => {
             const color = colorMap[mod.icon] || "text-primary";
 
             return (
-              <Card key={mod.id} className={`border-0 shadow-card cursor-pointer transition-all hover:shadow-hover ${locked ? "opacity-60" : ""}`}
+              <Card key={mod.id} className={`border-timber/30 shadow-soft rounded-[1.5rem] cursor-pointer transition-all hover:shadow-float ${locked ? "opacity-60" : ""}`}
                 onClick={() => !locked && setActiveModuleId(mod.id)}>
                 <CardContent className="p-4">
                   <div className="flex items-center gap-4">
-                    <div className={`p-3 rounded-xl ${pct === 100 ? "bg-eco-green/10" : "bg-muted"}`}>
-                      {locked ? <Lock className="h-6 w-6 text-muted-foreground" /> : pct === 100 ? <CheckCircle className="h-6 w-6 text-eco-green" /> : <Icon className={`h-6 w-6 ${color}`} />}
+                    <div className={`p-3 rounded-xl ${pct === 100 ? "bg-moss/10" : "bg-muted"}`}>
+                      {locked ? <Lock className="h-6 w-6 text-muted-foreground" /> : pct === 100 ? <CheckCircle className="h-6 w-6 text-moss" /> : <Icon className={`h-6 w-6 ${color}`} />}
                     </div>
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2 mb-1">
                         <h3 className="font-semibold text-sm">{mod.title}</h3>
-                        {pct === 100 && <Badge variant="outline" className="text-eco-green border-eco-green/30 bg-eco-green/10 text-[10px]">Done</Badge>}
+                        {pct === 100 && <Badge variant="outline" className="text-moss border-eco-green/30 bg-moss/10 text-[10px]">Done</Badge>}
                       </div>
                       <p className="text-xs text-muted-foreground line-clamp-1">{mod.description}</p>
                       <div className="flex items-center gap-3 mt-2">

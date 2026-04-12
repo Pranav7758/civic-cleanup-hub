@@ -78,7 +78,7 @@ const CommunityEvents = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background pb-6">
+    <div className="min-h-screen bg-rice-paper pb-6">
       <AppHeader
         title="Community Events"
         subtitle="Join drives & earn extra points"
@@ -90,7 +90,7 @@ const CommunityEvents = () => {
 
       <main className="container mx-auto px-4 py-6 space-y-6">
         {/* Your Impact */}
-        <Card className="border-0 shadow-card overflow-hidden">
+        <Card className="border-timber/30 shadow-soft rounded-[1.5rem] overflow-hidden">
           <div className="bg-gradient-eco p-5">
             <div className="flex items-center justify-between text-white">
               <div>
@@ -112,7 +112,7 @@ const CommunityEvents = () => {
             {upcomingEvents.map((event) => {
               const TypeIcon = getTypeIcon(event.type);
               return (
-                <Card key={event.id} className="border-0 shadow-card hover:shadow-hover transition-all">
+                <Card key={event.id} className="border-timber/30 shadow-soft rounded-[1.5rem] hover:shadow-float transition-all">
                   <CardContent className="p-4">
                     <div className="flex items-start gap-3 mb-3">
                       <div className="p-2.5 rounded-xl bg-primary/10 shrink-0">
@@ -122,7 +122,7 @@ const CommunityEvents = () => {
                         <h3 className="font-display font-semibold text-sm">{event.title}</h3>
                         <p className="text-xs text-muted-foreground">{event.organizer}</p>
                       </div>
-                      <Badge variant="outline" className="text-eco-green border-eco-green/30 bg-eco-green/10 text-[10px] shrink-0">
+                      <Badge variant="outline" className="text-moss border-eco-green/30 bg-moss/10 text-[10px] shrink-0">
                         <Trophy className="h-2.5 w-2.5 mr-0.5" /> +{event.reward} pts
                       </Badge>
                     </div>
@@ -143,7 +143,7 @@ const CommunityEvents = () => {
 
                     {event.joined ? (
                       <Button variant="outline" className="w-full" disabled>
-                        <CheckCircle className="h-4 w-4 mr-2 text-eco-green" />
+                        <CheckCircle className="h-4 w-4 mr-2 text-moss" />
                         Registered
                       </Button>
                     ) : (
@@ -164,13 +164,13 @@ const CommunityEvents = () => {
           <h2 className="font-display font-bold text-lg mb-4">Past Events</h2>
           <div className="space-y-3">
             {pastEvents.map((event, i) => (
-              <Card key={i} className="border-0 shadow-card">
+              <Card key={i} className="border-timber/30 shadow-soft rounded-[1.5rem]">
                 <CardContent className="p-4 flex items-center justify-between">
                   <div>
                     <p className="font-medium text-sm">{event.title}</p>
                     <p className="text-xs text-muted-foreground">{event.date} • {event.participants} participants</p>
                   </div>
-                  <Badge className="bg-eco-green/10 text-eco-green border-0">+{event.pointsEarned} pts</Badge>
+                  <Badge className="bg-moss/10 text-moss border-0">+{event.pointsEarned} pts</Badge>
                 </CardContent>
               </Card>
             ))}

@@ -4,156 +4,89 @@
 
 @layer base {
   :root {
-    --background: 210 17% 98%;
-    --foreground: 215 25% 15%;
+    --background: 43 33% 98%;
+    --foreground: 50 8% 16%;
 
-    --card: 0 0% 100%;
-    --card-foreground: 215 25% 15%;
+    --card: 50 50% 99%;
+    --card-foreground: 50 8% 16%;
 
-    --popover: 0 0% 100%;
-    --popover-foreground: 215 25% 15%;
+    --popover: 50 50% 99%;
+    --popover-foreground: 50 8% 16%;
 
-    --primary: 142 76% 36%;
-    --primary-foreground: 0 0% 100%;
+    --primary: 108 17% 38%;
+    --primary-foreground: 100 14% 95%;
 
-    --secondary: 199 89% 48%;
+    --secondary: 27 42% 56%;
     --secondary-foreground: 0 0% 100%;
 
-    --muted: 210 20% 96%;
-    --muted-foreground: 215 15% 55%;
+    --muted: 33 18% 92%;
+    --muted-foreground: 50 5% 45%;
 
-    --accent: 142 40% 90%;
-    --accent-foreground: 142 76% 25%;
+    --accent: 30 28% 86%;
+    --accent-foreground: 50 5% 28%;
 
-    --destructive: 0 84% 60%;
+    --destructive: 8 47% 47%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 210 20% 90%;
-    --input: 210 20% 95%;
-    --ring: 142 76% 40%;
+    --border: 33 16% 84%;
+    --input: 33 16% 88%;
+    --ring: 108 17% 38%;
 
-    /* Custom design tokens - Nature/Eco theme */
-    --eco-green: 142 76% 36%;
-    --eco-emerald: 160 84% 39%;
-    --eco-teal: 173 80% 40%;
-    --eco-sky: 199 89% 48%;
-    --eco-amber: 38 92% 50%;
-    --eco-orange: 25 95% 53%;
-    --eco-rose: 350 89% 60%;
-    --eco-purple: 271 81% 56%;
-    --eco-indigo: 239 84% 67%;
+    /* Eco theme — organic earth tones */
+    --eco-green: 108 17% 38%;
+    --eco-emerald: 140 30% 42%;
+    --eco-teal: 160 25% 42%;
+    --eco-sky: 200 30% 50%;
+    --eco-amber: 30 50% 50%;
+    --eco-orange: 20 55% 50%;
+    --eco-rose: 5 40% 50%;
+    --eco-purple: 270 25% 48%;
+    --eco-indigo: 235 30% 52%;
     
     /* Module-specific colors */
-    --citizen-primary: 142 76% 36%;
-    --worker-primary: 199 89% 48%;
-    --ngo-primary: 350 89% 60%;
-    --scrap-primary: 38 92% 50%;
-    --admin-primary: 271 81% 56%;
+    --citizen-primary: 108 17% 38%;
+    --worker-primary: 200 30% 50%;
+    --ngo-primary: 5 40% 50%;
+    --scrap-primary: 30 50% 50%;
+    --admin-primary: 270 25% 48%;
     
     /* Status colors */
-    --status-success: 142 76% 36%;
-    --status-warning: 38 92% 50%;
-    --status-error: 0 84% 60%;
-    --status-info: 199 89% 48%;
-    --status-pending: 25 95% 53%;
+    --status-success: 108 17% 38%;
+    --status-warning: 30 50% 50%;
+    --status-error: 8 47% 47%;
+    --status-info: 200 30% 50%;
+    --status-pending: 20 55% 50%;
     
     /* Score colors */
-    --score-gold: 45 93% 47%;
-    --score-silver: 220 14% 60%;
-    --score-bronze: 30 59% 53%;
-    --score-platinum: 265 89% 78%;
+    --score-gold: 42 60% 50%;
+    --score-silver: 220 8% 58%;
+    --score-bronze: 27 42% 50%;
+    --score-platinum: 260 30% 68%;
     
-    /* Gradients */
-    --gradient-eco: linear-gradient(135deg, hsl(142 76% 36%), hsl(160 84% 39%));
-    --gradient-ocean: linear-gradient(135deg, hsl(199 89% 48%), hsl(173 80% 40%));
-    --gradient-sunset: linear-gradient(135deg, hsl(25 95% 53%), hsl(350 89% 60%));
-    --gradient-royal: linear-gradient(135deg, hsl(271 81% 56%), hsl(239 84% 67%));
-    --gradient-golden: linear-gradient(135deg, hsl(38 92% 50%), hsl(45 93% 47%));
-    --gradient-nature: linear-gradient(180deg, hsl(142 76% 36% / 0.1), hsl(0 0% 100%));
+    /* Gradients — warm earth tones */
+    --gradient-eco: linear-gradient(135deg, #5D7052, #7A9168);
+    --gradient-ocean: linear-gradient(135deg, #5A8A9E, #6E9B88);
+    --gradient-sunset: linear-gradient(135deg, #C18C5D, #A85448);
+    --gradient-royal: linear-gradient(135deg, #7A6890, #5A6888);
+    --gradient-golden: linear-gradient(135deg, #C18C5D, #D4A36A);
+    --gradient-nature: linear-gradient(180deg, rgba(93,112,82,0.08), #FDFCF8);
     
-    /* Shadows */
-    --shadow-sm: 0 1px 2px hsl(0 0% 0% / 0.05);
-    --shadow-card: 0 4px 12px hsl(142 76% 36% / 0.08);
-    --shadow-hover: 0 8px 25px hsl(142 76% 36% / 0.15);
-    --shadow-glow: 0 0 20px hsl(142 76% 36% / 0.3);
+    /* Shadows — colored, never pure black */
+    --shadow-sm: 0 1px 3px rgba(93, 112, 82, 0.06);
+    --shadow-card: 0 4px 20px -2px rgba(93, 112, 82, 0.1);
+    --shadow-hover: 0 10px 40px -10px rgba(193, 140, 93, 0.2);
+    --shadow-glow: 0 0 30px rgba(93, 112, 82, 0.15);
 
-    --radius: 0.75rem;
+    --radius: 1rem;
 
-    --sidebar-background: 0 0% 100%;
-    --sidebar-foreground: 215 25% 15%;
-    --sidebar-primary: 142 76% 36%;
-    --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 142 40% 95%;
-    --sidebar-accent-foreground: 142 76% 25%;
-    --sidebar-border: 210 20% 92%;
-    --sidebar-ring: 142 76% 40%;
-  }
-
-  .dark {
-    --background: 215 25% 10%;
-    --foreground: 210 17% 95%;
-
-    --card: 215 20% 13%;
-    --card-foreground: 210 17% 95%;
-
-    --popover: 215 20% 13%;
-    --popover-foreground: 210 17% 95%;
-
-    --primary: 142 70% 45%;
-    --primary-foreground: 0 0% 100%;
-
-    --secondary: 199 89% 55%;
-    --secondary-foreground: 0 0% 100%;
-
-    --muted: 215 20% 16%;
-    --muted-foreground: 215 15% 60%;
-
-    --accent: 142 40% 18%;
-    --accent-foreground: 142 70% 70%;
-
-    --destructive: 0 84% 55%;
-    --destructive-foreground: 0 0% 100%;
-
-    --border: 215 20% 18%;
-    --input: 215 20% 16%;
-    --ring: 142 70% 50%;
-
-    /* Dark theme module colors */
-    --eco-green: 142 70% 45%;
-    --eco-emerald: 160 80% 45%;
-    --eco-teal: 173 75% 45%;
-    --eco-sky: 199 85% 55%;
-    --eco-amber: 38 90% 55%;
-    --eco-orange: 25 90% 58%;
-    --eco-rose: 350 85% 65%;
-    --eco-purple: 271 75% 62%;
-    --eco-indigo: 239 80% 70%;
-    
-    --citizen-primary: 142 70% 45%;
-    --worker-primary: 199 85% 55%;
-    --ngo-primary: 350 85% 65%;
-    --scrap-primary: 38 90% 55%;
-    --admin-primary: 271 75% 62%;
-    
-    --gradient-eco: linear-gradient(135deg, hsl(142 70% 45%), hsl(160 80% 45%));
-    --gradient-ocean: linear-gradient(135deg, hsl(199 85% 55%), hsl(173 75% 45%));
-    --gradient-sunset: linear-gradient(135deg, hsl(25 90% 58%), hsl(350 85% 65%));
-    --gradient-royal: linear-gradient(135deg, hsl(271 75% 62%), hsl(239 80% 70%));
-    --gradient-golden: linear-gradient(135deg, hsl(38 90% 55%), hsl(45 90% 52%));
-    --gradient-nature: linear-gradient(180deg, hsl(142 70% 45% / 0.15), hsl(215 25% 10%));
-    
-    --shadow-card: 0 4px 12px hsl(0 0% 0% / 0.3);
-    --shadow-hover: 0 8px 25px hsl(0 0% 0% / 0.4);
-    --shadow-glow: 0 0 20px hsl(142 70% 45% / 0.25);
-
-    --sidebar-background: 215 20% 11%;
-    --sidebar-foreground: 210 17% 95%;
-    --sidebar-primary: 142 70% 45%;
-    --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 215 20% 15%;
-    --sidebar-accent-foreground: 142 70% 70%;
-    --sidebar-border: 215 20% 16%;
-    --sidebar-ring: 142 70% 50%;
+    --sidebar-background: 50 50% 99%;
+    --sidebar-foreground: 50 8% 16%;
+    --sidebar-primary: 108 17% 38%;
+    --sidebar-primary-foreground: 100 14% 95%;
+    --sidebar-accent: 33 18% 94%;
+    --sidebar-accent-foreground: 108 17% 30%;
+    --sidebar-border: 33 16% 88%;
+    --sidebar-ring: 108 17% 38%;
   }
 }
 
@@ -164,7 +97,27 @@
 
   body {
     @apply bg-background text-foreground antialiased;
+    font-family: 'Nunito', system-ui, sans-serif;
     font-feature-settings: "rlig" 1, "calt" 1;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    font-family: 'Fraunces', Georgia, serif;
+  }
+
+  /* Global grain texture overlay */
+  body::after {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 9999;
+    opacity: 0.03;
+    mix-blend-mode: multiply;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
   }
 }
 
@@ -197,43 +150,62 @@
   }
   
   .animate-float {
-    animation: float 3s ease-in-out infinite;
+    animation: float 4s ease-in-out infinite;
   }
   
   .animate-pulse-slow {
     animation: pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite;
   }
   
+  /* Organic glass — warm, grain-revealing */
   .glass {
-    @apply bg-white/80 backdrop-blur-lg border border-white/20;
+    @apply bg-white/70 backdrop-blur-md border border-[#DED8CF]/50;
   }
   
   .glass-dark {
-    @apply bg-black/40 backdrop-blur-lg border border-white/10;
+    @apply bg-[#2C2C24]/60 backdrop-blur-md border border-white/10;
+  }
+
+  /* Blob shapes */
+  .blob-1 { border-radius: 60% 40% 30% 70% / 60% 30% 70% 40%; }
+  .blob-2 { border-radius: 30% 70% 70% 30% / 30% 30% 70% 70%; }
+  .blob-3 { border-radius: 70% 30% 50% 50% / 30% 60% 40% 70%; }
+
+  /* Organic card shapes */
+  .organic-card { border-radius: 2rem; }
+  .organic-card-alt { border-radius: 1.5rem 3rem 1.5rem 3rem; }
+  .organic-card-asym { border-radius: 3rem 1.5rem 2.5rem 1.5rem; }
+
+  /* Font helpers */
+  .font-heading {
+    font-family: 'Fraunces', Georgia, serif;
+  }
+  .font-body {
+    font-family: 'Nunito', system-ui, sans-serif;
   }
 }
 
 @keyframes float {
   0%, 100% { transform: translateY(0px); }
-  50% { transform: translateY(-10px); }
+  50% { transform: translateY(-8px); }
 }
 
-/* Custom scrollbar */
+/* Custom scrollbar — earthy tone */
 ::-webkit-scrollbar {
   width: 8px;
   height: 8px;
 }
 
 ::-webkit-scrollbar-track {
-  background: hsl(var(--muted));
+  background: #F0EBE5;
   border-radius: 4px;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: hsl(var(--muted-foreground) / 0.3);
+  background: #C18C5D40;
   border-radius: 4px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: hsl(var(--muted-foreground) / 0.5);
+  background: #C18C5D70;
 }

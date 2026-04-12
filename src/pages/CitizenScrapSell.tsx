@@ -87,7 +87,7 @@ const CitizenScrapSell = () => {
 
   if (step === "review") {
     return (
-      <div className="min-h-screen bg-background pb-6">
+      <div className="min-h-screen bg-rice-paper pb-6">
         <AppHeader title="Review Listing" subtitle="Confirm your scrap details" moduleColor="citizen" showBack onBack={() => setStep("select")} icon={<Recycle className="h-6 w-6 text-white" />} />
         <main className="container mx-auto px-4 py-8 md:py-12 max-w-4xl space-y-6">
           <Card className="border-0 shadow-xl overflow-hidden rounded-3xl">
@@ -103,12 +103,12 @@ const CitizenScrapSell = () => {
                     <p className="font-semibold text-base">{item.name}</p>
                     <p className="text-sm text-muted-foreground">{item.weight} kg × ₹{item.pricePerKg}/kg</p>
                   </div>
-                  <p className="font-bold text-lg text-eco-amber">₹{item.weight * item.pricePerKg}</p>
+                  <p className="font-bold text-lg text-clay">₹{item.weight * item.pricePerKg}</p>
                 </div>
               ))}
               <div className="flex items-center justify-between pt-6 border-t mt-4">
                 <span className="font-bold text-xl">Total Estimate</span>
-                <span className="text-4xl font-display font-bold text-eco-amber">₹{totalEstimate}</span>
+                <span className="text-4xl font-display font-bold text-clay">₹{totalEstimate}</span>
               </div>
             </CardContent>
           </Card>
@@ -122,7 +122,7 @@ const CitizenScrapSell = () => {
   }
 
   return (
-    <div className="min-h-screen bg-background pb-6">
+    <div className="min-h-screen bg-rice-paper pb-6">
       <AppHeader title="Sell Scrap" subtitle="Select items and get best prices" moduleColor="citizen" showBack onBack={() => navigate("/citizen")} icon={<Recycle className="h-6 w-6 text-white" />} />
       
       <main className="container mx-auto px-4 py-8 md:py-10 max-w-7xl">
@@ -147,7 +147,7 @@ const CitizenScrapSell = () => {
                 <Card key={category} className="border-0 shadow-sm transition-shadow hover:shadow-md">
                   <CardHeader className="pb-3 border-b bg-muted/20">
                     <CardTitle className="text-lg font-display flex items-center gap-2 capitalize">
-                      <Icon className="h-5 w-5 text-eco-amber" />{category === "ewaste" ? "E-Waste" : category}
+                      <Icon className="h-5 w-5 text-clay" />{category === "ewaste" ? "E-Waste" : category}
                     </CardTitle>
                   </CardHeader>
                   <CardContent className="p-4 space-y-3">
@@ -157,10 +157,10 @@ const CitizenScrapSell = () => {
                         <div key={j} className="flex flex-col sm:flex-row sm:items-center justify-between p-3 rounded-xl bg-muted/30 border border-transparent hover:border-border transition-colors gap-3">
                           <div>
                             <p className="text-base font-medium">{item.item_name}</p>
-                            <p className="text-sm text-eco-amber font-mono font-semibold">₹{item.price_per_kg}/kg</p>
+                            <p className="text-sm text-clay font-mono font-semibold">₹{item.price_per_kg}/kg</p>
                           </div>
                           {existing ? (
-                            <div className="flex items-center gap-2 bg-background p-1.5 rounded-lg border shadow-sm self-start sm:self-auto">
+                            <div className="flex items-center gap-2 bg-rice-paper p-1.5 rounded-lg border shadow-sm self-start sm:self-auto">
                               <Button size="icon" variant="outline" className="h-8 w-8 hover:bg-destructive hover:text-white transition-colors" onClick={() => updateWeight(item.item_name, -1)}>
                                 <Minus className="h-4 w-4" />
                               </Button>
@@ -190,9 +190,9 @@ const CitizenScrapSell = () => {
               
               {/* Conditional Active Basket (E-commerce Style checkout cart) */}
               {items.length > 0 && (
-                <Card className="border-2 border-eco-green/40 shadow-lg bg-eco-green/5 ring-1 ring-eco-green/10 animate-in zoom-in-95 duration-300">
+                <Card className="border-2 border-eco-green/40 shadow-lg bg-moss/5 ring-1 ring-eco-green/10 animate-in zoom-in-95 duration-300">
                   <CardHeader className="pb-2">
-                    <CardTitle className="text-xl font-display text-eco-green flex items-center gap-2">
+                    <CardTitle className="text-xl font-display text-moss flex items-center gap-2">
                       <Truck className="h-5 w-5" /> Current Basket
                     </CardTitle>
                   </CardHeader>
@@ -204,7 +204,7 @@ const CitizenScrapSell = () => {
                       </div>
                       <div className="text-right">
                          <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-1">Total Estate</p>
-                         <p className="text-4xl font-display font-bold text-eco-amber drop-shadow-sm">₹{totalEstimate}</p>
+                         <p className="text-4xl font-display font-bold text-clay drop-shadow-sm">₹{totalEstimate}</p>
                       </div>
                     </div>
                     <Button className="w-full bg-gradient-eco text-lg h-12 shadow-md hover:shadow-xl transition-all" onClick={() => setStep("review")}>
@@ -216,11 +216,11 @@ const CitizenScrapSell = () => {
 
               {/* History / Existing listings */}
               {(myListings || []).length > 0 && (
-                <Card className="border-0 shadow-card bg-muted/10">
+                <Card className="border-timber/30 shadow-soft rounded-[1.5rem] bg-muted/10">
                   <CardHeader className="pb-3 border-b"><CardTitle className="text-lg font-display">Your Listings</CardTitle></CardHeader>
                   <CardContent className="p-4 space-y-3">
                     {(myListings || []).map((listing: any) => (
-                      <div key={listing.id} className="flex items-center justify-between p-3 rounded-xl bg-background border shadow-sm hover:shadow-md transition-shadow">
+                      <div key={listing.id} className="flex items-center justify-between p-3 rounded-xl bg-rice-paper border shadow-sm hover:shadow-md transition-shadow">
                         <div>
                           <p className="text-base font-semibold text-primary">₹{listing.total_estimate}</p>
                           <p className="text-xs text-muted-foreground mt-0.5">{listing.total_weight}kg • {new Date(listing.created_at).toLocaleDateString()}</p>

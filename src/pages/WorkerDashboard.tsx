@@ -146,14 +146,14 @@ const WorkerDashboard = () => {
     };
 
     return (
-      <div className="min-h-screen bg-background pb-20 md:pb-0 md:pl-64">
+      <div className="min-h-screen bg-rice-paper pb-20 md:pb-0 md:pl-64">
         <AppHeader title="Task Details" subtitle={`Task #${selectedTask.id.substring(0,8)}`} moduleColor="worker" showBack onBack={() => {setSelectedTaskId(null); setQrScanned(false);}} icon={<Briefcase className="h-6 w-6 text-white" />} />
         <main className="container mx-auto max-w-6xl px-4 py-6 md:py-8 space-y-6 md:space-y-8">
           <div className="flex items-center gap-3">
             <StatusBadge status={selectedTask.status} size="lg" />
             <Badge variant="outline" className={getPriorityColor(selectedTask.priority)}>{selectedTask.priority} priority</Badge>
           </div>
-          <Card className="border-0 shadow-card">
+          <Card className="border-timber/30 shadow-soft rounded-[1.5rem]">
             <CardContent className="p-5">
               <div className="flex items-start gap-4">
                 <div className="p-3 rounded-xl bg-secondary/10"><MapPin className="h-6 w-6 text-secondary" /></div>
@@ -171,12 +171,12 @@ const WorkerDashboard = () => {
           </Card>
           
           {selectedTask.image_url && (
-            <Card className="border-0 shadow-card overflow-hidden">
+            <Card className="border-timber/30 shadow-soft rounded-[1.5rem] overflow-hidden">
                <img src={selectedTask.image_url} alt="Waste Location" className="w-full h-48 object-cover" />
             </Card>
           )}
 
-          <Card className="border-0 shadow-card">
+          <Card className="border-timber/30 shadow-soft rounded-[1.5rem]">
             <CardHeader className="pb-3"><CardTitle className="text-lg font-display">Task Information</CardTitle></CardHeader>
             <CardContent className="space-y-4">
               <div className="grid grid-cols-2 gap-4">
@@ -218,8 +218,8 @@ const WorkerDashboard = () => {
           )}
 
           {selectedTask.status === "on_the_way" && isAssignedToMe && !qrScanned && (
-            <Card className="border-0 shadow-card bg-eco-amber/5 border border-eco-amber/20">
-              <CardHeader className="pb-3"><CardTitle className="text-lg font-display text-eco-amber flex items-center"><QrCode className="h-5 w-5 mr-2" />Location Verification</CardTitle></CardHeader>
+            <Card className="border-timber/30 shadow-soft rounded-[1.5rem] bg-clay/5 border border-eco-amber/20">
+              <CardHeader className="pb-3"><CardTitle className="text-lg font-display text-clay flex items-center"><QrCode className="h-5 w-5 mr-2" />Location Verification</CardTitle></CardHeader>
               <CardContent className="space-y-4">
                 <p className="text-sm text-muted-foreground">Scan the QR code printed on the nearby community bin or post to verify collection arrival.</p>
                 <Button className="w-full" size="lg" variant="outline" onClick={handleMockQrScan} disabled={isScanning}>
@@ -231,7 +231,7 @@ const WorkerDashboard = () => {
           )}
 
           {selectedTask.status === "on_the_way" && isAssignedToMe && qrScanned && (
-            <Card className="border-0 shadow-card bg-primary/5 border border-primary/20">
+            <Card className="border-timber/30 shadow-soft rounded-[1.5rem] bg-primary/5 border border-primary/20">
               <CardHeader className="pb-3"><CardTitle className="text-lg font-display">Complete Task</CardTitle><CardDescription>Upload photo of the cleaned area</CardDescription></CardHeader>
               <CardContent className="space-y-4">
                  <input 
@@ -274,29 +274,29 @@ const WorkerDashboard = () => {
   // History Tab
   if (activeTab === "history") {
     return (
-      <div className="min-h-screen bg-background pb-20 md:pb-0 md:pl-64">
+      <div className="min-h-screen bg-rice-paper pb-20 md:pb-0 md:pl-64">
         <AppHeader title="Task History" subtitle="Your completed pickups" userName={name} moduleColor="worker" icon={<Briefcase className="h-6 w-6 text-white" />} />
         <main className="container mx-auto max-w-6xl px-4 py-6 md:py-8 space-y-6 md:space-y-8">
           <div className="grid grid-cols-2 gap-4">
-            <Card className="border-0 shadow-card"><CardContent className="p-4 text-center"><p className="text-2xl font-display font-bold text-primary">{completedTasks.length}</p><p className="text-xs text-muted-foreground">Tasks Done</p></CardContent></Card>
-            <Card className="border-0 shadow-card"><CardContent className="p-4 text-center"><p className="text-2xl font-display font-bold text-eco-amber">₹{completedTasks.length * 150}</p><p className="text-xs text-muted-foreground">Est Earnings</p></CardContent></Card>
+            <Card className="border-timber/30 shadow-soft rounded-[1.5rem]"><CardContent className="p-4 text-center"><p className="text-2xl font-display font-bold text-primary">{completedTasks.length}</p><p className="text-xs text-muted-foreground">Tasks Done</p></CardContent></Card>
+            <Card className="border-timber/30 shadow-soft rounded-[1.5rem]"><CardContent className="p-4 text-center"><p className="text-2xl font-display font-bold text-clay">₹{completedTasks.length * 150}</p><p className="text-xs text-muted-foreground">Est Earnings</p></CardContent></Card>
           </div>
 
-          <Card className="border-0 shadow-card">
+          <Card className="border-timber/30 shadow-soft rounded-[1.5rem]">
             <CardHeader className="pb-3"><CardTitle className="text-lg font-display">Completed Tasks</CardTitle></CardHeader>
             <CardContent className="space-y-3">
               {completedTasks.length === 0 && <p className="text-sm text-center text-muted-foreground py-4">No completed tasks yet.</p>}
               {completedTasks.map((task) => (
                 <div key={task.id} className="flex items-center justify-between p-3 rounded-xl bg-muted/50 hover:bg-muted transition-colors cursor-pointer" onClick={() => setSelectedTaskId(task.id)}>
                   <div className="flex items-center gap-3">
-                    <div className="p-2 rounded-lg bg-eco-green/10"><CheckCircle className="h-4 w-4 text-eco-green" /></div>
+                    <div className="p-2 rounded-lg bg-moss/10"><CheckCircle className="h-4 w-4 text-moss" /></div>
                     <div>
                       <p className="font-medium text-sm w-40 truncate">{task.address || `Lat: ${task.latitude?.toFixed(4)}`}</p>
                       <p className="text-xs text-muted-foreground capitalize">{task.waste_type} • {new Date(task.completed_at || task.created_at).toLocaleDateString()}</p>
                     </div>
                   </div>
                   <div className="text-right">
-                    <span className="text-sm font-mono font-medium text-eco-green">+₹150</span>
+                    <span className="text-sm font-mono font-medium text-moss">+₹150</span>
                   </div>
                 </div>
               ))}
@@ -311,10 +311,10 @@ const WorkerDashboard = () => {
   // Profile Tab
   if (activeTab === "profile") {
     return (
-      <div className="min-h-screen bg-background pb-20 md:pb-0 md:pl-64">
+      <div className="min-h-screen bg-rice-paper pb-20 md:pb-0 md:pl-64">
         <AppHeader title="My Profile" subtitle="Worker Performance" userName={name} moduleColor="worker" icon={<Briefcase className="h-6 w-6 text-white" />} />
         <main className="container mx-auto max-w-6xl px-4 py-6 md:py-8 space-y-6 md:space-y-8">
-          <Card className="border-0 shadow-card overflow-hidden">
+          <Card className="border-timber/30 shadow-soft rounded-[1.5rem] overflow-hidden">
             <div className="bg-gradient-ocean p-6 text-center">
               <div className="h-20 w-20 rounded-full bg-white/20 flex items-center justify-center mx-auto mb-3">
                 <User className="h-10 w-10 text-white" />
@@ -338,7 +338,7 @@ const WorkerDashboard = () => {
   // Map Tab
   if (activeTab === "map") {
     return (
-      <div className="min-h-screen bg-background pb-20 md:pb-0 md:pl-64">
+      <div className="min-h-screen bg-rice-paper pb-20 md:pb-0 md:pl-64">
         <AppHeader title="Task Map" subtitle="View all tasks on map" userName={name} moduleColor="worker" icon={<MapPin className="h-6 w-6 text-white" />} />
         <main className="container mx-auto max-w-6xl px-4 py-6 md:py-8 space-y-6 md:space-y-8">
           <div className="h-64 bg-muted rounded-xl flex items-center justify-center border-2 border-dashed border-border p-4 text-center">
@@ -354,7 +354,7 @@ const WorkerDashboard = () => {
             {activeTasks.map((task) => (
               <div key={task.id} className="flex items-center justify-between p-3 rounded-xl bg-muted/50 cursor-pointer hover:bg-muted transition-colors" onClick={() => setSelectedTaskId(task.id)}>
                 <div className="flex items-center gap-3">
-                  <div className={`h-3 w-3 rounded-full ${task.priority === "high" ? "bg-destructive" : "bg-eco-amber"}`} />
+                  <div className={`h-3 w-3 rounded-full ${task.priority === "high" ? "bg-destructive" : "bg-clay"}`} />
                   <div>
                     <p className="text-sm font-medium w-48 truncate">{task.address}</p>
                     <p className="text-xs text-muted-foreground capitalize">{task.waste_type}</p>
@@ -372,7 +372,7 @@ const WorkerDashboard = () => {
 
   // Home / Tasks Tab
   return (
-    <div className="min-h-screen bg-background pb-20 md:pb-0 md:pl-64">
+    <div className="min-h-screen bg-rice-paper pb-20 md:pb-0 md:pl-64">
       <AppHeader title="Worker Dashboard" subtitle={`Hello, ${name}`} userName={name} moduleColor="worker" notifications={activeTasks.filter(t => t.status==='pending').length} />
       
       <main className="container mx-auto max-w-6xl px-4 py-6 md:py-8 space-y-6 md:space-y-8">
@@ -382,7 +382,7 @@ const WorkerDashboard = () => {
           <StatsCard title="Completed" value={completedTasks.length.toString()} icon={CheckCircle} color="green" />
         </div>
 
-        <Card className="border-0 shadow-card">
+        <Card className="border-timber/30 shadow-soft rounded-[1.5rem]">
           <CardHeader className="pb-3">
             <div className="flex items-center justify-between">
               <CardTitle className="text-lg font-display">Live Pickup Tasks</CardTitle>

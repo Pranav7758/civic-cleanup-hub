@@ -58,7 +58,7 @@ const CitizenDonateHub = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background pb-6">
+    <div className="min-h-screen bg-rice-paper pb-6">
       <AppHeader 
         title={step === "history" ? "My Donations" : "Donate Items"} 
         subtitle={step === "history" ? "Track where your items went" : "Help those in need"} 
@@ -101,9 +101,9 @@ const CitizenDonateHub = () => {
                 {categories.map((cat) => (
                   <button key={cat.value} onClick={() => setCategory(cat.value)}
                     className={`p-3 rounded-xl border-2 text-center transition-all ${
-                      category === cat.value ? "border-eco-rose bg-eco-rose/5 shadow-sm" : "border-border hover:border-eco-rose/30"
+                      category === cat.value ? "border-eco-rose bg-burnt-sienna/5 shadow-sm" : "border-border hover:border-eco-rose/30"
                     }`}>
-                    <cat.icon className={`h-6 w-6 mx-auto mb-2 ${category === cat.value ? "text-eco-rose" : "text-muted-foreground"}`} />
+                    <cat.icon className={`h-6 w-6 mx-auto mb-2 ${category === cat.value ? "text-burnt-sienna" : "text-muted-foreground"}`} />
                     <p className="text-[11px] font-medium leading-tight">{cat.label}</p>
                   </button>
                 ))}
@@ -115,7 +115,7 @@ const CitizenDonateHub = () => {
               <Textarea placeholder="Describe the items, condition, quantity..." value={description} onChange={(e) => setDescription(e.target.value)} className="resize-none h-24" />
             </div>
 
-            <div className="p-4 rounded-xl bg-eco-green/10 border border-eco-green/20">
+            <div className="p-4 rounded-xl bg-moss/10 border border-eco-green/20">
               <p className="text-sm font-medium flex items-center gap-2 text-primary"><CheckCircle className="h-5 w-5" />You'll earn 100 points for each donation</p>
             </div>
 

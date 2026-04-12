@@ -86,7 +86,7 @@ const NgoDashboard = () => {
     const CategoryIcon = getCategoryIcon(selectedRequest.category);
     
     return (
-      <div className="min-h-screen bg-background pb-20 md:pb-0 md:pl-64">
+      <div className="min-h-screen bg-rice-paper pb-20 md:pb-0 md:pl-64">
         <AppHeader 
           title="Donation Details" 
           subtitle={`Request #${selectedRequest.id}`}
@@ -107,7 +107,7 @@ const NgoDashboard = () => {
           </div>
 
           {/* Items Card */}
-          <Card className="border-0 shadow-card">
+          <Card className="border-timber/30 shadow-soft rounded-[1.5rem]">
             <CardHeader className="pb-3">
               <CardTitle className="text-lg">Donation Details</CardTitle>
             </CardHeader>
@@ -122,11 +122,11 @@ const NgoDashboard = () => {
           </Card>
 
           {/* Donor Info */}
-          <Card className="border-0 shadow-card">
+          <Card className="border-timber/30 shadow-soft rounded-[1.5rem]">
             <CardContent className="p-5">
               <div className="flex items-start gap-4">
-                <div className="p-3 rounded-xl bg-eco-rose/10">
-                  <MapPin className="h-6 w-6 text-eco-rose" />
+                <div className="p-3 rounded-xl bg-burnt-sienna/10">
+                  <MapPin className="h-6 w-6 text-burnt-sienna" />
                 </div>
                 <div className="flex-1">
                   <h3 className="font-semibold mb-1">{selectedRequest.citizen?.full_name || "Unknown Donor"}</h3>
@@ -162,7 +162,7 @@ const NgoDashboard = () => {
 
           {/* Proof of Distribution */}
           {selectedRequest.status === "completed" || selectedRequest.status === "on_the_way" ? (
-            <Card className="border-0 shadow-card">
+            <Card className="border-timber/30 shadow-soft rounded-[1.5rem]">
               <CardHeader className="pb-3">
                 <CardTitle className="text-lg">Proof of Distribution</CardTitle>
                 <CardDescription>Upload photos showing items given to beneficiaries</CardDescription>
@@ -212,7 +212,7 @@ const NgoDashboard = () => {
   }
 
   return (
-    <div className="min-h-screen bg-background pb-20 md:pb-0 md:pl-64">
+    <div className="min-h-screen bg-rice-paper pb-20 md:pb-0 md:pl-64">
       <AppHeader 
         title="NGO Dashboard" 
         subtitle="Hope Foundation"
@@ -224,7 +224,7 @@ const NgoDashboard = () => {
 
       <main className="container mx-auto px-4 py-6 space-y-6">
         {/* Impact Card */}
-        <Card className="border-0 shadow-card overflow-hidden">
+        <Card className="border-timber/30 shadow-soft rounded-[1.5rem] overflow-hidden">
           <div className="bg-gradient-sunset p-6">
             <div className="flex items-center justify-between">
               <div className="text-white">
@@ -272,7 +272,7 @@ const NgoDashboard = () => {
         </div>
 
         {/* Donation Requests */}
-        <Card className="border-0 shadow-card">
+        <Card className="border-timber/30 shadow-soft rounded-[1.5rem]">
           <CardHeader className="pb-3">
             <div className="flex items-center justify-between">
               <CardTitle className="text-lg">Donation Requests</CardTitle>
@@ -292,8 +292,8 @@ const NgoDashboard = () => {
                 >
                   <div className="flex items-start justify-between mb-3">
                     <div className="flex items-center gap-3">
-                      <div className="p-2 rounded-lg bg-eco-rose/10">
-                        <CategoryIcon className="h-5 w-5 text-eco-rose" />
+                      <div className="p-2 rounded-lg bg-burnt-sienna/10">
+                        <CategoryIcon className="h-5 w-5 text-burnt-sienna" />
                       </div>
                       <div>
                         <h4 className="font-medium">{request.citizen?.full_name || "Unknown Donor"}</h4>

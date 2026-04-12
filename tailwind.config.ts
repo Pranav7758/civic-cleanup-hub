@@ -51,7 +51,7 @@ export default {
           DEFAULT: "hsl(var(--card))",
           foreground: "hsl(var(--card-foreground))",
         },
-        // Eco theme colors
+        // Organic eco theme
         eco: {
           green: "hsl(var(--eco-green))",
           emerald: "hsl(var(--eco-emerald))",
@@ -94,6 +94,16 @@ export default {
           border: "hsl(var(--sidebar-border))",
           ring: "hsl(var(--sidebar-ring))",
         },
+        // Direct organic palette access
+        moss: "#5D7052",
+        clay: "#C18C5D",
+        sand: "#E6DCCD",
+        bark: "#4A4A40",
+        stone: "#F0EBE5",
+        loam: "#2C2C24",
+        timber: "#DED8CF",
+        "rice-paper": "#FDFCF8",
+        "burnt-sienna": "#A85448",
       },
       backgroundImage: {
         'gradient-eco': 'var(--gradient-eco)',
@@ -108,15 +118,20 @@ export default {
         'card': 'var(--shadow-card)',
         'hover': 'var(--shadow-hover)',
         'glow': 'var(--shadow-glow)',
+        'soft': '0 4px 20px -2px rgba(93, 112, 82, 0.15)',
+        'float': '0 10px 40px -10px rgba(193, 140, 93, 0.2)',
       },
       borderRadius: {
         lg: "var(--radius)",
         md: "calc(var(--radius) - 2px)",
         sm: "calc(var(--radius) - 4px)",
+        'organic': '2rem',
+        'organic-lg': '3rem',
+        'pill': '9999px',
       },
       fontFamily: {
-        sans: ['DM Sans', 'system-ui', '-apple-system', 'sans-serif'],
-        display: ['Outfit', 'DM Sans', 'system-ui', 'sans-serif'],
+        sans: ['Nunito', 'system-ui', '-apple-system', 'sans-serif'],
+        display: ['Fraunces', 'Georgia', 'serif'],
         mono: ['JetBrains Mono', 'monospace'],
       },
       keyframes: {
@@ -148,10 +163,10 @@ export default {
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
         "accordion-up": "accordion-up 0.2s ease-out",
-        "fade-in": "fade-in 0.3s ease-out",
+        "fade-in": "fade-in 0.4s ease-out",
         "slide-in-right": "slide-in-right 0.3s ease-out",
-        "scale-in": "scale-in 0.2s ease-out",
-        "bounce-gentle": "bounce-gentle 2s ease-in-out infinite",
+        "scale-in": "scale-in 0.3s ease-out",
+        "bounce-gentle": "bounce-gentle 3s ease-in-out infinite",
       },
     },
   },

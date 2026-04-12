@@ -66,7 +66,7 @@ const ScrapDashboard = () => {
     const CategoryIcon = getCategoryIcon(selectedListing.items?.[0]?.category || 'other');
     
     return (
-      <div className="min-h-screen bg-background pb-20 md:pb-0 md:pl-64">
+      <div className="min-h-screen bg-rice-paper pb-20 md:pb-0 md:pl-64">
         <AppHeader 
           title="Scrap Details" 
           subtitle={`Listing #${selectedListing.id.slice(0, 8)}`}
@@ -89,7 +89,7 @@ const ScrapDashboard = () => {
           </div>
 
           {/* Items & Pricing */}
-          <Card className="border-0 shadow-card">
+          <Card className="border-timber/30 shadow-soft rounded-[1.5rem]">
             <CardHeader className="pb-3">
               <CardTitle className="text-lg">Scrap Items</CardTitle>
             </CardHeader>
@@ -100,22 +100,22 @@ const ScrapDashboard = () => {
                     <p className="font-medium">{item.item_name}</p>
                     <p className="text-sm text-muted-foreground">{item.weight_kg} kg</p>
                   </div>
-                  <p className="font-semibold text-eco-amber">₹{item.total_price || (item.weight_kg * item.price_per_kg)}</p>
+                  <p className="font-semibold text-clay">₹{item.total_price || (item.weight_kg * item.price_per_kg)}</p>
                 </div>
               ))}
               <div className="flex items-center justify-between pt-3 border-t">
                 <span className="font-semibold">Total Estimate</span>
-                <span className="text-xl font-bold text-eco-amber">₹{selectedListing.total_estimate}</span>
+                <span className="text-xl font-bold text-clay">₹{selectedListing.total_estimate}</span>
               </div>
             </CardContent>
           </Card>
 
           {/* Seller Info */}
-          <Card className="border-0 shadow-card">
+          <Card className="border-timber/30 shadow-soft rounded-[1.5rem]">
             <CardContent className="p-5">
               <div className="flex items-start gap-4">
-                <div className="p-3 rounded-xl bg-eco-amber/10">
-                  <MapPin className="h-6 w-6 text-eco-amber" />
+                <div className="p-3 rounded-xl bg-clay/10">
+                  <MapPin className="h-6 w-6 text-clay" />
                 </div>
                 <div className="flex-1">
                   <h3 className="font-semibold mb-1">{selectedListing.citizen?.full_name || "Unknown Seller"}</h3>
@@ -187,7 +187,7 @@ const ScrapDashboard = () => {
   // Prices Tab
   if (activeTab === "prices") {
     return (
-      <div className="min-h-screen bg-background pb-20 md:pb-0 md:pl-64">
+      <div className="min-h-screen bg-rice-paper pb-20 md:pb-0 md:pl-64">
         <AppHeader 
           title="Price Management" 
           subtitle="Update your buying rates"
@@ -200,10 +200,10 @@ const ScrapDashboard = () => {
           {isLoadingPrices ? (
              <p className="text-center text-muted-foreground py-8">Loading prices...</p>
           ) : (groupedPrices as any[]).map((category, i) => (
-            <Card key={i} className="border-0 shadow-card">
+            <Card key={i} className="border-timber/30 shadow-soft rounded-[1.5rem]">
               <CardHeader className="pb-3">
                 <CardTitle className="text-lg flex items-center gap-2 capitalize">
-                  <category.icon className="h-5 w-5 text-eco-amber" />
+                  <category.icon className="h-5 w-5 text-clay" />
                   {category.category}
                 </CardTitle>
               </CardHeader>
@@ -237,7 +237,7 @@ const ScrapDashboard = () => {
   }
 
   return (
-    <div className="min-h-screen bg-background pb-20 md:pb-0 md:pl-64">
+    <div className="min-h-screen bg-rice-paper pb-20 md:pb-0 md:pl-64">
       <AppHeader 
         title="Scrap Dealer" 
         subtitle="Green Recyclers"
@@ -249,7 +249,7 @@ const ScrapDashboard = () => {
 
       <main className="container mx-auto px-4 py-6 space-y-6">
         {/* Earnings Card */}
-        <Card className="border-0 shadow-card overflow-hidden">
+        <Card className="border-timber/30 shadow-soft rounded-[1.5rem] overflow-hidden">
           <div className="bg-gradient-golden p-6">
             <div className="flex items-center justify-between">
               <div className="text-white">
@@ -300,7 +300,7 @@ const ScrapDashboard = () => {
         </div>
 
         {/* Scrap Listings */}
-        <Card className="border-0 shadow-card">
+        <Card className="border-timber/30 shadow-soft rounded-[1.5rem]">
           <CardHeader className="pb-3">
             <div className="flex items-center justify-between">
               <CardTitle className="text-lg">Available Scrap</CardTitle>
@@ -325,8 +325,8 @@ const ScrapDashboard = () => {
                 >
                   <div className="flex items-start justify-between mb-3">
                     <div className="flex items-center gap-3">
-                      <div className="p-2 rounded-lg bg-eco-amber/10">
-                        <CategoryIcon className="h-5 w-5 text-eco-amber" />
+                      <div className="p-2 rounded-lg bg-clay/10">
+                        <CategoryIcon className="h-5 w-5 text-clay" />
                       </div>
                       <div>
                         <h4 className="font-medium">{listing.citizen?.full_name || "Unknown"}</h4>
@@ -334,7 +334,7 @@ const ScrapDashboard = () => {
                       </div>
                     </div>
                     <div className="text-right">
-                      <p className="font-bold text-eco-amber">₹{listing.total_estimate}</p>
+                      <p className="font-bold text-clay">₹{listing.total_estimate}</p>
                       <ChevronRight className="h-5 w-5 text-muted-foreground ml-auto" />
                     </div>
                   </div>

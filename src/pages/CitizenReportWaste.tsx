@@ -82,12 +82,12 @@ const CitizenReportWaste = () => {
 
   if (submitted) {
     return (
-      <div className="min-h-screen bg-background pb-6">
+      <div className="min-h-screen bg-rice-paper pb-6">
         <AppHeader title="Report Submitted" moduleColor="citizen" showBack onBack={() => navigate("/citizen")} icon={<AlertTriangle className="h-6 w-6 text-white" />} />
         <main className="container mx-auto px-4 py-12 md:py-20 flex flex-col items-center justify-center min-h-[70vh]">
           <div className="text-center max-w-md w-full mx-auto space-y-6 bg-card p-8 rounded-3xl shadow-xl border border-border">
-            <div className="w-20 h-20 rounded-full bg-eco-green/10 flex items-center justify-center mx-auto">
-              <CheckCircle className="h-10 w-10 text-eco-green" />
+            <div className="w-20 h-20 rounded-full bg-moss/10 flex items-center justify-center mx-auto">
+              <CheckCircle className="h-10 w-10 text-moss" />
             </div>
             <h2 className="text-2xl font-display font-bold">Report Sent!</h2>
             <p className="text-muted-foreground">
@@ -101,7 +101,7 @@ const CitizenReportWaste = () => {
               </div>
               <div className="flex justify-between text-sm">
                 <span className="text-muted-foreground">Status</span>
-                <Badge variant="outline" className="text-eco-amber border-eco-amber/30">Pending</Badge>
+                <Badge variant="outline" className="text-clay border-eco-amber/30">Pending</Badge>
               </div>
             </div>
             <div className="flex gap-3">
@@ -117,7 +117,7 @@ const CitizenReportWaste = () => {
   }
 
   return (
-    <div className="min-h-screen bg-background pb-6">
+    <div className="min-h-screen bg-rice-paper pb-6">
       <AppHeader title="Report Waste" subtitle={`Step ${step} of 3`} moduleColor="citizen" showBack onBack={() => step > 1 ? setStep(step - 1) : navigate("/citizen")} icon={<AlertTriangle className="h-6 w-6 text-white" />} />
       <main className="container mx-auto px-4 py-8 md:py-12 max-w-6xl">
         {/* Mobile progress bar - hidden on desktop */}
@@ -152,7 +152,7 @@ const CitizenReportWaste = () => {
               <div><h2 className="text-xl font-display font-bold mb-1">Waste Details</h2><p className="text-sm text-muted-foreground">Select the type of waste and add notes</p></div>
               <div className="space-y-3 relative">
                 {isAnalyzing && (
-                   <div className="absolute inset-0 z-10 bg-background/80 backdrop-blur-sm rounded-xl flex flex-col items-center justify-center animate-in fade-in">
+                   <div className="absolute inset-0 z-10 bg-rice-paper/80 backdrop-blur-sm rounded-xl flex flex-col items-center justify-center animate-in fade-in">
                      <Loader2 className="h-8 w-8 text-primary animate-spin mb-2" />
                      <p className="font-medium text-sm">AI is analyzing image...</p>
                    </div>
@@ -187,7 +187,7 @@ const CitizenReportWaste = () => {
               
               <LocationPicker onLocationSelect={(loc) => setLocation(loc)} />
               
-              <Card className="border-0 shadow-sm bg-background">
+              <Card className="border-0 shadow-sm bg-rice-paper">
                 <CardHeader className="pb-2"><CardTitle className="text-base font-display">Report Summary</CardTitle></CardHeader>
                 <CardContent className="space-y-3">
                   {imagePreview && (
@@ -195,7 +195,7 @@ const CitizenReportWaste = () => {
                   )}
                   <div className="flex justify-between text-sm"><span className="text-muted-foreground">Waste Type</span><span className="font-medium capitalize">{wasteType || "Not selected"}</span></div>
                   {notes && <div className="flex justify-between text-sm"><span className="text-muted-foreground">Notes</span><span className="font-medium text-right max-w-[60%] truncate">{notes}</span></div>}
-                  <div className="flex justify-between text-sm"><span className="text-muted-foreground">Reward</span><Badge variant="outline" className="text-eco-green border-eco-green/30 bg-eco-green/10">+50 points</Badge></div>
+                  <div className="flex justify-between text-sm"><span className="text-muted-foreground">Reward</span><Badge variant="outline" className="text-moss border-eco-green/30 bg-moss/10">+50 points</Badge></div>
                 </CardContent>
               </Card>
               

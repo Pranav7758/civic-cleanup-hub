@@ -35,7 +35,7 @@ const CitizenWallet = () => {
   const benefitIcons: Record<string, React.ElementType> = { light_bill: Lightbulb, water_tax: Droplets, property_tax: Building };
   const benefitLabels: Record<string, string> = { light_bill: "Light Bill Discount", water_tax: "Water Tax Waiver", property_tax: "Property Tax Rebate" };
   const benefitProviders: Record<string, string> = { light_bill: "State Electricity Board", water_tax: "Municipal Corporation", property_tax: "Revenue Department" };
-  const benefitColors: Record<string, string> = { light_bill: "text-eco-amber", water_tax: "text-eco-sky", property_tax: "text-eco-purple" };
+  const benefitColors: Record<string, string> = { light_bill: "text-clay", water_tax: "text-[#5A8A9E]", property_tax: "text-[#7A6890]" };
 
   const uniqueRedeemItems = (redeemItems || []).filter((item: any, index: number, self: any[]) =>
     index === self.findIndex((t: any) => t.title === item.title)
@@ -55,10 +55,10 @@ const CitizenWallet = () => {
   });
 
   return (
-    <div className="min-h-screen bg-background pb-6">
-      <AppHeader title="Incentive Wallet" subtitle="Earn & redeem rewards" moduleColor="citizen" showBack onBack={() => navigate("/citizen")} icon={<Coins className="h-6 w-6 text-white" />} />
-      <main className="container mx-auto px-4 py-6 md:py-10 max-w-7xl space-y-6 md:space-y-8">
-        <Card className="border-0 shadow-card overflow-hidden">
+    <div className="min-h-screen bg-rice-paper pb-6">
+      <AppHeader title="Incentive Wallet" subtitle="Earn & redeem rewards" moduleColor="citizen" showBack onBack={() => navigate("/citizen")} icon={<Coins className="h-5 w-5 text-white" />} />
+      <main className="container mx-auto px-4 sm:px-6 py-6 md:py-10 max-w-7xl space-y-6 md:space-y-8">
+        <Card className="border-timber/30 shadow-soft rounded-[1.5rem] overflow-hidden">
           <div className="bg-gradient-eco p-8 md:p-10 shadow-inner">
             <p className="text-white/80 text-sm md:text-base font-medium">Available Points</p>
             <p className="text-5xl md:text-7xl font-display font-bold text-white mt-1 drop-shadow-md">{totalPoints.toLocaleString()}</p>
@@ -73,7 +73,7 @@ const CitizenWallet = () => {
         <div className="md:hidden flex gap-2 p-1 bg-muted rounded-xl w-fit">
           {(["overview", "history", "redeem"] as const).map((tab) => (
             <Button key={tab} variant={activeSection === tab ? "default" : "ghost"} size="sm"
-              className={activeSection === tab ? "bg-background text-foreground shadow-sm rounded-lg" : "rounded-lg text-muted-foreground hover:text-foreground"} onClick={() => setActiveSection(tab)}>
+              className={activeSection === tab ? "bg-rice-paper text-foreground shadow-sm rounded-lg" : "rounded-lg text-muted-foreground hover:text-foreground"} onClick={() => setActiveSection(tab)}>
               {tab === "overview" ? "Benefits" : tab === "history" ? "History" : "Redeem Offers"}
             </Button>
           ))}
@@ -84,7 +84,7 @@ const CitizenWallet = () => {
           
           {/* LEFT COLUMN: Active Coupons & Earn Logic */}
           <div className={`md:col-span-7 space-y-6 md:space-y-8 ${activeSection !== "overview" ? "hidden md:block" : "animate-in fade-in slide-in-from-bottom-4 duration-500"}`}>
-            <Card className="border-0 shadow-card overflow-hidden">
+            <Card className="border-timber/30 shadow-soft rounded-[1.5rem] overflow-hidden">
               <CardHeader className="pb-4 bg-muted/30 border-b">
                 <CardTitle className="text-xl md:text-2xl font-display">Active Coupons</CardTitle>
                 <CardDescription className="text-base text-muted-foreground">Government discounts unlocked from your cleanliness score</CardDescription>
@@ -100,7 +100,7 @@ const CitizenWallet = () => {
                   const Icon = benefitIcons[benefit.benefit_type] || Lightbulb;
                   return (
                     <div key={i} className="flex flex-col md:flex-row items-center gap-4 md:gap-6 p-5 rounded-2xl bg-gradient-to-r from-muted/50 to-muted/20 border hover:shadow-md transition-shadow">
-                      <div className={`p-4 rounded-2xl bg-background shadow-sm ${benefitColors[benefit.benefit_type] || ""}`}><Icon className="h-8 w-8 md:h-10 md:w-10" /></div>
+                      <div className={`p-4 rounded-2xl bg-rice-paper shadow-sm ${benefitColors[benefit.benefit_type] || ""}`}><Icon className="h-8 w-8 md:h-10 md:w-10" /></div>
                       <div className="flex-1 text-center md:text-left w-full">
                         <p className="font-semibold text-lg md:text-xl font-display">{benefitLabels[benefit.benefit_type] || benefit.benefit_type}</p>
                         <p className="text-sm text-muted-foreground mt-1">{benefitProviders[benefit.benefit_type] || ""}</p>
@@ -120,7 +120,7 @@ const CitizenWallet = () => {
                             <Copy className="h-4 w-4" /> {benefit.coupon_code}
                           </Button>
                         ) : (
-                           <Badge variant="outline" className="text-eco-green border-eco-green/30 py-1.5 px-3">{benefit.status}</Badge>
+                           <Badge variant="outline" className="text-moss border-eco-green/30 py-1.5 px-3">{benefit.status}</Badge>
                         )}
                       </div>
                     </div>
@@ -129,15 +129,15 @@ const CitizenWallet = () => {
               </CardContent>
             </Card>
             
-            <Card className="border-0 shadow-card">
+            <Card className="border-timber/30 shadow-soft rounded-[1.5rem]">
               <CardHeader className="pb-3 border-b bg-muted/10"><CardTitle className="text-lg font-display">How You Earn</CardTitle></CardHeader>
               <CardContent className="p-4 md:p-6">
                 <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
                   {[
-                    { label: "Waste Reports", points: "50/report", icon: AlertTriangle, color: "text-eco-amber" },
+                    { label: "Waste Reports", points: "50/report", icon: AlertTriangle, color: "text-clay" },
                     { label: "Scrap Sales", points: "15/kg", icon: Recycle, color: "text-eco-teal" },
-                    { label: "Donations", points: "100/donation", icon: Heart, color: "text-eco-rose" },
-                    { label: "Cleanup Drives", points: "150/event", icon: TreePine, color: "text-eco-green" },
+                    { label: "Donations", points: "100/donation", icon: Heart, color: "text-burnt-sienna" },
+                    { label: "Cleanup Drives", points: "150/event", icon: TreePine, color: "text-moss" },
                   ].map((item, i) => (
                     <div key={i} className="p-4 rounded-xl bg-muted/30 text-center border shadow-sm hover:shadow-md transition-shadow">
                       <item.icon className={`h-8 w-8 mx-auto mb-3 ${item.color}`} />
@@ -155,7 +155,7 @@ const CitizenWallet = () => {
             
             {/* History Section */}
             <div className={`${activeSection !== "history" ? "hidden md:block" : "animate-in fade-in duration-500"}`}>
-              <Card className="border-0 shadow-card h-full max-h-[500px] flex flex-col">
+              <Card className="border-timber/30 shadow-soft rounded-[1.5rem] h-full max-h-[500px] flex flex-col">
                 <CardHeader className="pb-3 border-b bg-muted/10">
                   <div className="flex items-center justify-between">
                     <CardTitle className="text-lg font-display">Recent History</CardTitle>
@@ -169,14 +169,14 @@ const CitizenWallet = () => {
                     const Icon = getIcon(tx.action);
                     return (
                       <div key={tx.id} className="flex items-center gap-3 p-3 rounded-xl hover:bg-muted/50 transition-colors border border-transparent hover:border-border">
-                        <div className={`p-2.5 rounded-lg ${tx.type === "earned" ? "bg-eco-green/10" : "bg-eco-rose/10"}`}>
-                          <Icon className={`h-5 w-5 ${tx.type === "earned" ? "text-eco-green" : "text-eco-rose"}`} />
+                        <div className={`p-2.5 rounded-lg ${tx.type === "earned" ? "bg-moss/10" : "bg-burnt-sienna/10"}`}>
+                          <Icon className={`h-5 w-5 ${tx.type === "earned" ? "text-moss" : "text-burnt-sienna"}`} />
                         </div>
                         <div className="flex-1 min-w-0">
                           <p className="text-sm font-semibold truncate">{tx.action}</p>
                           <p className="text-xs text-muted-foreground mt-0.5">{new Date(tx.created_at).toLocaleDateString()}</p>
                         </div>
-                        <div className={`font-display font-bold text-lg ${tx.type === "earned" ? "text-eco-green" : "text-eco-rose"}`}>
+                        <div className={`font-display font-bold text-lg ${tx.type === "earned" ? "text-moss" : "text-burnt-sienna"}`}>
                           {tx.type === "earned" ? "+" : ""}{tx.points}
                         </div>
                       </div>
@@ -188,7 +188,7 @@ const CitizenWallet = () => {
 
             {/* Redeem Section */}
             <div className={`${activeSection !== "redeem" ? "hidden md:block" : "animate-in fade-in duration-500"}`}>
-               <Card className="border-0 shadow-card bg-muted/20">
+               <Card className="border-timber/30 shadow-soft rounded-[1.5rem] bg-muted/20">
                 <CardHeader className="pb-3"><CardTitle className="text-lg font-display">Quick Redeem</CardTitle><CardDescription>Trade points for local vouchers</CardDescription></CardHeader>
                 <CardContent>
                   <div className="grid grid-cols-2 gap-3">

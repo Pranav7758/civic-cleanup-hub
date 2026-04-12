@@ -62,17 +62,17 @@ const AdminDashboard = () => {
   ];
 
   const wasteStats = [
-    { label: "Dry Waste", value: 45, color: "bg-eco-amber" },
-    { label: "Wet Waste", value: 30, color: "bg-eco-green" },
+    { label: "Dry Waste", value: 45, color: "bg-clay" },
+    { label: "Wet Waste", value: 30, color: "bg-moss" },
     { label: "Recyclable", value: 18, color: "bg-eco-sky" },
-    { label: "Hazardous", value: 7, color: "bg-eco-rose" },
+    { label: "Hazardous", value: 7, color: "bg-burnt-sienna" },
   ];
 
   const recentActivities = [
     { type: "report", message: "New illegal dumping report in Sector 15", time: "5 mins ago", icon: AlertTriangle, color: "text-status-warning" },
-    { type: "user", message: "150 new citizen registrations today", time: "1 hour ago", icon: Users, color: "text-eco-green" },
-    { type: "benefit", message: "₹45,000 in benefits approved", time: "2 hours ago", icon: Coins, color: "text-eco-amber" },
-    { type: "ngo", message: "Hope Foundation completed 50 donations", time: "3 hours ago", icon: Heart, color: "text-eco-rose" },
+    { type: "user", message: "150 new citizen registrations today", time: "1 hour ago", icon: Users, color: "text-moss" },
+    { type: "benefit", message: "₹45,000 in benefits approved", time: "2 hours ago", icon: Coins, color: "text-clay" },
+    { type: "ngo", message: "Hope Foundation completed 50 donations", time: "3 hours ago", icon: Heart, color: "text-burnt-sienna" },
   ];
 
   const pendingApprovals = [
@@ -108,7 +108,7 @@ const AdminDashboard = () => {
 
   // Benefits data
   const benefitSchemes = [
-    { name: "Light Bill Discount", minScore: 500, discount: "15%", beneficiaries: 12450, budget: "₹45L", icon: Lightbulb, color: "text-eco-amber" },
+    { name: "Light Bill Discount", minScore: 500, discount: "15%", beneficiaries: 12450, budget: "₹45L", icon: Lightbulb, color: "text-clay" },
     { name: "Water Tax Waiver", minScore: 400, discount: "10%", beneficiaries: 18200, budget: "₹32L", icon: Droplets, color: "text-eco-sky" },
     { name: "Property Tax Rebate", minScore: 700, discount: "5%", beneficiaries: 5600, budget: "₹78L", icon: Building, color: "text-eco-purple" },
   ];
@@ -131,7 +131,7 @@ const AdminDashboard = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-rice-paper">
       <AppHeader
         title="Admin Dashboard"
         subtitle="System Overview"
@@ -161,7 +161,7 @@ const AdminDashboard = () => {
             </div>
 
             <div className="grid lg:grid-cols-3 gap-6">
-              <Card className="border-0 shadow-card">
+              <Card className="border-timber/30 shadow-soft rounded-[1.5rem]">
                 <CardHeader className="pb-3">
                   <CardTitle className="text-lg font-display flex items-center gap-2"><PieChart className="h-5 w-5 text-eco-purple" />Waste Distribution</CardTitle>
                 </CardHeader>
@@ -177,7 +177,7 @@ const AdminDashboard = () => {
                 </CardContent>
               </Card>
 
-              <Card className="border-0 shadow-card">
+              <Card className="border-timber/30 shadow-soft rounded-[1.5rem]">
                 <CardHeader className="pb-3">
                   <CardTitle className="text-lg font-display flex items-center gap-2"><Activity className="h-5 w-5 text-eco-sky" />Recent Activity</CardTitle>
                 </CardHeader>
@@ -194,9 +194,9 @@ const AdminDashboard = () => {
                 </CardContent>
               </Card>
 
-              <Card className="border-0 shadow-card">
+              <Card className="border-timber/30 shadow-soft rounded-[1.5rem]">
                 <CardHeader className="pb-3">
-                  <CardTitle className="text-lg font-display flex items-center gap-2"><TrendingUp className="h-5 w-5 text-eco-green" />Top Performers</CardTitle>
+                  <CardTitle className="text-lg font-display flex items-center gap-2"><TrendingUp className="h-5 w-5 text-moss" />Top Performers</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-3">
                   {topPerformers.map((performer, i) => (
@@ -213,7 +213,7 @@ const AdminDashboard = () => {
             </div>
 
             <div className="grid lg:grid-cols-2 gap-6">
-              <Card className="border-0 shadow-card">
+              <Card className="border-timber/30 shadow-soft rounded-[1.5rem]">
                 <CardHeader className="pb-3">
                   <div className="flex items-center justify-between">
                     <CardTitle className="text-lg font-display flex items-center gap-2"><MapPin className="h-5 w-5 text-status-error" />Dumping Hotspots</CardTitle>
@@ -233,10 +233,10 @@ const AdminDashboard = () => {
                 </CardContent>
               </Card>
 
-              <Card className="border-0 shadow-card">
+              <Card className="border-timber/30 shadow-soft rounded-[1.5rem]">
                 <CardHeader className="pb-3">
                   <div className="flex items-center justify-between">
-                    <CardTitle className="text-lg font-display flex items-center gap-2"><Zap className="h-5 w-5 text-eco-amber" />Pending Approvals</CardTitle>
+                    <CardTitle className="text-lg font-display flex items-center gap-2"><Zap className="h-5 w-5 text-clay" />Pending Approvals</CardTitle>
                     <Badge variant="secondary">{pendingApprovals.length} pending</Badge>
                   </div>
                 </CardHeader>
@@ -245,7 +245,7 @@ const AdminDashboard = () => {
                     <div key={approval.id} className="flex items-center justify-between p-3 rounded-lg bg-muted/50">
                       <div><p className="font-medium">{approval.name}</p><p className="text-sm text-muted-foreground">{approval.type}</p></div>
                       <div className="flex items-center gap-3">
-                        <div className="text-right"><p className="font-bold text-eco-amber">{approval.amount}</p><p className="text-xs text-muted-foreground">Score: {approval.score}</p></div>
+                        <div className="text-right"><p className="font-bold text-clay">{approval.amount}</p><p className="text-xs text-muted-foreground">Score: {approval.score}</p></div>
                         <div className="flex gap-1">
                           <Button size="sm" variant="ghost" className="h-8 w-8 p-0 text-status-success"><CheckCircle className="h-4 w-4" /></Button>
                           <Button size="sm" variant="ghost" className="h-8 w-8 p-0 text-status-error"><Ban className="h-4 w-4" /></Button>
@@ -278,7 +278,7 @@ const AdminDashboard = () => {
               <StatsCard title="Suspended" value="8" icon={UserX} color="rose" />
             </div>
 
-            <Card className="border-0 shadow-card">
+            <Card className="border-timber/30 shadow-soft rounded-[1.5rem]">
               <CardContent className="p-0">
                 <div className="overflow-x-auto">
                   <table className="w-full">
@@ -327,7 +327,7 @@ const AdminDashboard = () => {
           <TabsContent value="benefits" className="space-y-6 mt-6">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               {benefitSchemes.map((scheme, i) => (
-                <Card key={i} className="border-0 shadow-card">
+                <Card key={i} className="border-timber/30 shadow-soft rounded-[1.5rem]">
                   <CardContent className="p-5">
                     <div className="flex items-center gap-3 mb-4">
                       <div className={`p-3 rounded-xl bg-muted ${scheme.color}`}><scheme.icon className="h-6 w-6" /></div>
@@ -352,12 +352,12 @@ const AdminDashboard = () => {
               ))}
             </div>
 
-            <Card className="border-0 shadow-card">
+            <Card className="border-timber/30 shadow-soft rounded-[1.5rem]">
               <CardHeader className="pb-3">
                 <div className="flex items-center justify-between">
                   <CardTitle className="text-lg font-display">Pending Approvals</CardTitle>
                   <div className="flex gap-2">
-                    <Button variant="outline" size="sm" className="text-eco-green border-eco-green/30">Approve All</Button>
+                    <Button variant="outline" size="sm" className="text-moss border-eco-green/30">Approve All</Button>
                     <Button variant="outline" size="sm"><Download className="h-4 w-4 mr-1" />Export</Button>
                   </div>
                 </div>
@@ -376,7 +376,7 @@ const AdminDashboard = () => {
                     </div>
                     <div className="flex items-center gap-4">
                       <div className="text-right hidden md:block">
-                        <p className="font-display font-bold text-eco-amber">{approval.amount}</p>
+                        <p className="font-display font-bold text-clay">{approval.amount}</p>
                         <p className="text-xs text-muted-foreground">Score: {approval.score}</p>
                       </div>
                       <div className="flex gap-2">
@@ -408,7 +408,7 @@ const AdminDashboard = () => {
             </div>
 
             {/* Chart representations using bars */}
-            <Card className="border-0 shadow-card">
+            <Card className="border-timber/30 shadow-soft rounded-[1.5rem]">
               <CardHeader className="pb-3">
                 <CardTitle className="text-lg font-display">Monthly Report Trends</CardTitle>
               </CardHeader>
@@ -435,7 +435,7 @@ const AdminDashboard = () => {
             </Card>
 
             <div className="grid lg:grid-cols-2 gap-6">
-              <Card className="border-0 shadow-card">
+              <Card className="border-timber/30 shadow-soft rounded-[1.5rem]">
                 <CardHeader className="pb-3"><CardTitle className="text-lg font-display">Recycling Analytics</CardTitle></CardHeader>
                 <CardContent className="space-y-3">
                   {[
@@ -452,7 +452,7 @@ const AdminDashboard = () => {
                 </CardContent>
               </Card>
 
-              <Card className="border-0 shadow-card">
+              <Card className="border-timber/30 shadow-soft rounded-[1.5rem]">
                 <CardHeader className="pb-3"><CardTitle className="text-lg font-display">NGO Transparency Report</CardTitle></CardHeader>
                 <CardContent className="space-y-3">
                   {[
@@ -464,7 +464,7 @@ const AdminDashboard = () => {
                       <div>
                         <div className="flex items-center gap-2">
                           <p className="font-medium text-sm">{ngo.name}</p>
-                          {ngo.verified && <Badge variant="outline" className="text-[10px] text-eco-green border-eco-green/30">Verified</Badge>}
+                          {ngo.verified && <Badge variant="outline" className="text-[10px] text-moss border-eco-green/30">Verified</Badge>}
                         </div>
                         <p className="text-xs text-muted-foreground">{ngo.donations} received • {ngo.distributed} distributed</p>
                       </div>
@@ -490,7 +490,7 @@ const AdminDashboard = () => {
               <StatsCard title="Points Distributed" value="58K" icon={Coins} color="purple" />
             </div>
 
-            <Card className="border-0 shadow-card">
+            <Card className="border-timber/30 shadow-soft rounded-[1.5rem]">
               <CardHeader className="pb-3"><CardTitle className="text-lg font-display">Upcoming Drives</CardTitle></CardHeader>
               <CardContent className="space-y-4">
                 {[
@@ -526,7 +526,7 @@ const AdminDashboard = () => {
                 { icon: Palette, title: "Appearance", desc: "Theme and branding options", items: ["Dark mode support", "Custom brand colors", "Logo configuration"] },
                 { icon: Mail, title: "Email Templates", desc: "Customize system emails", items: ["Welcome email", "Report confirmation", "Benefit approval"] },
               ].map((section, i) => (
-                <Card key={i} className="border-0 shadow-card hover:shadow-hover transition-all cursor-pointer">
+                <Card key={i} className="border-timber/30 shadow-soft rounded-[1.5rem] hover:shadow-float transition-all cursor-pointer">
                   <CardContent className="p-5">
                     <div className="flex items-start gap-4">
                       <div className="p-3 rounded-xl bg-eco-purple/10">
@@ -538,7 +538,7 @@ const AdminDashboard = () => {
                         <div className="space-y-1">
                           {section.items.map((item, j) => (
                             <p key={j} className="text-xs text-muted-foreground flex items-center gap-1">
-                              <CheckCircle className="h-3 w-3 text-eco-green" /> {item}
+                              <CheckCircle className="h-3 w-3 text-moss" /> {item}
                             </p>
                           ))}
                         </div>
