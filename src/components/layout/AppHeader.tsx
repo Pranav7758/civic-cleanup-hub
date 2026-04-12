@@ -20,6 +20,7 @@ import {
   ChevronDown
 } from "lucide-react";
 import { useState } from "react";
+import { useAuth } from "@/hooks/useAuth";
 
 interface AppHeaderProps {
   title: string;
@@ -52,6 +53,7 @@ export function AppHeader({
   showBack = false,
 }: AppHeaderProps) {
   const navigate = useNavigate();
+  const { signOut } = useAuth();
   const [isDark, setIsDark] = useState(false);
 
   const toggleTheme = () => {
@@ -60,7 +62,7 @@ export function AppHeader({
   };
 
   return (
-    <header className="sticky top-0 z-50 bg-card/95 backdrop-blur-md border-b border-border">
+    <header className="sticky top-0 z-40 bg-card/95 backdrop-blur-md border-b border-border transition-all">
       <div className="container mx-auto px-4 py-3">
         <div className="flex items-center justify-between">
           {/* Left section */}
@@ -130,7 +132,10 @@ export function AppHeader({
                 <DropdownMenuSeparator />
                 <DropdownMenuItem 
                   className="text-destructive"
-                  onClick={() => navigate("/")}
+                  onClick={async () => {
+                    await signOut();
+                    navigate("/");
+                  }}
                 >
                   <LogOut className="mr-2 h-4 w-4" />
                   Logout

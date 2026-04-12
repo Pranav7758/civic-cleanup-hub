@@ -89,25 +89,32 @@ const CitizenScrapSell = () => {
     return (
       <div className="min-h-screen bg-background pb-6">
         <AppHeader title="Review Listing" subtitle="Confirm your scrap details" moduleColor="citizen" showBack onBack={() => setStep("select")} icon={<Recycle className="h-6 w-6 text-white" />} />
-        <main className="container mx-auto px-4 py-6 space-y-6">
-          <Card className="border-0 shadow-card">
-            <CardHeader className="pb-3"><CardTitle className="text-lg font-display">Your Scrap Items</CardTitle></CardHeader>
-            <CardContent className="space-y-3">
+        <main className="container mx-auto px-4 py-8 md:py-12 max-w-4xl space-y-6">
+          <Card className="border-0 shadow-xl overflow-hidden rounded-3xl">
+            <div className="bg-gradient-eco p-6 text-white text-center">
+              <Scale className="h-12 w-12 mx-auto mb-3 opacity-90" />
+              <h2 className="text-2xl font-display font-bold">Checkout Estimate</h2>
+              <p className="text-white/80">Dealers will contact you to confirm final price</p>
+            </div>
+            <CardContent className="p-6 md:p-8 space-y-4">
               {items.map((item, i) => (
-                <div key={i} className="flex items-center justify-between p-3 rounded-lg bg-muted/50">
-                  <div><p className="font-medium">{item.name}</p><p className="text-xs text-muted-foreground">{item.weight} kg × ₹{item.pricePerKg}/kg</p></div>
-                  <p className="font-bold text-eco-amber">₹{item.weight * item.pricePerKg}</p>
+                <div key={i} className="flex items-center justify-between p-4 rounded-xl bg-muted border border-border/50">
+                  <div>
+                    <p className="font-semibold text-base">{item.name}</p>
+                    <p className="text-sm text-muted-foreground">{item.weight} kg × ₹{item.pricePerKg}/kg</p>
+                  </div>
+                  <p className="font-bold text-lg text-eco-amber">₹{item.weight * item.pricePerKg}</p>
                 </div>
               ))}
-              <div className="flex items-center justify-between pt-3 border-t">
-                <span className="font-semibold">Total Estimate</span>
-                <span className="text-2xl font-display font-bold text-eco-amber">₹{totalEstimate}</span>
+              <div className="flex items-center justify-between pt-6 border-t mt-4">
+                <span className="font-bold text-xl">Total Estimate</span>
+                <span className="text-4xl font-display font-bold text-eco-amber">₹{totalEstimate}</span>
               </div>
             </CardContent>
           </Card>
 
-          <Button className="w-full bg-gradient-eco" size="lg" disabled={createListing.isPending} onClick={handleSubmitListing}>
-            {createListing.isPending ? "Creating..." : "Submit Listing"}
+          <Button className="w-full bg-gradient-eco hover:shadow-lg transition-shadow" size="lg" disabled={createListing.isPending} onClick={handleSubmitListing}>
+            {createListing.isPending ? "Creating Listing..." : "Submit Listing"}
           </Button>
         </main>
       </div>
@@ -117,92 +124,117 @@ const CitizenScrapSell = () => {
   return (
     <div className="min-h-screen bg-background pb-6">
       <AppHeader title="Sell Scrap" subtitle="Select items and get best prices" moduleColor="citizen" showBack onBack={() => navigate("/citizen")} icon={<Recycle className="h-6 w-6 text-white" />} />
-      <main className="container mx-auto px-4 py-6 space-y-6">
-        <ImageUpload
-          onImageSelect={(file, preview) => { setImageFile(file); setImagePreview(preview); }}
-          currentImage={imagePreview || undefined}
-          onImageRemove={() => { setImageFile(null); setImagePreview(null); }}
-          label="Scrap Photo (optional)"
-          description="Helps dealers assess your scrap"
-        />
+      
+      <main className="container mx-auto px-4 py-8 md:py-10 max-w-7xl">
+        <div className="grid grid-cols-1 md:grid-cols-12 gap-8 md:gap-12">
+          
+          {/* LEFT COLUMN: The Marketplace & Scrap Form */}
+          <div className="md:col-span-7 outer-column space-y-6 md:space-y-8">
+            <h2 className="text-2xl font-display font-bold hidden md:block">Scrap Marketplace</h2>
+            <ImageUpload
+              onImageSelect={(file, preview) => { setImageFile(file); setImagePreview(preview); }}
+              currentImage={imagePreview || undefined}
+              onImageRemove={() => { setImageFile(null); setImagePreview(null); }}
+              label="Scrap Photo (optional)"
+              description="Helps dealers assess your scrap condition"
+            />
 
-        {isLoading ? (
-          <p className="text-center text-muted-foreground py-4">Loading prices...</p>
-        ) : Object.entries(grouped).map(([category, categoryItems]) => {
-          const Icon = categoryIcons[category] || Recycle;
-          return (
-            <Card key={category} className="border-0 shadow-card">
-              <CardHeader className="pb-2">
-                <CardTitle className="text-base font-display flex items-center gap-2 capitalize">
-                  <Icon className="h-5 w-5 text-eco-amber" />{category === "ewaste" ? "E-Waste" : category}
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-2">
-                {(categoryItems as any[]).map((item, j) => {
-                  const existing = items.find(i => i.name === item.item_name);
-                  return (
-                    <div key={j} className="flex items-center justify-between p-3 rounded-lg bg-muted/50">
-                      <div>
-                        <p className="text-sm font-medium">{item.item_name}</p>
-                        <p className="text-xs text-muted-foreground font-mono">₹{item.price_per_kg}/kg</p>
-                      </div>
-                      {existing ? (
-                        <div className="flex items-center gap-2">
-                          <Button size="icon" variant="outline" className="h-8 w-8" onClick={() => updateWeight(item.item_name, -1)}>
-                            <Minus className="h-3 w-3" />
-                          </Button>
-                          <span className="w-8 text-center font-mono font-medium">{existing.weight}</span>
-                          <Button size="icon" variant="outline" className="h-8 w-8" onClick={() => updateWeight(item.item_name, 1)}>
-                            <Plus className="h-3 w-3" />
-                          </Button>
-                          <span className="text-xs text-muted-foreground w-12 text-right">kg</span>
+            {isLoading ? (
+              <p className="text-center text-muted-foreground py-8 animate-pulse">Loading real-time prices...</p>
+            ) : Object.entries(grouped).map(([category, categoryItems]) => {
+              const Icon = categoryIcons[category] || Recycle;
+              return (
+                <Card key={category} className="border-0 shadow-sm transition-shadow hover:shadow-md">
+                  <CardHeader className="pb-3 border-b bg-muted/20">
+                    <CardTitle className="text-lg font-display flex items-center gap-2 capitalize">
+                      <Icon className="h-5 w-5 text-eco-amber" />{category === "ewaste" ? "E-Waste" : category}
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="p-4 space-y-3">
+                    {(categoryItems as any[]).map((item, j) => {
+                      const existing = items.find(i => i.name === item.item_name);
+                      return (
+                        <div key={j} className="flex flex-col sm:flex-row sm:items-center justify-between p-3 rounded-xl bg-muted/30 border border-transparent hover:border-border transition-colors gap-3">
+                          <div>
+                            <p className="text-base font-medium">{item.item_name}</p>
+                            <p className="text-sm text-eco-amber font-mono font-semibold">₹{item.price_per_kg}/kg</p>
+                          </div>
+                          {existing ? (
+                            <div className="flex items-center gap-2 bg-background p-1.5 rounded-lg border shadow-sm self-start sm:self-auto">
+                              <Button size="icon" variant="outline" className="h-8 w-8 hover:bg-destructive hover:text-white transition-colors" onClick={() => updateWeight(item.item_name, -1)}>
+                                <Minus className="h-4 w-4" />
+                              </Button>
+                              <span className="w-10 text-center font-mono font-bold text-base">{existing.weight}</span>
+                              <Button size="icon" variant="outline" className="h-8 w-8 hover:bg-primary hover:text-white transition-colors" onClick={() => updateWeight(item.item_name, 1)}>
+                                <Plus className="h-4 w-4" />
+                              </Button>
+                              <span className="text-xs text-muted-foreground font-medium ml-1">kg</span>
+                            </div>
+                          ) : (
+                            <Button variant="outline" className="self-start sm:self-auto border-dashed hover:border-solid hover:bg-primary/5 hover:text-primary transition-all" onClick={() => addItem(item.item_name, category, Number(item.price_per_kg))}>
+                              <Plus className="h-4 w-4 mr-2" /> Add
+                            </Button>
+                          )}
                         </div>
-                      ) : (
-                        <Button size="sm" variant="outline" onClick={() => addItem(item.item_name, category, Number(item.price_per_kg))}>
-                          <Plus className="h-3 w-3 mr-1" /> Add
-                        </Button>
-                      )}
+                      );
+                    })}
+                  </CardContent>
+                </Card>
+              );
+            })}
+          </div>
+
+          {/* RIGHT COLUMN: Active Basket & Past Listings */}
+          <div className="md:col-span-5 space-y-6 md:space-y-8">
+            <div className="sticky top-24 space-y-6">
+              
+              {/* Conditional Active Basket (E-commerce Style checkout cart) */}
+              {items.length > 0 && (
+                <Card className="border-2 border-eco-green/40 shadow-lg bg-eco-green/5 ring-1 ring-eco-green/10 animate-in zoom-in-95 duration-300">
+                  <CardHeader className="pb-2">
+                    <CardTitle className="text-xl font-display text-eco-green flex items-center gap-2">
+                      <Truck className="h-5 w-5" /> Current Basket
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="p-5">
+                    <div className="flex items-end justify-between mb-6">
+                      <div className="space-y-1">
+                        <p className="text-sm text-muted-foreground font-medium">{items.length} items grouped</p>
+                        <p className="text-xs text-muted-foreground">{items.reduce((s, i) => s + i.weight, 0)} kg total</p>
+                      </div>
+                      <div className="text-right">
+                         <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-1">Total Estate</p>
+                         <p className="text-4xl font-display font-bold text-eco-amber drop-shadow-sm">₹{totalEstimate}</p>
+                      </div>
                     </div>
-                  );
-                })}
-              </CardContent>
-            </Card>
-          );
-        })}
+                    <Button className="w-full bg-gradient-eco text-lg h-12 shadow-md hover:shadow-xl transition-all" onClick={() => setStep("review")}>
+                      Review Layout <ChevronRight className="h-5 w-5 ml-2" />
+                    </Button>
+                  </CardContent>
+                </Card>
+              )}
 
-        {/* Existing listings */}
-        {(myListings || []).length > 0 && (
-          <Card className="border-0 shadow-card">
-            <CardHeader className="pb-3"><CardTitle className="text-base font-display">Your Listings</CardTitle></CardHeader>
-            <CardContent className="space-y-3">
-              {(myListings || []).map((listing: any) => (
-                <div key={listing.id} className="flex items-center justify-between p-3 rounded-lg bg-muted/50">
-                  <div>
-                    <p className="text-sm font-medium">₹{listing.total_estimate} • {listing.total_weight}kg</p>
-                    <p className="text-xs text-muted-foreground">{new Date(listing.created_at).toLocaleDateString()}</p>
-                  </div>
-                  <StatusBadge status={listing.status} size="sm" />
-                </div>
-              ))}
-            </CardContent>
-          </Card>
-        )}
+              {/* History / Existing listings */}
+              {(myListings || []).length > 0 && (
+                <Card className="border-0 shadow-card bg-muted/10">
+                  <CardHeader className="pb-3 border-b"><CardTitle className="text-lg font-display">Your Listings</CardTitle></CardHeader>
+                  <CardContent className="p-4 space-y-3">
+                    {(myListings || []).map((listing: any) => (
+                      <div key={listing.id} className="flex items-center justify-between p-3 rounded-xl bg-background border shadow-sm hover:shadow-md transition-shadow">
+                        <div>
+                          <p className="text-base font-semibold text-primary">₹{listing.total_estimate}</p>
+                          <p className="text-xs text-muted-foreground mt-0.5">{listing.total_weight}kg • {new Date(listing.created_at).toLocaleDateString()}</p>
+                        </div>
+                        <StatusBadge status={listing.status} size="sm" />
+                      </div>
+                    ))}
+                  </CardContent>
+                </Card>
+              )}
+            </div>
+          </div>
 
-        {items.length > 0 && (
-          <Card className="border-0 shadow-card sticky bottom-4">
-            <CardContent className="p-4">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm text-muted-foreground">{items.length} items • {items.reduce((s, i) => s + i.weight, 0)} kg</p>
-                  <p className="text-2xl font-display font-bold text-eco-amber">₹{totalEstimate}</p>
-                </div>
-                <Button className="bg-gradient-eco" size="lg" onClick={() => setStep("review")}>
-                  Review<ChevronRight className="h-4 w-4 ml-1" />
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
-        )}
+        </div>
       </main>
     </div>
   );

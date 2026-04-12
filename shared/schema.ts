@@ -136,6 +136,7 @@ export const governmentBenefits = pgTable("government_benefits", {
   validFrom: timestamp("valid_from", { withTimezone: true }),
   validUntil: timestamp("valid_until", { withTimezone: true }),
   provider: text("provider"),
+  couponCode: text("coupon_code"),
   createdAt: now(),
   updatedAt: updated(),
 });

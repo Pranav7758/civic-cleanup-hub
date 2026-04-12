@@ -212,6 +212,12 @@ export const apiClient = {
     const data = await request("/api/upload", { method: "POST", body: form });
     return data.publicUrl as string;
   },
+  async completeWorkerTask(taskId: string, completionImageUrl: string | null) {
+    return request("/api/worker/complete-task", {
+      method: "POST",
+      body: JSON.stringify({ taskId, completionImageUrl }),
+    });
+  },
 };
 
 export type { Session };

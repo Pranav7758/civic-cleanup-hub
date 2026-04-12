@@ -5,6 +5,8 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
+import { useAuth } from '@/hooks/useAuth';
+import { apiClient } from '@/lib/apiClient';
 import { MapPin, Camera, Upload, Loader2 } from 'lucide-react';
 
 const ReportGarbage = () => {
@@ -13,10 +15,12 @@ const ReportGarbage = () => {
   const [location, setLocation] = useState<{lat: number, lng: number} | null>(null);
   const [address, setAddress] = useState('');
   const [description, setDescription] = useState('');
+  const [wasteType, setWasteType] = useState('mixed');
   const [isGettingLocation, setIsGettingLocation] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { toast } = useToast();
+  const { user } = useAuth();
 
   const handleImageSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -102,26 +106,43 @@ const ReportGarbage = () => {
     setIsSubmitting(true);
 
     try {
-      // Here you would integrate with Supabase to:
-      // 1. Upload the image to Supabase Storage
-      // 2. Insert the report data into a 'garbage_reports' table
-      // 3. Include location, description, timestamp, user_id, status: 'pending'
-      
+      // Upload the image to server
+      let imageUrl: string | undefined;
+      if (selectedImage) {
+        imageUrl = await apiClient.uploadImage(selectedImage, "waste-reports");
+      }
+
+      // Insert the waste report into the database
+      const { error } = await apiClient
+        .from("waste_reports")
+        .insert({
+          citizen_id: user!.id,
+          image_url: imageUrl || null,
+          waste_type: wasteType,
+          description: description || null,
+          latitude: location!.lat,
+          longitude: location!.lng,
+          address: address || null,
+        } as any);
+
+      if (error) throw error;
+
       toast({
         title: "Report Submitted",
         description: "Your garbage report has been submitted successfully. A worker will be assigned soon.",
       });
-      
+
       // Reset form
       setSelectedImage(null);
       setImagePreview('');
       setLocation(null);
       setAddress('');
       setDescription('');
+      setWasteType('mixed');
       if (fileInputRef.current) {
         fileInputRef.current.value = '';
       }
-      
+
     } catch (error) {
       console.error('Error submitting report:', error);
       toast({

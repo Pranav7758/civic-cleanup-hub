@@ -1,3 +1,4 @@
+import "dotenv/config";
 import express from "express";
 import multer from "multer";
 import path from "path";
@@ -26,7 +27,7 @@ const tableColumns: Record<string, string[]> = {
   training_progress: ["id", "user_id", "module_id", "progress", "completed", "completed_at", "updated_at"],
   waste_reports: ["id", "citizen_id", "image_url", "waste_type", "description", "latitude", "longitude", "address", "status", "assigned_worker_id", "completion_image_url", "reward_points", "priority", "completed_at", "created_at", "updated_at"],
   wallet_transactions: ["id", "user_id", "type", "action", "points", "reference_id", "reference_type", "created_at"],
-  government_benefits: ["id", "user_id", "benefit_type", "discount_percent", "status", "approved_by", "valid_from", "valid_until", "provider", "created_at", "updated_at"],
+  government_benefits: ["id", "user_id", "benefit_type", "discount_percent", "status", "approved_by", "valid_from", "valid_until", "provider", "coupon_code", "created_at", "updated_at"],
   scrap_prices: ["id", "category", "item_name", "price_per_kg", "dealer_id", "updated_at"],
   scrap_listings: ["id", "citizen_id", "image_url", "status", "dealer_id", "total_estimate", "total_weight", "latitude", "longitude", "address", "completed_at", "created_at", "updated_at"],
   scrap_listing_items: ["id", "listing_id", "item_name", "category", "weight_kg", "price_per_kg", "total_price"],
@@ -165,6 +166,42 @@ app.get("/api/auth/me", async (req, res, next) => {
   }
 });
 
+app.get("/api/scrap-rates/live", async (req, res, next) => {
+  try {
+    // Copper (HG=F), Aluminum (ALI=F), Steel (HRC=F)
+    const map = [
+      { ticker: "ALI=F", cat: "metal", item: "Aluminum Scrap" },
+      { ticker: "HG=F", cat: "metal", item: "Copper Wire" },
+      { ticker: "HRC=F", cat: "metal", item: "Iron/Steel" }
+    ];
+    const livePrices = [];
+    for (const m of map) {
+       try {
+         const resp = await fetch(`https://query1.finance.yahoo.com/v8/finance/chart/${m.ticker}`);
+         const j = await resp.json();
+         const price = j?.chart?.result?.[0]?.meta?.regularMarketPrice;
+         if (price) {
+            // Very rough formula to convert the raw US Market Price metric scales into an arbitrary ₹/KG INR Scrap context to represent live movement.
+            // (Just logic acting as formatting wrapper for the real market price fetched above)
+            const factor = m.ticker === 'HG=F' ? 100 : (m.ticker === 'HRC=F' ? 0.05 : 0.04);
+            const inrPerKg = Math.round(price * factor * 10) / 10; 
+            livePrices.push({ category: m.cat, item_name: m.item, price_per_kg: inrPerKg });
+         }
+       } catch (err) { }
+    }
+    // Blend API prices with fallback prices for categories we can't easily fetch via Yahoo Finance tickers
+    livePrices.push(
+      { category: "paper", item_name: "Newspapers", price_per_kg: 15 },
+      { category: "paper", item_name: "Cardboard", price_per_kg: 10 },
+      { category: "plastic", item_name: "PET Bottles", price_per_kg: 12 },
+      { category: "ewaste", item_name: "Old Laptops", price_per_kg: 250 }
+    );
+    res.json({ data: livePrices });
+  } catch (error) {
+    next(error);
+  }
+});
+
 function rowsFromPayload(payload: any) {
   return Array.isArray(payload) ? payload : [payload];
 }
@@ -286,6 +323,77 @@ app.post("/api/query", async (req, res, next) => {
       return res.json({ data: single || maybeSingle ? rows[0] || null : rows });
     }
     throw new Error("Operation is not supported");
+  } catch (error) {
+    next(error);
+  }
+});
+
+app.post("/api/worker/complete-task", async (req, res, next) => {
+  try {
+    const user = await requireAuth(req);
+    const { taskId, completionImageUrl } = req.body || {};
+
+    if (!taskId) throw new Error("Task ID is required");
+
+    // 1. Get the task
+    const { rows: tasks } = await pool.query(
+      `select * from waste_reports where id = $1`,
+      [taskId]
+    );
+    const task = tasks[0];
+    
+    if (!task) throw new Error("Task not found");
+    if (task.assigned_worker_id !== user.id) throw new Error("You are not assigned to this task");
+    if (task.status === "completed") throw new Error("Task is already completed");
+
+    const rewardPoints = task.reward_points || 50;
+
+    // 2. Update task status
+    await pool.query(
+      `update waste_reports set status = 'completed', completion_image_url = $1, completed_at = now(), updated_at = now() where id = $2`,
+      [completionImageUrl || null, taskId]
+    );
+
+    // 3. Reward the Citizen (if there is a citizen attached)
+    const citizenId = task.citizen_id;
+    if (citizenId) {
+      // Add to wallet transactions
+      await pool.query(
+        `insert into wallet_transactions (user_id, type, action, points, reference_id, reference_type) values ($1, 'earned', 'Waste Collected', $2, $3, 'waste_reports')`,
+        [citizenId, rewardPoints, taskId]
+      );
+
+      // Update cleanliness_score
+      const { rows: scores } = await pool.query(
+        `update cleanliness_scores set score = score + $1, total_reports = total_reports + 1, updated_at = now() where user_id = $2 returning score`,
+        [rewardPoints, citizenId]
+      );
+
+      const newScore = scores[0]?.score || 0;
+
+      // 4. Issue Government Benefit if score > threshold
+      const grantBenefit = async (type: string, codePrefix: string, percent: number, provider: string) => {
+        const { rows: existingBenefits } = await pool.query(
+          `select id from government_benefits where user_id = $1 and benefit_type = $2`,
+          [citizenId, type]
+        );
+
+        if (existingBenefits.length === 0) {
+          const couponCode = codePrefix + crypto.randomBytes(3).toString("hex").toUpperCase();
+          await pool.query(
+            `insert into government_benefits (user_id, benefit_type, discount_percent, status, provider, coupon_code) 
+             values ($1, $2, $3, 'active', $4, $5)`,
+            [citizenId, type, percent, provider, couponCode]
+          );
+        }
+      };
+
+      if (newScore >= 100) await grantBenefit('light_bill', 'ECO-LGT-', 10, 'City Municipality');
+      if (newScore >= 200) await grantBenefit('water_tax', 'ECO-WTR-', 5, 'Water Board');
+      if (newScore >= 300) await grantBenefit('property_tax', 'ECO-PRP-', 15, 'Revenue Dept');
+    }
+
+    res.json({ success: true, message: "Task completed and citizen rewarded" });
   } catch (error) {
     next(error);
   }

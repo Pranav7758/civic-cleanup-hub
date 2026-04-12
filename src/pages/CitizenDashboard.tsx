@@ -61,7 +61,7 @@ const CitizenDashboard = () => {
   const totalModules = (modules || []).length;
 
   return (
-    <div className="min-h-screen bg-background pb-20 md:pb-0">
+    <div className="min-h-screen bg-background pb-20 md:pb-0 md:pl-64">
       <AppHeader 
         title="Citizen Dashboard" 
         subtitle={`Welcome back, ${profile?.full_name || "Citizen"}`}
@@ -70,7 +70,7 @@ const CitizenDashboard = () => {
         icon={<Recycle className="h-6 w-6 text-white" />}
       />
 
-      <main className="container mx-auto px-4 py-6 space-y-6">
+      <main className="container mx-auto max-w-6xl px-4 py-6 md:py-8 space-y-6 md:space-y-8">
         {/* Cleanliness Score Card */}
         <Card className="border-0 shadow-card overflow-hidden">
           <div className="bg-gradient-eco p-6">

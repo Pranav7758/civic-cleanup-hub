@@ -57,80 +57,111 @@ const CitizenDonateHub = () => {
     }
   };
 
-  if (step === "history") {
-    return (
-      <div className="min-h-screen bg-background pb-6">
-        <AppHeader title="My Donations" subtitle="Track where your items went" moduleColor="citizen" showBack onBack={() => setStep("form")} icon={<Heart className="h-6 w-6 text-white" />} />
-        <main className="container mx-auto px-4 py-6 space-y-4">
-          {(myDonations || []).length === 0 ? (
-            <p className="text-center text-muted-foreground py-8">No donations yet.</p>
-          ) : (myDonations || []).map((donation: any) => (
-            <Card key={donation.id} className="border-0 shadow-card">
-              <CardContent className="p-4">
-                <div className="flex items-start justify-between mb-3">
-                  <div>
-                    <h4 className="font-medium text-sm capitalize">{donation.category} donation</h4>
-                    <p className="text-xs text-muted-foreground">{new Date(donation.created_at).toLocaleDateString()}</p>
-                  </div>
-                  <StatusBadge status={donation.status} size="sm" />
-                </div>
-                {donation.description && <p className="text-sm text-muted-foreground">{donation.description}</p>}
-                {donation.proof_image_url && (
-                  <Button variant="outline" size="sm" className="w-full mt-2">
-                    <Eye className="h-4 w-4 mr-2" />View Distribution Proof
-                  </Button>
-                )}
-              </CardContent>
-            </Card>
-          ))}
-        </main>
-      </div>
-    );
-  }
-
   return (
     <div className="min-h-screen bg-background pb-6">
-      <AppHeader title="Donate Items" subtitle="Help those in need" moduleColor="citizen" showBack onBack={() => navigate("/citizen")} icon={<Heart className="h-6 w-6 text-white" />} />
-      <main className="container mx-auto px-4 py-6 space-y-6">
-        <div className="flex justify-end">
-          <Button variant="outline" size="sm" onClick={() => setStep("history")}><Clock className="h-4 w-4 mr-1" /> My Donations</Button>
+      <AppHeader 
+        title={step === "history" ? "My Donations" : "Donate Items"} 
+        subtitle={step === "history" ? "Track where your items went" : "Help those in need"} 
+        moduleColor="citizen" 
+        showBack 
+        onBack={() => step === "history" ? setStep("form") : navigate("/citizen")} 
+        icon={<Heart className="h-6 w-6 text-white" />} 
+      />
+      
+      <main className="container mx-auto px-4 py-6 md:py-10 max-w-6xl">
+        {/* Mobile Toggle Button */}
+        <div className="flex justify-end mb-6 md:hidden">
+          {step === "form" ? (
+            <Button variant="outline" size="sm" onClick={() => setStep("history")}><Clock className="h-4 w-4 mr-1" /> My Donations</Button>
+          ) : (
+            <Button variant="outline" size="sm" onClick={() => setStep("form")}><Heart className="h-4 w-4 mr-1" /> Donate Items</Button>
+          )}
         </div>
 
-        <ImageUpload
-          onImageSelect={(file, preview) => { setImageFile(file); setImagePreview(preview); }}
-          currentImage={imagePreview || undefined}
-          onImageRemove={() => { setImageFile(null); setImagePreview(null); }}
-          label="Item Photo"
-          description="Upload a clear photo of items to donate"
-        />
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-12">
+          
+          {/* LEFT COLUMN: Donation Form */}
+          <div className={`space-y-6 ${step === "history" ? "hidden md:block" : "block"} bg-card/50 p-6 rounded-3xl border md:shadow-sm`}>
+            <div>
+              <h2 className="text-xl font-display font-bold mb-1">New Donation</h2>
+              <p className="text-sm text-muted-foreground">List items you wish to give away</p>
+            </div>
+            
+            <ImageUpload
+              onImageSelect={(file, preview) => { setImageFile(file); setImagePreview(preview); }}
+              currentImage={imagePreview || undefined}
+              onImageRemove={() => { setImageFile(null); setImagePreview(null); }}
+              label="Item Photo"
+              description="Upload a clear photo of items to donate"
+            />
 
-        <div className="space-y-3">
-          <Label className="text-sm font-medium">Category</Label>
-          <div className="grid grid-cols-3 gap-3">
-            {categories.map((cat) => (
-              <button key={cat.value} onClick={() => setCategory(cat.value)}
-                className={`p-3 rounded-xl border-2 text-center transition-all ${
-                  category === cat.value ? "border-eco-rose bg-eco-rose/5" : "border-border hover:border-eco-rose/30"
-                }`}>
-                <cat.icon className={`h-5 w-5 mx-auto mb-1 ${category === cat.value ? "text-eco-rose" : "text-muted-foreground"}`} />
-                <p className="text-[10px] font-medium">{cat.label}</p>
-              </button>
-            ))}
+            <div className="space-y-3">
+              <Label className="text-sm font-medium">Category</Label>
+              <div className="grid grid-cols-3 gap-3">
+                {categories.map((cat) => (
+                  <button key={cat.value} onClick={() => setCategory(cat.value)}
+                    className={`p-3 rounded-xl border-2 text-center transition-all ${
+                      category === cat.value ? "border-eco-rose bg-eco-rose/5 shadow-sm" : "border-border hover:border-eco-rose/30"
+                    }`}>
+                    <cat.icon className={`h-6 w-6 mx-auto mb-2 ${category === cat.value ? "text-eco-rose" : "text-muted-foreground"}`} />
+                    <p className="text-[11px] font-medium leading-tight">{cat.label}</p>
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <div className="space-y-2">
+              <Label className="text-sm font-medium">Item Description</Label>
+              <Textarea placeholder="Describe the items, condition, quantity..." value={description} onChange={(e) => setDescription(e.target.value)} className="resize-none h-24" />
+            </div>
+
+            <div className="p-4 rounded-xl bg-eco-green/10 border border-eco-green/20">
+              <p className="text-sm font-medium flex items-center gap-2 text-primary"><CheckCircle className="h-5 w-5" />You'll earn 100 points for each donation</p>
+            </div>
+
+            <Button className="w-full bg-gradient-sunset shadow-md transition-shadow hover:shadow-lg" size="lg" disabled={!category || !imageFile || createDonation.isPending} onClick={handleSubmit}>
+              {createDonation.isPending ? "Submitting..." : "Submit Donation"}<ChevronRight className="h-4 w-4 ml-1" />
+            </Button>
           </div>
-        </div>
+          
+          {/* RIGHT COLUMN: Donation History */}
+          <div className={`space-y-6 ${step === "form" ? "hidden md:block" : "block"}`}>
+             <div className="sticky top-24 space-y-6 bg-card/30 p-2 rounded-3xl md:border-0 md:bg-transparent">
+              <div>
+                <h2 className="text-xl font-display font-bold mb-1 hidden md:block">Donation Record</h2>
+                <p className="text-sm text-muted-foreground hidden md:block">Track where your items went</p>
+              </div>
+               
+              <div className="space-y-4 max-h-[70vh] overflow-y-auto pr-2 custom-scrollbar">
+                {(myDonations || []).length === 0 ? (
+                  <div className="text-center py-10 bg-card rounded-2xl border border-dashed">
+                    <Heart className="h-10 w-10 mx-auto text-muted-foreground opacity-20 mb-3" />
+                    <p className="text-muted-foreground font-medium">No donations yet.</p>
+                  </div>
+                ) : (myDonations || []).map((donation: any) => (
+                  <Card key={donation.id} className="border hover:shadow-md transition-all shadow-sm">
+                    <CardContent className="p-5">
+                      <div className="flex items-start justify-between mb-3">
+                        <div>
+                          <h4 className="font-semibold text-base capitalize">{donation.category} items</h4>
+                          <p className="text-xs text-muted-foreground font-mono mt-0.5">{new Date(donation.created_at).toLocaleDateString()}</p>
+                        </div>
+                        <StatusBadge status={donation.status} size="sm" />
+                      </div>
+                      {donation.description && <p className="text-sm text-muted-foreground bg-muted/30 p-3 rounded-lg">{donation.description}</p>}
+                      {donation.proof_image_url && (
+                        <Button variant="outline" size="sm" className="w-full mt-4">
+                          <Eye className="h-4 w-4 mr-2" />View Distribution Proof
+                        </Button>
+                      )}
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            </div>
+          </div>
 
-        <div className="space-y-2">
-          <Label className="text-sm font-medium">Item Description</Label>
-          <Textarea placeholder="Describe the items, condition, quantity..." value={description} onChange={(e) => setDescription(e.target.value)} className="resize-none h-20" />
         </div>
-
-        <div className="p-3 rounded-xl bg-eco-green/10 border border-eco-green/20">
-          <p className="text-sm font-medium flex items-center gap-2 text-primary"><CheckCircle className="h-4 w-4" />You'll earn 100 points for each donation</p>
-        </div>
-
-        <Button className="w-full bg-gradient-sunset" size="lg" disabled={!category || !imageFile || createDonation.isPending} onClick={handleSubmit}>
-          {createDonation.isPending ? "Submitting..." : "Submit Donation"}<ChevronRight className="h-4 w-4 ml-1" />
-        </Button>
       </main>
     </div>
   );

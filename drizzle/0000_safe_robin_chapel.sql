@@ -1,0 +1,250 @@
+ NULL,
+	"score" integer DEFAULT 0 NOT NULL,
+	"tier" text DEFAULT 'Bronze' NOT NULL,
+	"total_reports" integer DEFAULT 0,
+	"total_scrap_sold" integer DEFAULT 0,
+	"total_donations" integer DEFAULT 0,
+	"total_events" integer DEFAULT 0,
+	"updated_at" timestamp with time zone DEFAULT now() NOT NULL,
+	CONSTRAINT "cleanliness_scores_user_id_unique" UNIQUE("user_id")
+);
+--> statement-breakpoint
+CREATE TABLE "community_events" (
+	"id" varchar(36) PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
+	"title" text NOT NULL,
+	"description" text,
+	"event_type" text DEFAULT 'cleanup_drive',
+	"location" text,
+	"latitude" double precision,
+	"longitude" double precision,
+	"starts_at" timestamp with time zone NOT NULL,
+	"ends_at" timestamp with time zone,
+	"max_participants" integer,
+	"reward_points" integer DEFAULT 150,
+	"image_url" text,
+	"organizer_id" varchar(36),
+	"created_at" timestamp with time zone DEFAULT now() NOT NULL
+);
+--> statement-breakpoint
+CREATE TABLE "donations" (
+	"id" varchar(36) PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
+	"citizen_id" varchar(36) NOT NULL,
+	"ngo_id" varchar(36),
+	"category" text NOT NULL,
+	"description" text,
+	"image_url" text,
+	"status" text DEFAULT 'pending' NOT NULL,
+	"proof_image_url" text,
+	"latitude" double precision,
+	"longitude" double precision,
+	"address" text,
+	"reward_points" integer DEFAULT 100,
+	"scheduled_at" timestamp with time zone,
+	"completed_at" timestamp with time zone,
+	"created_at" timestamp with time zone DEFAULT now() NOT NULL,
+	"updated_at" timestamp with time zone DEFAULT now() NOT NULL
+);
+--> statement-breakpoint
+CREATE TABLE "event_registrations" (
+	"id" varchar(36) PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
+	"event_id" varchar(36) NOT NULL,
+	"user_id" varchar(36) NOT NULL,
+	"attended" boolean DEFAULT false,
+	"created_at" timestamp with time zone DEFAULT now() NOT NULL
+);
+--> statement-breakpoint
+CREATE TABLE "government_benefits" (
+	"id" varchar(36) PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
+	"user_id" varchar(36) NOT NULL,
+	"benefit_type" text NOT NULL,
+	"discount_percent" numeric(5, 2) NOT NULL,
+	"status" text DEFAULT 'pending' NOT NULL,
+	"approved_by" varchar(36),
+	"valid_from" timestamp with time zone,
+	"valid_until" timestamp with time zone,
+	"provider" text,
+	"created_at" timestamp with time zone DEFAULT now() NOT NULL,
+	"updated_at" timestamp with time zone DEFAULT now() NOT NULL
+);
+--> statement-breakpoint
+CREATE TABLE "messages" (
+	"id" varchar(36) PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
+	"sender_id" varchar(36) NOT NULL,
+	"receiver_id" varchar(36) NOT NULL,
+	"content" text NOT NULL,
+	"read" boolean DEFAULT false,
+	"created_at" timestamp with time zone DEFAULT now() NOT NULL
+);
+--> statement-breakpoint
+CREATE TABLE "notifications" (
+	"id" varchar(36) PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
+	"user_id" varchar(36) NOT NULL,
+	"title" text NOT NULL,
+	"message" text,
+	"type" text DEFAULT 'info',
+	"read" boolean DEFAULT false,
+	"reference_id" varchar(36),
+	"reference_type" text,
+	"created_at" timestamp with time zone DEFAULT now() NOT NULL
+);
+--> statement-breakpoint
+CREATE TABLE "profiles" (
+	"id" varchar(36) PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
+	"user_id" varchar(36) NOT NULL,
+	"full_name" text NOT NULL,
+	"phone" text,
+	"avatar_url" text,
+	"address" text,
+	"city" text DEFAULT 'Delhi',
+	"ward" text,
+	"created_at" timestamp with time zone DEFAULT now() NOT NULL,
+	"updated_at" timestamp with time zone DEFAULT now() NOT NULL,
+	CONSTRAINT "profiles_user_id_unique" UNIQUE("user_id")
+);
+--> statement-breakpoint
+CREATE TABLE "redeem_items" (
+	"id" varchar(36) PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
+	"title" text NOT NULL,
+	"description" text,
+	"points_cost" integer NOT NULL,
+	"stock" integer DEFAULT 0,
+	"image_emoji" text,
+	"active" boolean DEFAULT true,
+	"created_at" timestamp with time zone DEFAULT now() NOT NULL
+);
+--> statement-breakpoint
+CREATE TABLE "scrap_listing_items" (
+	"id" varchar(36) PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
+	"listing_id" varchar(36) NOT NULL,
+	"item_name" text NOT NULL,
+	"category" text NOT NULL,
+	"weight_kg" numeric(10, 2) DEFAULT '1' NOT NULL,
+	"price_per_kg" numeric(10, 2) NOT NULL,
+	"total_price" numeric(10, 2) DEFAULT '0'
+);
+--> statement-breakpoint
+CREATE TABLE "scrap_listings" (
+	"id" varchar(36) PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
+	"citizen_id" varchar(36) NOT NULL,
+	"image_url" text,
+	"status" text DEFAULT 'pending' NOT NULL,
+	"dealer_id" varchar(36),
+	"total_estimate" numeric(10, 2) DEFAULT '0',
+	"total_weight" numeric(10, 2) DEFAULT '0',
+	"latitude" double precision,
+	"longitude" double precision,
+	"address" text,
+	"completed_at" timestamp with time zone,
+	"created_at" timestamp with time zone DEFAULT now() NOT NULL,
+	"updated_at" timestamp with time zone DEFAULT now() NOT NULL
+);
+--> statement-breakpoint
+CREATE TABLE "scrap_prices" (
+	"id" varchar(36) PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
+	"category" text NOT NULL,
+	"item_name" text NOT NULL,
+	"price_per_kg" numeric(10, 2) NOT NULL,
+	"dealer_id" varchar(36),
+	"updated_at" timestamp with time zone DEFAULT now() NOT NULL
+);
+--> statement-breakpoint
+CREATE TABLE "sessions" (
+	"token" text PRIMARY KEY NOT NULL,
+	"user_id" varchar(36) NOT NULL,
+	"expires_at" timestamp with time zone NOT NULL,
+	"created_at" timestamp with time zone DEFAULT now() NOT NULL
+);
+--> statement-breakpoint
+CREATE TABLE "training_modules" (
+	"id" varchar(36) PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
+	"title" text NOT NULL,
+	"description" text,
+	"icon" text DEFAULT 'BookOpen',
+	"duration_minutes" integer DEFAULT 15,
+	"lesson_count" integer DEFAULT 3,
+	"sort_order" integer DEFAULT 0,
+	"requires_previous" boolean DEFAULT true,
+	"created_at" timestamp with time zone DEFAULT now() NOT NULL
+);
+--> statement-breakpoint
+CREATE TABLE "training_progress" (
+	"id" varchar(36) PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
+	"user_id" varchar(36) NOT NULL,
+	"module_id" varchar(36) NOT NULL,
+	"progress" integer DEFAULT 0 NOT NULL,
+	"completed" boolean DEFAULT false,
+	"completed_at" timestamp with time zone,
+	"updated_at" timestamp with time zone DEFAULT now() NOT NULL
+);
+--> statement-breakpoint
+CREATE TABLE "user_roles" (
+	"id" varchar(36) PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
+	"user_id" varchar(36) NOT NULL,
+	"role" text NOT NULL
+);
+--> statement-breakpoint
+CREATE TABLE "wallet_transactions" (
+	"id" varchar(36) PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
+	"user_id" varchar(36) NOT NULL,
+	"type" text NOT NULL,
+	"action" text NOT NULL,
+	"points" integer NOT NULL,
+	"reference_id" varchar(36),
+	"reference_type" text,
+	"created_at" timestamp with time zone DEFAULT now() NOT NULL
+);
+--> statement-breakpoint
+CREATE TABLE "waste_reports" (
+	"id" varchar(36) PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
+	"citizen_id" varchar(36) NOT NULL,
+	"image_url" text,
+	"waste_type" text DEFAULT 'mixed' NOT NULL,
+	"description" text,
+	"latitude" double precision,
+	"longitude" double precision,
+	"address" text,
+	"status" text DEFAULT 'pending' NOT NULL,
+	"assigned_worker_id" varchar(36),
+	"completion_image_url" text,
+	"reward_points" integer DEFAULT 50,
+	"priority" text DEFAULT 'medium',
+	"completed_at" timestamp with time zone,
+	"created_at" timestamp with time zone DEFAULT now() NOT NULL,
+	"updated_at" timestamp with time zone DEFAULT now() NOT NULL
+);
+--> statement-breakpoint
+ALTER TABLE "cleanliness_scores" ADD CONSTRAINT "cleanliness_scores_user_id_app_users_id_fk" FOREIGN KEY ("user_id") REFERENCES "public"."app_users"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "community_events" ADD CONSTRAINT "community_events_organizer_id_app_users_id_fk" FOREIGN KEY ("organizer_id") REFERENCES "public"."app_users"("id") ON DELETE no action ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "donations" ADD CONSTRAINT "donations_citizen_id_app_users_id_fk" FOREIGN KEY ("citizen_id") REFERENCES "public"."app_users"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "donations" ADD CONSTRAINT "donations_ngo_id_app_users_id_fk" FOREIGN KEY ("ngo_id") REFERENCES "public"."app_users"("id") ON DELETE no action ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "event_registrations" ADD CONSTRAINT "event_registrations_event_id_community_events_id_fk" FOREIGN KEY ("event_id") REFERENCES "public"."community_events"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "event_registrations" ADD CONSTRAINT "event_registrations_user_id_app_users_id_fk" FOREIGN KEY ("user_id") REFERENCES "public"."app_users"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "government_benefits" ADD CONSTRAINT "government_benefits_user_id_app_users_id_fk" FOREIGN KEY ("user_id") REFERENCES "public"."app_users"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "government_benefits" ADD CONSTRAINT "government_benefits_approved_by_app_users_id_fk" FOREIGN KEY ("approved_by") REFERENCES "public"."app_users"("id") ON DELETE no action ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "messages" ADD CONSTRAINT "messages_sender_id_app_users_id_fk" FOREIGN KEY ("sender_id") REFERENCES "public"."app_users"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "messages" ADD CONSTRAINT "messages_receiver_id_app_users_id_fk" FOREIGN KEY ("receiver_id") REFERENCES "public"."app_users"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "notifications" ADD CONSTRAINT "notifications_user_id_app_users_id_fk" FOREIGN KEY ("user_id") REFERENCES "public"."app_users"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "profiles" ADD CONSTRAINT "profiles_user_id_app_users_id_fk" FOREIGN KEY ("user_id") REFERENCES "public"."app_users"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "scrap_listing_items" ADD CONSTRAINT "scrap_listing_items_listing_id_scrap_listings_id_fk" FOREIGN KEY ("listing_id") REFERENCES "public"."scrap_listings"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "scrap_listings" ADD CONSTRAINT "scrap_listings_citizen_id_app_users_id_fk" FOREIGN KEY ("citizen_id") REFERENCES "public"."app_users"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "scrap_listings" ADD CONSTRAINT "scrap_listings_dealer_id_app_users_id_fk" FOREIGN KEY ("dealer_id") REFERENCES "public"."app_users"("id") ON DELETE no action ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "scrap_prices" ADD CONSTRAINT "scrap_prices_dealer_id_app_users_id_fk" FOREIGN KEY ("dealer_id") REFERENCES "public"."app_users"("id") ON DELETE no action ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "sessions" ADD CONSTRAINT "sessions_user_id_app_users_id_fk" FOREIGN KEY ("user_id") REFERENCES "public"."app_users"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "training_progress" ADD CONSTRAINT "training_progress_user_id_app_users_id_fk" FOREIGN KEY ("user_id") REFERENCES "public"."app_users"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "training_progress" ADD CONSTRAINT "training_progress_module_id_training_modules_id_fk" FOREIGN KEY ("module_id") REFERENCES "public"."training_modules"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "user_roles" ADD CONSTRAINT "user_roles_user_id_app_users_id_fk" FOREIGN KEY ("user_id") REFERENCES "public"."app_users"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "wallet_transactions" ADD CONSTRAINT "wallet_transactions_user_id_app_users_id_fk" FOREIGN KEY ("user_id") REFERENCES "public"."app_users"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "waste_reports" ADD CONSTRAINT "waste_reports_citizen_id_app_users_id_fk" FOREIGN KEY ("citizen_id") REFERENCES "public"."app_users"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "waste_reports" ADD CONSTRAINT "waste_reports_assigned_worker_id_app_users_id_fk" FOREIGN KEY ("assigned_worker_id") REFERENCES "public"."app_users"("id") ON DELETE no action ON UPDATE no action;--> statement-breakpoint
+CREATE INDEX "idx_donations_citizen" ON "donations" USING btree ("citizen_id");--> statement-breakpoint
+CREATE INDEX "idx_donations_ngo" ON "donations" USING btree ("ngo_id");--> statement-breakpoint
+CREATE UNIQUE INDEX "event_registrations_event_user_unique" ON "event_registrations" USING btree ("event_id","user_id");--> statement-breakpoint
+CREATE INDEX "idx_notifications_user" ON "notifications" USING btree ("user_id");--> statement-breakpoint
+CREATE INDEX "idx_scrap_listings_citizen" ON "scrap_listings" USING btree ("citizen_id");--> statement-breakpoint
+CREATE INDEX "idx_scrap_listings_dealer" ON "scrap_listings" USING btree ("dealer_id");--> statement-breakpoint
+CREATE UNIQUE INDEX "training_progress_user_module_unique" ON "training_progress" USING btree ("user_id","module_id");--> statement-breakpoint
+CREATE UNIQUE INDEX "user_roles_user_role_unique" ON "user_roles" USING btree ("user_id","role");--> statement-breakpoint
+CREATE INDEX "idx_wallet_transactions_user" ON "wallet_transactions" USING btree ("user_id");--> statement-breakpoint
+CREATE INDEX "idx_waste_reports_citizen" ON "waste_reports" USING btree ("citizen_id");--> statement-breakpoint
+CREATE INDEX "idx_waste_reports_status" ON "waste_reports" USING btree ("status");--> statement-breakpoint
+CREATE INDEX "idx_waste_reports_worker" ON "waste_reports" USING btree ("assigned_worker_id");

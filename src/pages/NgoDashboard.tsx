@@ -8,6 +8,8 @@ import { StatsCard } from "@/components/shared/StatsCard";
 import { StatusBadge } from "@/components/shared/StatusBadge";
 import { TrackingMap } from "@/components/shared/TrackingMap";
 import { ImageUpload } from "@/components/shared/ImageUpload";
+import { useNgoDonations, useUpdateDonation } from "@/hooks/useDonations";
+import { uploadImage } from "@/hooks/useWasteReports";
 import { 
   Home,
   Heart,
@@ -32,62 +34,41 @@ import {
 
 type ActiveTab = "home" | "requests" | "pickups" | "history" | "profile";
 
-interface DonationRequest {
-  id: string;
-  items: string[];
-  category: string;
-  citizenName: string;
-  citizenPhone: string;
-  address: string;
-  requestedAt: string;
-  status: "pending" | "accepted" | "on_the_way" | "completed";
-  image?: string;
-}
-
 const NgoDashboard = () => {
   const [activeTab, setActiveTab] = useState<ActiveTab>("home");
-  const [selectedRequest, setSelectedRequest] = useState<DonationRequest | null>(null);
+  const [selectedRequest, setSelectedRequest] = useState<any>(null);
   const [proofImage, setProofImage] = useState<string | null>(null);
+  const [proofImageFile, setProofImageFile] = useState<File | null>(null);
+
+  const { data: donations, isLoading } = useNgoDonations();
+  const updateDonation = useUpdateDonation();
+
+  const handleUpdateStatus = async (status: string) => {
+    if (!selectedRequest) return;
+    try {
+      let finalProofUrl = selectedRequest.proof_image_url;
+      if (status === "completed" && proofImageFile) {
+        finalProofUrl = await uploadImage(proofImageFile, "donations");
+      }
+      await updateDonation.mutateAsync({
+        id: selectedRequest.id,
+        status,
+        ...(finalProofUrl && { proof_image_url: finalProofUrl }),
+      });
+      setSelectedRequest(null);
+      setProofImage(null);
+      setProofImageFile(null);
+    } catch (err: any) {
+      console.error(err);
+    }
+  };
 
   const navItems = [
     { icon: Home, label: "Home", value: "home" as const },
-    { icon: Gift, label: "Requests", value: "requests" as const, badge: 8 },
-    { icon: Package, label: "Pickups", value: "pickups" as const, badge: 2 },
+    { icon: Gift, label: "Requests", value: "requests" as const, badge: (donations || []).filter((d: any) => d.status === "pending").length },
+    { icon: Package, label: "Pickups", value: "pickups" as const, badge: (donations || []).filter((d: any) => d.status === "on_the_way").length },
     { icon: Clock, label: "History", value: "history" as const },
     { icon: User, label: "Profile", value: "profile" as const },
-  ];
-
-  const donationRequests: DonationRequest[] = [
-    {
-      id: "D001",
-      items: ["Winter Clothes", "Blankets"],
-      category: "Clothing",
-      citizenName: "Priya Sharma",
-      citizenPhone: "+91 98765 43210",
-      address: "Flat 12A, Green Valley Apartments, Sector 22",
-      requestedAt: "1 hour ago",
-      status: "pending",
-    },
-    {
-      id: "D002",
-      items: ["School Books", "Notebooks", "Stationery"],
-      category: "Books",
-      citizenName: "Amit Verma",
-      citizenPhone: "+91 87654 32109",
-      address: "House 45, Model Town, Phase 2",
-      requestedAt: "3 hours ago",
-      status: "accepted",
-    },
-    {
-      id: "D003",
-      items: ["Toys", "Board Games"],
-      category: "Toys",
-      citizenName: "Sunita Devi",
-      citizenPhone: "+91 76543 21098",
-      address: "Shop 8, Main Market, Old City",
-      requestedAt: "5 hours ago",
-      status: "on_the_way",
-    },
   ];
 
   const getCategoryIcon = (category: string) => {
@@ -105,7 +86,7 @@ const NgoDashboard = () => {
     const CategoryIcon = getCategoryIcon(selectedRequest.category);
     
     return (
-      <div className="min-h-screen bg-background pb-20 md:pb-0">
+      <div className="min-h-screen bg-background pb-20 md:pb-0 md:pl-64">
         <AppHeader 
           title="Donation Details" 
           subtitle={`Request #${selectedRequest.id}`}
@@ -128,15 +109,14 @@ const NgoDashboard = () => {
           {/* Items Card */}
           <Card className="border-0 shadow-card">
             <CardHeader className="pb-3">
-              <CardTitle className="text-lg">Donation Items</CardTitle>
+              <CardTitle className="text-lg">Donation Details</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="flex flex-wrap gap-2">
-                {selectedRequest.items.map((item, i) => (
-                  <Badge key={i} variant="secondary" className="text-sm py-1.5 px-3">
-                    {item}
-                  </Badge>
-                ))}
+              <div className="flex flex-col gap-2">
+                 <p className="text-sm text-muted-foreground">{selectedRequest.description}</p>
+                 {selectedRequest.image_url && (
+                   <img src={selectedRequest.image_url} alt="Donation Content" className="w-full h-48 object-cover rounded-xl mt-4 border border-border" />
+                 )}
               </div>
             </CardContent>
           </Card>
@@ -149,19 +129,16 @@ const NgoDashboard = () => {
                   <MapPin className="h-6 w-6 text-eco-rose" />
                 </div>
                 <div className="flex-1">
-                  <h3 className="font-semibold mb-1">{selectedRequest.citizenName}</h3>
-                  <p className="text-sm text-muted-foreground mb-3">{selectedRequest.address}</p>
+                  <h3 className="font-semibold mb-1">{selectedRequest.citizen?.full_name || "Unknown Donor"}</h3>
+                  <p className="text-sm text-muted-foreground mb-3">{selectedRequest.citizen?.address || "Address not provided"}</p>
                   <div className="flex gap-2">
                     <Button size="sm" className="bg-gradient-sunset">
                       <Navigation className="h-4 w-4 mr-2" />
                       Navigate
                     </Button>
-                    <Button size="sm" variant="outline">
+                    <Button size="sm" variant="outline" onClick={() => window.location.href=`tel:${selectedRequest.citizen?.phone}`}>
                       <Phone className="h-4 w-4 mr-2" />
                       Call
-                    </Button>
-                    <Button size="sm" variant="outline">
-                      <MessageCircle className="h-4 w-4" />
                     </Button>
                   </div>
                 </div>
@@ -192,31 +169,36 @@ const NgoDashboard = () => {
               </CardHeader>
               <CardContent className="space-y-4">
                 <ImageUpload
-                  onImageSelect={(file, preview) => setProofImage(preview)}
+                  onImageSelect={(file, preview) => { setProofImageFile(file); setProofImage(preview); }}
                   currentImage={proofImage || undefined}
-                  onImageRemove={() => setProofImage(null)}
+                  onImageRemove={() => { setProofImageFile(null); setProofImage(null); }}
                   label="Upload Proof Photo"
                   description="Show the donation being distributed"
                 />
                 {proofImage && (
-                  <Button className="w-full bg-gradient-sunset">
+                  <Button className="w-full bg-gradient-sunset" onClick={() => handleUpdateStatus("completed")} disabled={updateDonation.isPending}>
                     <CheckCircle className="h-4 w-4 mr-2" />
                     Submit Distribution Proof
                   </Button>
                 )}
               </CardContent>
             </Card>
-          ) : (
+          ) : selectedRequest.status === "pending" ? (
             <div className="flex gap-3">
-              <Button className="flex-1 bg-gradient-eco" size="lg">
+              <Button className="flex-1 bg-gradient-eco" size="lg" onClick={() => handleUpdateStatus("accepted")} disabled={updateDonation.isPending}>
                 <CheckCircle className="h-5 w-5 mr-2" />
                 Accept Request
               </Button>
-              <Button variant="outline" size="lg">
+              <Button variant="outline" size="lg" onClick={() => setSelectedRequest(null)}>
                 Reject
               </Button>
             </div>
-          )}
+          ) : selectedRequest.status === "accepted" ? (
+            <Button className="w-full bg-gradient-eco" size="lg" onClick={() => handleUpdateStatus("on_the_way")} disabled={updateDonation.isPending}>
+              <Navigation className="h-5 w-5 mr-2" />
+              Mark En Route
+            </Button>
+          ) : null}
         </main>
 
         <BottomNav 
@@ -230,7 +212,7 @@ const NgoDashboard = () => {
   }
 
   return (
-    <div className="min-h-screen bg-background pb-20 md:pb-0">
+    <div className="min-h-screen bg-background pb-20 md:pb-0 md:pl-64">
       <AppHeader 
         title="NGO Dashboard" 
         subtitle="Hope Foundation"
@@ -294,11 +276,13 @@ const NgoDashboard = () => {
           <CardHeader className="pb-3">
             <div className="flex items-center justify-between">
               <CardTitle className="text-lg">Donation Requests</CardTitle>
-              <Badge variant="secondary">{donationRequests.length} pending</Badge>
+              <Badge variant="secondary">{(donations || []).length} total</Badge>
             </div>
           </CardHeader>
           <CardContent className="space-y-3">
-            {donationRequests.map((request) => {
+            {isLoading ? (
+               <p className="text-center text-muted-foreground py-4">Loading requests...</p>
+            ) : (donations || []).map((request: any) => {
               const CategoryIcon = getCategoryIcon(request.category);
               return (
                 <div 
@@ -312,15 +296,15 @@ const NgoDashboard = () => {
                         <CategoryIcon className="h-5 w-5 text-eco-rose" />
                       </div>
                       <div>
-                        <h4 className="font-medium">{request.citizenName}</h4>
-                        <p className="text-sm text-muted-foreground">{request.items.join(", ")}</p>
+                        <h4 className="font-medium">{request.citizen?.full_name || "Unknown Donor"}</h4>
+                        <p className="text-sm text-muted-foreground">{request.description || request.category}</p>
                       </div>
                     </div>
                     <ChevronRight className="h-5 w-5 text-muted-foreground" />
                   </div>
                   <div className="flex items-center justify-between">
                     <StatusBadge status={request.status} size="sm" />
-                    <span className="text-xs text-muted-foreground">{request.requestedAt}</span>
+                    <span className="text-xs text-muted-foreground">{new Date(request.created_at).toLocaleDateString()}</span>
                   </div>
                 </div>
               );

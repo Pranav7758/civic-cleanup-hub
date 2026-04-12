@@ -17,19 +17,20 @@ type StatusType =
   | "completed" 
   | "cancelled" 
   | "accepted" 
+  | "assigned"
   | "rejected"
   | "on_the_way"
   | "verified"
   | "waiting";
 
 interface StatusBadgeProps {
-  status: StatusType;
+  status: StatusType | string;
   size?: "sm" | "md" | "lg";
   showIcon?: boolean;
   className?: string;
 }
 
-const statusConfig: Record<StatusType, {
+const statusConfig: Record<string, {
   label: string;
   icon: React.ElementType;
   className: string;
@@ -56,6 +57,11 @@ const statusConfig: Record<StatusType, {
   },
   accepted: {
     label: "Accepted",
+    icon: Play,
+    className: "bg-eco-teal/10 text-eco-teal border-eco-teal/20",
+  },
+  assigned: {
+    label: "Assigned",
     icon: Play,
     className: "bg-eco-teal/10 text-eco-teal border-eco-teal/20",
   },
@@ -99,7 +105,13 @@ export function StatusBadge({
   showIcon = true,
   className 
 }: StatusBadgeProps) {
-  const config = statusConfig[status];
+  const defaultStatusConfig = {
+    label: status ? status.charAt(0).toUpperCase() + status.slice(1) : "Unknown",
+    icon: AlertCircle,
+    className: "bg-muted text-muted-foreground border-border",
+  };
+  
+  const config = statusConfig[status as string] || defaultStatusConfig;
   const Icon = config.icon;
 
   return (

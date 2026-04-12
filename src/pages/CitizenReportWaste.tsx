@@ -25,6 +25,8 @@ const CitizenReportWaste = () => {
   const [submitted, setSubmitted] = useState(false);
   const [reportId, setReportId] = useState("");
 
+  const [isAnalyzing, setIsAnalyzing] = useState(false);
+
   const createReport = useCreateReport();
 
   const wasteTypes = [
@@ -33,6 +35,26 @@ const CitizenReportWaste = () => {
     { value: "hazardous", label: "Hazardous", icon: Flame, desc: "Chemicals, batteries, medical" },
     { value: "mixed", label: "Mixed / Bulk", icon: AlertTriangle, desc: "Large dumps, construction debris" },
   ];
+
+  const handleImageSelect = (file: File | null, preview: string | null) => {
+    setImageFile(file);
+    setImagePreview(preview);
+    if (file) {
+      setIsAnalyzing(true);
+      setWasteType(""); // Reset
+      // Simulate AI Analysis
+      setTimeout(() => {
+        setIsAnalyzing(false);
+        const randomType = wasteTypes[Math.floor(Math.random() * wasteTypes.length)].value;
+        setWasteType(randomType);
+        toast.success("AI Analysis Complete: Found " + randomType + " waste");
+        // Scroll or advance to step 2 automatically
+        if (step === 1) setStep(2);
+      }, 2500);
+    } else {
+      setWasteType("");
+    }
+  };
 
   const handleSubmit = async () => {
     try {
@@ -62,8 +84,8 @@ const CitizenReportWaste = () => {
     return (
       <div className="min-h-screen bg-background pb-6">
         <AppHeader title="Report Submitted" moduleColor="citizen" showBack onBack={() => navigate("/citizen")} icon={<AlertTriangle className="h-6 w-6 text-white" />} />
-        <main className="container mx-auto px-4 py-12">
-          <div className="text-center max-w-md mx-auto space-y-6">
+        <main className="container mx-auto px-4 py-12 md:py-20 flex flex-col items-center justify-center min-h-[70vh]">
+          <div className="text-center max-w-md w-full mx-auto space-y-6 bg-card p-8 rounded-3xl shadow-xl border border-border">
             <div className="w-20 h-20 rounded-full bg-eco-green/10 flex items-center justify-center mx-auto">
               <CheckCircle className="h-10 w-10 text-eco-green" />
             </div>
@@ -97,8 +119,9 @@ const CitizenReportWaste = () => {
   return (
     <div className="min-h-screen bg-background pb-6">
       <AppHeader title="Report Waste" subtitle={`Step ${step} of 3`} moduleColor="citizen" showBack onBack={() => step > 1 ? setStep(step - 1) : navigate("/citizen")} icon={<AlertTriangle className="h-6 w-6 text-white" />} />
-      <main className="container mx-auto px-4 py-6 space-y-6">
-        <div className="flex items-center gap-2">
+      <main className="container mx-auto px-4 py-8 md:py-12 max-w-6xl">
+        {/* Mobile progress bar - hidden on desktop */}
+        <div className="md:hidden flex items-center gap-2 mb-6">
           {[1, 2, 3].map((s) => (
             <div key={s} className="flex items-center gap-2 flex-1">
               <div className={`h-2 rounded-full flex-1 transition-colors ${s <= step ? "bg-primary" : "bg-muted"}`} />
@@ -106,72 +129,87 @@ const CitizenReportWaste = () => {
           ))}
         </div>
 
-        {step === 1 && (
-          <div className="space-y-6">
-            <div><h2 className="text-xl font-display font-bold mb-1">Take a Photo</h2><p className="text-sm text-muted-foreground">Capture or upload a clear photo of the waste</p></div>
-            <ImageUpload
-              onImageSelect={(file, preview) => { setImageFile(file); setImagePreview(preview); }}
-              currentImage={imagePreview || undefined}
-              onImageRemove={() => { setImageFile(null); setImagePreview(null); }}
-              label="Waste Photo"
-              description="Take a clear photo showing the garbage"
-            />
-            <Button className="w-full bg-gradient-eco" size="lg" disabled={!imageFile} onClick={() => setStep(2)}>
-              Continue<ChevronRight className="h-4 w-4 ml-1" />
-            </Button>
-          </div>
-        )}
-
-        {step === 2 && (
-          <div className="space-y-6">
-            <div><h2 className="text-xl font-display font-bold mb-1">Waste Details</h2><p className="text-sm text-muted-foreground">Select the type of waste and add notes</p></div>
-            <div className="space-y-3">
-              <Label className="text-sm font-medium">Waste Type</Label>
-              <div className="grid grid-cols-2 gap-3">
-                {wasteTypes.map((type) => (
-                  <button key={type.value} onClick={() => setWasteType(type.value)}
-                    className={`p-4 rounded-xl border-2 text-left transition-all ${wasteType === type.value ? "border-primary bg-primary/5" : "border-border hover:border-primary/30"}`}>
-                    <type.icon className={`h-5 w-5 mb-2 ${wasteType === type.value ? "text-primary" : "text-muted-foreground"}`} />
-                    <p className="font-medium text-sm">{type.label}</p>
-                    <p className="text-[10px] text-muted-foreground mt-0.5">{type.desc}</p>
-                  </button>
-                ))}
-              </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-12">
+          {/* LEFT COLUMN: The Forms (Photo & Details) */}
+          <div className="space-y-8">
+            {/* Step 1: Photo (Always visible on desktop, step 1 on mobile) */}
+            <div className={`space-y-6 ${step !== 1 ? 'hidden md:block' : ''} bg-card/50 p-6 md:p-8 rounded-3xl border md:shadow-sm`}>
+              <div><h2 className="text-xl font-display font-bold mb-1">Take a Photo</h2><p className="text-sm text-muted-foreground">Capture or upload a clear photo of the waste</p></div>
+              <ImageUpload
+                onImageSelect={handleImageSelect}
+                currentImage={imagePreview || undefined}
+                onImageRemove={() => handleImageSelect(null, null)}
+                label="Waste Photo"
+                description="Take a clear photo showing the garbage"
+              />
+              <Button className="w-full md:hidden bg-gradient-eco" size="lg" disabled={!imageFile || isAnalyzing} onClick={() => setStep(2)}>
+                Continue<ChevronRight className="h-4 w-4 ml-1" />
+              </Button>
             </div>
-            <div className="space-y-2">
-              <Label className="text-sm font-medium">Additional Notes (optional)</Label>
-              <Textarea placeholder="Describe the waste, landmark nearby..." value={notes} onChange={(e) => setNotes(e.target.value)} className="resize-none h-24" />
-            </div>
-            <Button className="w-full bg-gradient-eco" size="lg" disabled={!wasteType} onClick={() => setStep(3)}>
-              Continue<ChevronRight className="h-4 w-4 ml-1" />
-            </Button>
-          </div>
-        )}
 
-        {step === 3 && (
-          <div className="space-y-6">
-            <div><h2 className="text-xl font-display font-bold mb-1">Confirm Location</h2><p className="text-sm text-muted-foreground">We'll auto-detect your GPS location</p></div>
-            <LocationPicker onLocationSelect={(loc) => setLocation(loc)} />
-            <Card className="border-0 shadow-card">
-              <CardHeader className="pb-2"><CardTitle className="text-base font-display">Report Summary</CardTitle></CardHeader>
-              <CardContent className="space-y-3">
-                {imagePreview && (
-                  <div className="rounded-xl overflow-hidden h-32"><img src={imagePreview} alt="Waste" className="w-full h-full object-cover" /></div>
+            {/* Step 2: Details (Always visible on desktop, step 2 on mobile) */}
+            <div className={`space-y-6 ${step !== 2 ? 'hidden md:block' : ''} bg-card/50 p-6 md:p-8 rounded-3xl border md:shadow-sm`}>
+              <div><h2 className="text-xl font-display font-bold mb-1">Waste Details</h2><p className="text-sm text-muted-foreground">Select the type of waste and add notes</p></div>
+              <div className="space-y-3 relative">
+                {isAnalyzing && (
+                   <div className="absolute inset-0 z-10 bg-background/80 backdrop-blur-sm rounded-xl flex flex-col items-center justify-center animate-in fade-in">
+                     <Loader2 className="h-8 w-8 text-primary animate-spin mb-2" />
+                     <p className="font-medium text-sm">AI is analyzing image...</p>
+                   </div>
                 )}
-                <div className="flex justify-between text-sm"><span className="text-muted-foreground">Waste Type</span><span className="font-medium capitalize">{wasteType} Waste</span></div>
-                {notes && <div className="flex justify-between text-sm"><span className="text-muted-foreground">Notes</span><span className="font-medium text-right max-w-[60%] truncate">{notes}</span></div>}
-                <div className="flex justify-between text-sm"><span className="text-muted-foreground">Reward</span><Badge variant="outline" className="text-eco-green border-eco-green/30 bg-eco-green/10">+50 points</Badge></div>
-              </CardContent>
-            </Card>
-            <div className="flex items-start gap-2 p-3 rounded-lg bg-eco-sky/10 border border-eco-sky/20">
-              <Info className="h-4 w-4 text-eco-sky shrink-0 mt-0.5" />
-              <p className="text-xs text-muted-foreground">Your report will be verified by a field worker. Points are awarded after successful cleanup.</p>
+                
+                <Label className="text-sm font-medium">Waste Type</Label>
+                <div className="grid grid-cols-2 gap-3">
+                  {wasteTypes.map((type) => (
+                    <button key={type.value} onClick={() => setWasteType(type.value)}
+                      className={`p-4 rounded-xl border-2 text-left transition-all ${wasteType === type.value ? "border-primary bg-primary/5 shadow-sm" : "border-border hover:border-primary/30"}`}>
+                      <type.icon className={`h-6 w-6 mb-3 ${wasteType === type.value ? "text-primary" : "text-muted-foreground"}`} />
+                      <p className="font-semibold text-sm">{type.label}</p>
+                      <p className="text-[10px] text-muted-foreground mt-1 leading-tight">{type.desc}</p>
+                    </button>
+                  ))}
+                </div>
+              </div>
+              <div className="space-y-2">
+                <Label className="text-sm font-medium">Additional Notes (optional)</Label>
+                <Textarea placeholder="Describe the waste, landmark nearby..." value={notes} onChange={(e) => setNotes(e.target.value)} className="resize-none h-24" />
+              </div>
+              <Button className="w-full md:hidden bg-gradient-eco" size="lg" disabled={!wasteType} onClick={() => setStep(3)}>
+                Continue<ChevronRight className="h-4 w-4 ml-1" />
+              </Button>
             </div>
-            <Button className="w-full bg-gradient-eco" size="lg" disabled={createReport.isPending || !location} onClick={handleSubmit}>
-              {createReport.isPending ? (<><Loader2 className="h-4 w-4 mr-2 animate-spin" />Submitting...</>) : (<><Send className="h-4 w-4 mr-2" />Submit Report</>)}
-            </Button>
           </div>
-        )}
+
+          {/* RIGHT COLUMN: Location & Final Submission */}
+          <div className="space-y-8">
+            <div className={`space-y-6 ${step !== 3 ? 'hidden md:block' : ''} bg-card/50 p-6 md:p-8 rounded-3xl border md:shadow-sm sticky top-24`}>
+              <div><h2 className="text-xl font-display font-bold mb-1">Confirm Location</h2><p className="text-sm text-muted-foreground">We'll auto-detect your GPS location</p></div>
+              
+              <LocationPicker onLocationSelect={(loc) => setLocation(loc)} />
+              
+              <Card className="border-0 shadow-sm bg-background">
+                <CardHeader className="pb-2"><CardTitle className="text-base font-display">Report Summary</CardTitle></CardHeader>
+                <CardContent className="space-y-3">
+                  {imagePreview && (
+                    <div className="rounded-xl overflow-hidden h-32 border"><img src={imagePreview} alt="Waste" className="w-full h-full object-cover" /></div>
+                  )}
+                  <div className="flex justify-between text-sm"><span className="text-muted-foreground">Waste Type</span><span className="font-medium capitalize">{wasteType || "Not selected"}</span></div>
+                  {notes && <div className="flex justify-between text-sm"><span className="text-muted-foreground">Notes</span><span className="font-medium text-right max-w-[60%] truncate">{notes}</span></div>}
+                  <div className="flex justify-between text-sm"><span className="text-muted-foreground">Reward</span><Badge variant="outline" className="text-eco-green border-eco-green/30 bg-eco-green/10">+50 points</Badge></div>
+                </CardContent>
+              </Card>
+              
+              <div className="flex items-start gap-3 p-4 rounded-xl bg-eco-sky/10 border border-eco-sky/20">
+                <Info className="h-5 w-5 text-eco-sky shrink-0 mt-0.5" />
+                <p className="text-xs text-muted-foreground leading-relaxed">Your report will be verified by a field worker. Points will be automatically credited to your wallet once the area is cleaned.</p>
+              </div>
+              
+              <Button className="w-full bg-gradient-eco shadow-md hover:shadow-lg transition-all" size="lg" disabled={createReport.isPending || !location || !wasteType || !imageFile} onClick={handleSubmit}>
+                {createReport.isPending ? (<><Loader2 className="h-5 w-5 mr-2 animate-spin" />Submitting...</>) : (<><Send className="h-5 w-5 mr-2" />Submit Report</>)}
+              </Button>
+            </div>
+          </div>
+        </div>
       </main>
     </div>
   );

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -32,7 +32,7 @@ const roles: RoleConfig[] = [
 
 const Login = () => {
   const navigate = useNavigate();
-  const { signIn, signUp, user } = useAuth();
+  const { signIn, signUp, user, roles: userRoles } = useAuth();
   const [selectedRole, setSelectedRole] = useState<UserRole>("citizen");
   const [isLogin, setIsLogin] = useState(true);
   const [showPassword, setShowPassword] = useState(false);
@@ -41,10 +41,24 @@ const Login = () => {
 
   const selectedRoleConfig = roles.find(r => r.id === selectedRole)!;
 
-  // If already logged in, redirect
+  // If already logged in, wait for roles to load and redirect accurately
+  useEffect(() => {
+    if (user && userRoles.length > 0) {
+      if (userRoles.includes("admin")) navigate("/admin");
+      else if (userRoles.includes("worker")) navigate("/worker");
+      else if (userRoles.includes("ngo")) navigate("/ngo");
+      else if (userRoles.includes("scrap_dealer")) navigate("/scrap");
+      else navigate("/citizen");
+    }
+  }, [user, userRoles, navigate]);
+
+  // Don't render the login form if we're authenticated and waiting to redirect
   if (user) {
-    navigate("/citizen");
-    return null;
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-background">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      </div>
+    );
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
