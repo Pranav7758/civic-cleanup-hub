@@ -9,6 +9,7 @@ import { StatusBadge } from "@/components/shared/StatusBadge";
 import { TrackingMap } from "@/components/shared/TrackingMap";
 import { ImageUpload } from "@/components/shared/ImageUpload";
 import { useNgoDonations, useUpdateDonation } from "@/hooks/useDonations";
+import { useCreateCommunityPost } from "@/hooks/useCommunity";
 import { uploadImage } from "@/hooks/useWasteReports";
 import { 
   Home,
@@ -42,6 +43,8 @@ const NgoDashboard = () => {
 
   const { data: donations, isLoading } = useNgoDonations();
   const updateDonation = useUpdateDonation();
+  const createCommunityPost = useCreateCommunityPost();
+  const [postCaption, setPostCaption] = useState("We successfully delivered this donation to those in need. Thank you!");
 
   const handleUpdateStatus = async (status: string) => {
     if (!selectedRequest) return;
@@ -49,6 +52,14 @@ const NgoDashboard = () => {
       let finalProofUrl = selectedRequest.proof_image_url;
       if (status === "completed" && proofImageFile) {
         finalProofUrl = await uploadImage(proofImageFile, "donations");
+        
+        // Also fire off Community Post
+        await createCommunityPost.mutateAsync({
+          donation_id: selectedRequest.id,
+          citizen_id: selectedRequest.citizen_id,
+          content: postCaption,
+          image_url: finalProofUrl
+        });
       }
       await updateDonation.mutateAsync({
         id: selectedRequest.id,
@@ -58,6 +69,7 @@ const NgoDashboard = () => {
       setSelectedRequest(null);
       setProofImage(null);
       setProofImageFile(null);
+      setPostCaption("");
     } catch (err: any) {
       console.error(err);
     }
@@ -175,10 +187,24 @@ const NgoDashboard = () => {
                   label="Upload Proof Photo"
                   description="Show the donation being distributed"
                 />
+                
+                {proofImage && selectedRequest.status === "on_the_way" && (
+                  <div className="space-y-2 mt-4 p-4 border rounded-xl bg-primary/5">
+                    <label className="text-sm font-semibold text-primary">Community Post Caption</label>
+                    <textarea 
+                      className="w-full text-sm p-3 rounded-lg border-timber/20 bg-white" 
+                      rows={2}
+                      value={postCaption}
+                      onChange={(e) => setPostCaption(e.target.value)}
+                    />
+                    <p className="text-[10px] text-muted-foreground">This photo and caption will be published to the Transparency Feed.</p>
+                  </div>
+                )}
+
                 {proofImage && (
-                  <Button className="w-full bg-gradient-sunset" onClick={() => handleUpdateStatus("completed")} disabled={updateDonation.isPending}>
-                    <CheckCircle className="h-4 w-4 mr-2" />
-                    Submit Distribution Proof
+                  <Button className="w-full bg-gradient-sunset mt-4" onClick={() => handleUpdateStatus("completed")} disabled={updateDonation.isPending || createCommunityPost.isPending}>
+                    {createCommunityPost.isPending ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <CheckCircle className="h-4 w-4 mr-2" />}
+                    Submit Proof & Post to Feed
                   </Button>
                 )}
               </CardContent>
@@ -196,7 +222,7 @@ const NgoDashboard = () => {
           ) : selectedRequest.status === "accepted" ? (
             <Button className="w-full bg-gradient-eco" size="lg" onClick={() => handleUpdateStatus("on_the_way")} disabled={updateDonation.isPending}>
               <Navigation className="h-5 w-5 mr-2" />
-              Mark En Route
+              Start Pickup Journey
             </Button>
           ) : null}
         </main>

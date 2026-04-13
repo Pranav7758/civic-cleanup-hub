@@ -7,6 +7,9 @@ import crypto from "crypto";
 import { fileURLToPath } from "url";
 import { createServer as createViteServer } from "vite";
 import { pool } from "./db";
+import Groq from "groq-sdk";
+
+const groq = new Groq({ apiKey: process.env.GROQ_API_KEY });
 
 const app = express();
 const upload = multer({ dest: "public/uploads" });
@@ -37,6 +40,7 @@ const tableColumns: Record<string, string[]> = {
   notifications: ["id", "user_id", "title", "message", "type", "read", "reference_id", "reference_type", "created_at"],
   messages: ["id", "sender_id", "receiver_id", "content", "read", "created_at"],
   redeem_items: ["id", "title", "description", "points_cost", "stock", "image_emoji", "active", "created_at"],
+  dustbin_collections: ["id", "citizen_id", "worker_id", "fill_level", "points_awarded", "notes", "created_at"],
 };
 
 const publicReadTables = new Set(["training_modules", "scrap_prices", "redeem_items", "community_events"]);
@@ -399,6 +403,90 @@ app.post("/api/worker/complete-task", async (req, res, next) => {
   }
 });
 
+app.post("/api/worker/collect-dustbin", async (req, res, next) => {
+  try {
+    const worker = await requireAuth(req);
+    const { citizenId, fillLevel, notes } = req.body || {};
+
+    if (!citizenId || !fillLevel) throw new Error("Missing required fields");
+
+    // Calculate points
+    let points = 30; // default below_half
+    if (fillLevel === "full") points = 100;
+    else if (fillLevel === "half") points = 60;
+
+    // 1. Insert collection record
+    await pool.query(
+      `insert into dustbin_collections (citizen_id, worker_id, fill_level, points_awarded, notes) values ($1, $2, $3, $4, $5)`,
+      [citizenId, worker.id, fillLevel, points, notes || null]
+    );
+
+    // 2. Add to wallet
+    await pool.query(
+      `insert into wallet_transactions (user_id, type, action, points, reference_type) values ($1, 'earned', 'Dustbin Collected', $2, 'dustbin_collections')`,
+      [citizenId, points]
+    );
+
+    // 3. Update Cleanliness Score & total collections
+    await pool.query(
+      `update cleanliness_scores set score = score + $1, total_collections = total_collections + 1, updated_at = now() where user_id = $2`,
+      [points, citizenId]
+    );
+
+    res.json({ success: true, pointsAwarded: points });
+  } catch (error) {
+    next(error);
+  }
+});
+
+app.post("/api/analyze-waste", upload.single("file"), async (req, res, next) => {
+  try {
+    if (!req.file) throw new Error("File is required");
+
+    const fileData = fs.readFileSync(req.file.path);
+    const base64Image = fileData.toString("base64");
+    const mimeType = req.file.mimetype;
+
+    const chatCompletion = await groq.chat.completions.create({
+      messages: [
+        {
+          role: "user",
+          content: [
+            {
+              type: "text",
+              text: "Analyze this image containing waste/garbage. Return a JSON object ONLY, with the following format: {\"waste_type\": \"dry\" | \"wet\" | \"hazardous\" | \"mixed\", \"confidence\": <number between 0-100>, \"sub_categories\": [\"string list of items like 'cardboard', 'apple cores'\"], \"estimated_weight_kg\": <estimated number>, \"recyclability_score\": <number between 0-10>}."
+            },
+            {
+              type: "image_url",
+              image_url: {
+                url: `data:${mimeType};base64,${base64Image}`,
+              },
+            },
+          ],
+        },
+      ],
+      model: "meta-llama/llama-4-scout-17b-16e-instruct",
+      temperature: 0.2,
+      max_completion_tokens: 512,
+      response_format: { type: "json_object" },
+    });
+
+    const content = chatCompletion.choices[0]?.message?.content;
+    if (!content) throw new Error("AI failed to return an analysis");
+
+    const analysis = JSON.parse(content);
+    
+    // Clean up temporary image file
+    try {
+      fs.unlinkSync(req.file.path);
+    } catch (e) {}
+
+    res.json({ analysis });
+  } catch (error) {
+    next(error);
+  }
+});
+
 app.post("/api/upload", upload.single("file"), (req, res, next) => {
   try {
     if (!req.file) throw new Error("File is required");
@@ -413,6 +501,111 @@ app.post("/api/upload", upload.single("file"), (req, res, next) => {
   } catch (error) {
     next(error);
   }
+});
+
+app.get("/api/reports/pending-verification", async (req, res, next) => {
+  try {
+    const user = await requireAuth(req);
+    // Get reports that are pending and NOT created by the current user
+    const { rows } = await pool.query(
+      `select wr.*, p.full_name as reporter_name 
+       from waste_reports wr 
+       left join profiles p on wr.citizen_id = p.user_id
+       where wr.status = 'pending' 
+       and wr.citizen_id != $1 
+       and wr.image_url is not null 
+       order by wr.created_at desc limit 10`,
+      [user.id]
+    );
+    res.json({ data: rows });
+  } catch (error) { next(error); }
+});
+
+app.post("/api/reports/verify", async (req, res, next) => {
+  try {
+    const user = await requireAuth(req);
+    const { reportId, isLegit } = req.body;
+    if (!reportId) throw new Error("Report ID required");
+    
+    // Award 10 points for verification
+    await pool.query(
+      `insert into wallet_transactions (user_id, type, action, points, reference_id, reference_type) values ($1, 'earned', 'Peer Verification', 10, $2, 'waste_reports')`,
+      [user.id, reportId]
+    );
+    await pool.query(
+      `update cleanliness_scores set score = score + 10, updated_at = now() where user_id = $1`,
+      [user.id]
+    );
+    
+    res.json({ success: true, message: isLegit ? "Report verified as genuine!" : "Report flagged. Thank you for your input.", pointsEarned: 10 });
+  } catch (error) { next(error); }
+});
+
+app.get("/api/community-feed", async (req, res, next) => {
+  try {
+    const { rows } = await pool.query(
+      `select cp.*, 
+        ngo.full_name as ngo_name, ngo.avatar_url as ngo_avatar,
+        cit.full_name as citizen_name
+      from community_posts cp
+      left join profiles ngo on cp.ngo_id = ngo.user_id
+      left join profiles cit on cp.citizen_id = cit.user_id
+      order by cp.created_at desc limit 50`
+    );
+    res.json({ data: rows });
+  } catch (error) { next(error); }
+});
+
+app.post("/api/ngo/create-post", async (req, res, next) => {
+  try {
+    const user = await requireAuth(req);
+    const { donation_id, citizen_id, content, image_url } = req.body;
+    if (!content || !image_url) throw new Error("Missing content or image");
+    const { rows } = await pool.query(
+      `insert into community_posts (donation_id, ngo_id, citizen_id, content, image_url) values ($1, $2, $3, $4, $5) returning *`,
+      [donation_id || null, user.id, citizen_id, content, image_url]
+    );
+    res.json({ data: rows[0] });
+  } catch (error) { next(error); }
+});
+
+app.get("/api/messages/:reference_id", async (req, res, next) => {
+  try {
+    await requireAuth(req);
+    const { reference_id } = req.params;
+    const { rows } = await pool.query(
+      `select m.*, p.full_name as sender_name, p.avatar_url as sender_avatar 
+       from messages m
+       left join profiles p on m.sender_id = p.user_id
+       where reference_id = $1 
+       order by created_at asc`,
+      [reference_id]
+    );
+    res.json({ data: rows });
+  } catch (err) { next(err); }
+});
+
+app.post("/api/messages", async (req, res, next) => {
+  try {
+    const user = await requireAuth(req);
+    const { receiver_id, content, reference_id } = req.body;
+    if (!receiver_id || !content) throw new Error("Missing data");
+    
+    const { rows } = await pool.query(
+      `insert into messages (sender_id, receiver_id, content, reference_id) values ($1, $2, $3, $4) returning *`,
+      [user.id, receiver_id, content, reference_id || null]
+    );
+    
+    // Quick trick to append sender data so UI can immediately append
+    const { rows: fullRows } = await pool.query(
+      `select m.*, p.full_name as sender_name, p.avatar_url as sender_avatar 
+       from messages m
+       left join profiles p on m.sender_id = p.user_id
+       where m.id = $1`,
+       [rows[0].id]
+    );
+    res.json({ data: fullRows[0] });
+  } catch (err) { next(err); }
 });
 
 app.use((err: any, _req: express.Request, res: express.Response, _next: express.NextFunction) => {

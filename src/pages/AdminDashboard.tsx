@@ -49,6 +49,16 @@ import {
   Palette,
   Database,
   Mail,
+  Map,
+  Wifi,
+  BatteryFull,
+  BatteryMedium,
+  BatteryLow,
+  Trophy,
+  Medal,
+  ThumbsUp,
+  ThumbsDown,
+  ShieldCheck,
 } from "lucide-react";
 
 const AdminDashboard = () => {
@@ -130,6 +140,79 @@ const AdminDashboard = () => {
     { month: "Dec", reports: 1550, resolved: 1480, users: 52340 },
   ];
 
+  // --- HEATMAP DATA ---
+  const heatmapZones = [
+    { name: "Sector 1 - Connaught Place", lat: 28.63, lng: 77.22, reports: 87, severity: "critical" },
+    { name: "Sector 5 - Karol Bagh", lat: 28.65, lng: 77.19, reports: 64, severity: "high" },
+    { name: "Sector 9 - Lajpat Nagar", lat: 28.57, lng: 77.24, reports: 52, severity: "high" },
+    { name: "Sector 12 - Dwarka", lat: 28.59, lng: 77.04, reports: 41, severity: "medium" },
+    { name: "Sector 15 - Industrial Zone", lat: 28.63, lng: 77.31, reports: 95, severity: "critical" },
+    { name: "Sector 18 - Noida", lat: 28.57, lng: 77.32, reports: 38, severity: "medium" },
+    { name: "Sector 22 - Rohini", lat: 28.74, lng: 77.11, reports: 29, severity: "low" },
+    { name: "Sector 25 - Saket", lat: 28.52, lng: 77.20, reports: 18, severity: "low" },
+    { name: "Old Delhi", lat: 28.66, lng: 77.23, reports: 73, severity: "high" },
+    { name: "South Extension", lat: 28.58, lng: 77.22, reports: 22, severity: "low" },
+    { name: "Nehru Place", lat: 28.55, lng: 77.25, reports: 45, severity: "medium" },
+    { name: "Janakpuri", lat: 28.62, lng: 77.08, reports: 33, severity: "medium" },
+  ];
+  const getSeverityColor = (severity: string) => {
+    switch (severity) {
+      case "critical": return "bg-red-500";
+      case "high": return "bg-orange-400";
+      case "medium": return "bg-yellow-400";
+      case "low": return "bg-emerald-400";
+      default: return "bg-muted";
+    }
+  };
+  const getSeverityBg = (severity: string) => {
+    switch (severity) {
+      case "critical": return "bg-red-500/10 border-red-500/30 hover:bg-red-500/20";
+      case "high": return "bg-orange-400/10 border-orange-400/30 hover:bg-orange-400/20";
+      case "medium": return "bg-yellow-400/10 border-yellow-400/30 hover:bg-yellow-400/20";
+      case "low": return "bg-emerald-400/10 border-emerald-400/30 hover:bg-emerald-400/20";
+      default: return "bg-muted";
+    }
+  };
+
+  // --- IoT DUSTBIN DATA ---
+  const iotBins = [
+    { id: "BIN-001", location: "Connaught Place Gate 3", fillPercent: 92, lastUpdated: "2 min ago", battery: 78, status: "alert" },
+    { id: "BIN-002", location: "Karol Bagh Metro Exit", fillPercent: 75, lastUpdated: "5 min ago", battery: 91, status: "warning" },
+    { id: "BIN-003", location: "Saket Select City Mall", fillPercent: 34, lastUpdated: "1 min ago", battery: 95, status: "normal" },
+    { id: "BIN-004", location: "Nehru Place Bus Stand", fillPercent: 88, lastUpdated: "3 min ago", battery: 62, status: "alert" },
+    { id: "BIN-005", location: "Rohini Sector 22 Park", fillPercent: 15, lastUpdated: "8 min ago", battery: 45, status: "normal" },
+    { id: "BIN-006", location: "Dwarka Sector 12 Market", fillPercent: 67, lastUpdated: "4 min ago", battery: 88, status: "warning" },
+    { id: "BIN-007", location: "Lajpat Nagar Central", fillPercent: 97, lastUpdated: "1 min ago", battery: 33, status: "critical" },
+    { id: "BIN-008", location: "Old Delhi Chandni Chowk", fillPercent: 51, lastUpdated: "6 min ago", battery: 72, status: "normal" },
+  ];
+  const getBinFillColor = (pct: number) => pct >= 90 ? "bg-red-500" : pct >= 70 ? "bg-orange-400" : pct >= 50 ? "bg-yellow-400" : "bg-emerald-500";
+  const getBinStatusBadge = (status: string) => {
+    switch (status) {
+      case "critical": return "bg-red-500/10 text-red-600 border-red-500/30";
+      case "alert": return "bg-orange-400/10 text-orange-600 border-orange-400/30";
+      case "warning": return "bg-yellow-400/10 text-yellow-700 border-yellow-400/30";
+      default: return "bg-emerald-400/10 text-emerald-700 border-emerald-400/30";
+    }
+  };
+
+  // --- LEADERBOARD DATA ---
+  const neighborhoodLeaderboard = [
+    { rank: 1, area: "South Delhi", ward: "Ward 14", score: 9850, citizens: 4200, reports: 890, trend: "+12%" },
+    { rank: 2, area: "Dwarka", ward: "Ward 22", score: 8720, citizens: 3800, reports: 740, trend: "+8%" },
+    { rank: 3, area: "Rohini", ward: "Ward 31", score: 7650, citizens: 5100, reports: 620, trend: "+15%" },
+    { rank: 4, area: "Saket", ward: "Ward 18", score: 6890, citizens: 2900, reports: 510, trend: "+5%" },
+    { rank: 5, area: "Karol Bagh", ward: "Ward 8", score: 5430, citizens: 3200, reports: 450, trend: "-2%" },
+    { rank: 6, area: "Old Delhi", ward: "Ward 3", score: 4200, citizens: 6100, reports: 380, trend: "+3%" },
+    { rank: 7, area: "Noida Ext", ward: "Ward 40", score: 3100, citizens: 2100, reports: 210, trend: "+18%" },
+    { rank: 8, area: "Janakpuri", ward: "Ward 25", score: 2800, citizens: 2800, reports: 190, trend: "-1%" },
+  ];
+  const getRankIcon = (rank: number) => {
+    if (rank === 1) return "🥇";
+    if (rank === 2) return "🥈";
+    if (rank === 3) return "🥉";
+    return `#${rank}`;
+  };
+
   return (
     <div className="min-h-screen bg-rice-paper">
       <AppHeader
@@ -145,6 +228,9 @@ const AdminDashboard = () => {
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
           <TabsList className="w-full justify-start overflow-x-auto flex-nowrap bg-muted/50 p-1">
             <TabsTrigger value="overview" className="gap-2"><LayoutDashboard className="h-4 w-4" />Overview</TabsTrigger>
+            <TabsTrigger value="heatmap" className="gap-2"><Map className="h-4 w-4" />Heatmap</TabsTrigger>
+            <TabsTrigger value="iot" className="gap-2"><Wifi className="h-4 w-4" />IoT Bins</TabsTrigger>
+            <TabsTrigger value="leaderboard" className="gap-2"><Trophy className="h-4 w-4" />Leaderboard</TabsTrigger>
             <TabsTrigger value="users" className="gap-2"><Users className="h-4 w-4" />Users</TabsTrigger>
             <TabsTrigger value="benefits" className="gap-2"><Coins className="h-4 w-4" />Benefits</TabsTrigger>
             <TabsTrigger value="analytics" className="gap-2"><BarChart3 className="h-4 w-4" />Analytics</TabsTrigger>
@@ -256,6 +342,209 @@ const AdminDashboard = () => {
                 </CardContent>
               </Card>
             </div>
+          </TabsContent>
+
+          {/* HEATMAP TAB */}
+          <TabsContent value="heatmap" className="space-y-6 mt-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <h2 className="font-display font-bold text-xl">City Waste Heatmap</h2>
+                <p className="text-sm text-muted-foreground mt-1">Visualize waste hotspots across the city to optimize truck deployment</p>
+              </div>
+              <div className="flex gap-2">
+                <Button variant="outline" size="sm"><Download className="h-4 w-4 mr-1" />Export Report</Button>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+              <StatsCard title="Critical Zones" value={String(heatmapZones.filter(z => z.severity === 'critical').length)} icon={AlertTriangle} color="rose" />
+              <StatsCard title="High Priority" value={String(heatmapZones.filter(z => z.severity === 'high').length)} icon={TrendingUp} color="amber" />
+              <StatsCard title="Total Reports" value={String(heatmapZones.reduce((s, z) => s + z.reports, 0))} icon={FileText} color="blue" />
+              <StatsCard title="Zones Monitored" value={String(heatmapZones.length)} icon={MapPin} color="green" />
+            </div>
+
+            {/* Legend */}
+            <div className="flex items-center gap-6 px-4 py-3 bg-muted/30 rounded-xl border">
+              <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Severity:</span>
+              {[{label:"Critical",color:"bg-red-500"},{label:"High",color:"bg-orange-400"},{label:"Medium",color:"bg-yellow-400"},{label:"Low",color:"bg-emerald-400"}].map(l => (
+                <span key={l.label} className="flex items-center gap-1.5 text-xs font-medium"><span className={`h-3 w-3 rounded-full ${l.color}`} />{l.label}</span>
+              ))}
+            </div>
+
+            {/* Heatmap Grid */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {heatmapZones.sort((a,b) => b.reports - a.reports).map((zone, i) => (
+                <div key={i} className={`p-5 rounded-2xl border transition-all cursor-pointer ${getSeverityBg(zone.severity)}`}>
+                  <div className="flex items-start justify-between mb-3">
+                    <div className="flex items-center gap-3">
+                      <div className={`h-4 w-4 rounded-full ${getSeverityColor(zone.severity)} ${zone.severity === 'critical' ? 'animate-pulse' : ''}`} />
+                      <div>
+                        <p className="font-semibold text-sm">{zone.name}</p>
+                        <p className="text-[10px] text-muted-foreground mt-0.5">Lat: {zone.lat.toFixed(2)}, Lng: {zone.lng.toFixed(2)}</p>
+                      </div>
+                    </div>
+                    <Badge variant="outline" className="text-xs capitalize">{zone.severity}</Badge>
+                  </div>
+                  <div className="flex items-end justify-between mt-4">
+                    <div>
+                      <p className="text-3xl font-display font-bold">{zone.reports}</p>
+                      <p className="text-[10px] text-muted-foreground">active reports</p>
+                    </div>
+                    <div className="h-10 w-24 flex items-end gap-0.5">
+                      {Array.from({length: 8}).map((_, j) => (
+                        <div key={j} className={`flex-1 rounded-t-sm ${getSeverityColor(zone.severity)} opacity-${30 + Math.random() * 70 | 0}`} style={{height: `${20 + Math.random() * 80}%`, opacity: 0.3 + Math.random() * 0.7}} />
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </TabsContent>
+
+          {/* IoT BINS TAB */}
+          <TabsContent value="iot" className="space-y-6 mt-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <h2 className="font-display font-bold text-xl">Smart IoT Dustbin Network</h2>
+                <p className="text-sm text-muted-foreground mt-1">Real-time fill levels from sensor-enabled public bins</p>
+              </div>
+              <Badge className="bg-emerald-500/10 text-emerald-700 border-emerald-500/30 gap-1.5 py-1.5 px-3">
+                <span className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
+                Live Monitoring
+              </Badge>
+            </div>
+
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+              <StatsCard title="Total Bins" value={String(iotBins.length)} icon={Trash2} color="green" />
+              <StatsCard title="Bins Full (>90%)" value={String(iotBins.filter(b => b.fillPercent >= 90).length)} icon={AlertTriangle} color="rose" />
+              <StatsCard title="Avg Fill Level" value={`${Math.round(iotBins.reduce((s,b) => s+b.fillPercent, 0)/iotBins.length)}%`} icon={Activity} color="amber" />
+              <StatsCard title="Low Battery" value={String(iotBins.filter(b => b.battery < 50).length)} icon={Zap} color="purple" />
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+              {iotBins.map((bin) => (
+                <Card key={bin.id} className="border-timber/30 shadow-soft rounded-[1.5rem] overflow-hidden hover:shadow-float transition-all">
+                  <div className={`h-2 ${getBinFillColor(bin.fillPercent)}`} />
+                  <CardContent className="p-5 space-y-4">
+                    <div className="flex items-start justify-between">
+                      <div>
+                        <p className="font-mono text-xs text-muted-foreground">{bin.id}</p>
+                        <p className="font-semibold text-sm mt-1 leading-tight">{bin.location}</p>
+                      </div>
+                      <Badge variant="outline" className={`text-[10px] capitalize ${getBinStatusBadge(bin.status)}`}>{bin.status}</Badge>
+                    </div>
+
+                    {/* Fill Level Visual */}
+                    <div className="space-y-2">
+                      <div className="flex justify-between text-xs">
+                        <span className="text-muted-foreground">Fill Level</span>
+                        <span className="font-bold">{bin.fillPercent}%</span>
+                      </div>
+                      <div className="h-8 bg-muted/50 rounded-lg overflow-hidden relative border">
+                        <div className={`h-full ${getBinFillColor(bin.fillPercent)} transition-all rounded-lg`} style={{width: `${bin.fillPercent}%`}} />
+                        {bin.fillPercent >= 90 && <div className="absolute inset-0 bg-red-500/10 animate-pulse rounded-lg" />}
+                      </div>
+                    </div>
+
+                    <div className="flex items-center justify-between text-xs text-muted-foreground">
+                      <span className="flex items-center gap-1">
+                        {bin.battery > 70 ? <BatteryFull className="h-3.5 w-3.5 text-emerald-500" /> : bin.battery > 40 ? <BatteryMedium className="h-3.5 w-3.5 text-yellow-500" /> : <BatteryLow className="h-3.5 w-3.5 text-red-500" />}
+                        {bin.battery}%
+                      </span>
+                      <span>{bin.lastUpdated}</span>
+                    </div>
+
+                    {bin.fillPercent >= 85 && (
+                      <Button size="sm" className="w-full bg-gradient-eco text-white text-xs h-8">
+                        <Truck className="h-3 w-3 mr-1.5" />Dispatch Truck
+                      </Button>
+                    )}
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          </TabsContent>
+
+          {/* LEADERBOARD TAB */}
+          <TabsContent value="leaderboard" className="space-y-6 mt-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <h2 className="font-display font-bold text-xl">Neighborhood Leaderboard</h2>
+                <p className="text-sm text-muted-foreground mt-1">Localities competing for the cleanest neighborhood title</p>
+              </div>
+              <Badge className="bg-primary/10 text-primary border-primary/30 gap-1.5 py-1.5 px-3">
+                <Trophy className="h-3.5 w-3.5" />
+                Season 4 — Active
+              </Badge>
+            </div>
+
+            {/* Top 3 Podium */}
+            <div className="grid grid-cols-3 gap-4">
+              {neighborhoodLeaderboard.slice(0, 3).map((entry, i) => (
+                <Card key={i} className={`border-timber/30 shadow-soft rounded-[1.5rem] text-center overflow-hidden ${i === 0 ? 'ring-2 ring-yellow-400/50' : ''}`}>
+                  <div className={`py-2 text-xs font-bold text-white ${i === 0 ? 'bg-gradient-to-r from-yellow-500 to-amber-500' : i === 1 ? 'bg-gradient-to-r from-gray-400 to-gray-500' : 'bg-gradient-to-r from-orange-600 to-orange-700'}`}>
+                    {i === 0 ? '🏆 CHAMPION' : i === 1 ? '🥈 2ND PLACE' : '🥉 3RD PLACE'}
+                  </div>
+                  <CardContent className="p-5">
+                    <p className="text-4xl mb-2">{getRankIcon(entry.rank)}</p>
+                    <h3 className="font-display font-bold text-lg">{entry.area}</h3>
+                    <p className="text-xs text-muted-foreground">{entry.ward}</p>
+                    <p className="text-3xl font-display font-bold text-primary mt-3">{entry.score.toLocaleString()}</p>
+                    <p className="text-xs text-muted-foreground">Total Score</p>
+                    <div className="flex justify-center gap-4 mt-4 text-xs">
+                      <div><p className="font-bold">{entry.citizens.toLocaleString()}</p><p className="text-muted-foreground">Citizens</p></div>
+                      <div><p className="font-bold">{entry.reports}</p><p className="text-muted-foreground">Reports</p></div>
+                    </div>
+                    <Badge variant="outline" className="mt-3 text-moss border-eco-green/30"><ArrowUpRight className="h-3 w-3 mr-1" />{entry.trend}</Badge>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+
+            {/* Full Table */}
+            <Card className="border-timber/30 shadow-soft rounded-[1.5rem]">
+              <CardHeader className="pb-3"><CardTitle className="text-lg font-display">Full Rankings</CardTitle></CardHeader>
+              <CardContent className="p-0">
+                <div className="overflow-x-auto">
+                  <table className="w-full">
+                    <thead><tr className="border-b bg-muted/30">
+                      <th className="text-left p-4 text-xs font-medium text-muted-foreground">Rank</th>
+                      <th className="text-left p-4 text-xs font-medium text-muted-foreground">Area</th>
+                      <th className="text-left p-4 text-xs font-medium text-muted-foreground hidden md:table-cell">Ward</th>
+                      <th className="text-left p-4 text-xs font-medium text-muted-foreground">Score</th>
+                      <th className="text-left p-4 text-xs font-medium text-muted-foreground hidden lg:table-cell">Citizens</th>
+                      <th className="text-left p-4 text-xs font-medium text-muted-foreground hidden lg:table-cell">Reports</th>
+                      <th className="text-right p-4 text-xs font-medium text-muted-foreground">Trend</th>
+                    </tr></thead>
+                    <tbody>
+                      {neighborhoodLeaderboard.map((entry) => (
+                        <tr key={entry.rank} className={`border-b hover:bg-muted/30 transition-colors ${entry.rank <= 3 ? 'bg-primary/5' : ''}`}>
+                          <td className="p-4 font-display font-bold text-lg">{getRankIcon(entry.rank)}</td>
+                          <td className="p-4 font-semibold text-sm">{entry.area}</td>
+                          <td className="p-4 text-sm text-muted-foreground hidden md:table-cell">{entry.ward}</td>
+                          <td className="p-4 font-mono font-bold text-primary">{entry.score.toLocaleString()}</td>
+                          <td className="p-4 text-sm hidden lg:table-cell">{entry.citizens.toLocaleString()}</td>
+                          <td className="p-4 text-sm hidden lg:table-cell">{entry.reports}</td>
+                          <td className="p-4 text-right">
+                            <Badge variant="outline" className={entry.trend.startsWith('+') ? 'text-moss border-eco-green/30' : 'text-red-500 border-red-300'}>{entry.trend}</Badge>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card className="border-timber/30 shadow-soft rounded-[1.5rem] p-6 bg-primary/5">
+              <div className="flex items-center gap-4">
+                <div className="bg-primary/10 p-3 rounded-full"><Trophy className="h-8 w-8 text-primary" /></div>
+                <div>
+                  <h3 className="font-display font-bold text-lg">Season Prize</h3>
+                  <p className="text-sm text-muted-foreground">The winning neighborhood receives a <strong>20% Property Tax Rebate</strong> for all residents next quarter + a Municipal Beautification Grant of ₹5,00,000.</p>
+                </div>
+              </div>
+            </Card>
           </TabsContent>
 
           {/* USERS TAB */}

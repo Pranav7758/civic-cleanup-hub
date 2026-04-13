@@ -26,8 +26,9 @@ const roles: RoleConfig[] = [
   { id: "worker", label: "Worker", icon: Briefcase, color: "bg-[#5A8A9E]", description: "Manage pickup tasks" },
   { id: "ngo", label: "NGO", icon: Heart, color: "bg-burnt-sienna", description: "Handle donations" },
   { id: "scrap_dealer", label: "Dealer", icon: Package, color: "bg-clay", description: "Buy recyclables" },
-  { id: "admin", label: "Admin", icon: Shield, color: "bg-[#7A6890]", description: "System management" },
 ];
+
+const adminRole: RoleConfig = { id: "admin", label: "Admin", icon: Shield, color: "bg-[#7A6890]", description: "System management" };
 
 const Login = () => {
   const navigate = useNavigate();
@@ -37,8 +38,11 @@ const Login = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [formData, setFormData] = useState({ email: "", password: "", name: "", phone: "" });
+  const [secretTaps, setSecretTaps] = useState(0);
+  const [adminMode, setAdminMode] = useState(false);
 
-  const selectedRoleConfig = roles.find(r => r.id === selectedRole)!;
+  const allRolesForDisplay = adminMode ? [...roles, adminRole] : roles;
+  const selectedRoleConfig = (selectedRole === "admin" ? adminRole : roles.find(r => r.id === selectedRole)) || roles[0];
 
   useEffect(() => {
     if (user && userRoles.length > 0) {
@@ -76,6 +80,11 @@ const Login = () => {
         toast.success("Welcome back!");
         navigate(route);
       } else {
+        if (selectedRole === "admin") {
+          toast.error("Admin accounts cannot be created through signup.");
+          setIsLoading(false);
+          return;
+        }
         await signUp(formData.email, formData.password, formData.name, selectedRole, formData.phone);
         toast.success("Account created! Please check your email to verify.");
       }
@@ -109,7 +118,18 @@ const Login = () => {
           <div className="space-y-8">
             <div className="flex items-center gap-3">
               <div className="p-3 bg-white/15 rounded-full backdrop-blur-sm"><Recycle className="h-8 w-8 text-white" /></div>
-              <span className="text-2xl font-display font-bold text-white">EcoConnect</span>
+              <span className="text-2xl font-display font-bold text-white" onClick={() => {
+                const newTaps = secretTaps + 1;
+                setSecretTaps(newTaps);
+                if (newTaps >= 5) {
+                  setAdminMode(true);
+                  setSelectedRole("admin");
+                  setIsLogin(true);
+                  toast.success("🔓 Admin mode unlocked");
+                  setSecretTaps(0);
+                }
+                setTimeout(() => setSecretTaps(0), 2000);
+              }}>EcoConnect</span>
             </div>
             <div>
               <h1 className="text-4xl md:text-5xl font-display font-bold text-white mb-4">{isLogin ? "Welcome Back" : "Join the Movement"}</h1>
@@ -118,7 +138,7 @@ const Login = () => {
               </p>
             </div>
             <div className="flex flex-wrap gap-2">
-              {roles.map((role) => (
+              {allRolesForDisplay.map((role) => (
                 <button key={role.id} onClick={() => setSelectedRole(role.id)}
                   className={`flex items-center gap-2 px-5 py-2.5 rounded-full transition-all duration-300 font-semibold ${
                     selectedRole === role.id ? "bg-white text-foreground shadow-float scale-105" : "bg-white/15 text-white hover:bg-white/25"
@@ -142,8 +162,8 @@ const Login = () => {
           {/* Mobile role selector */}
           <div className="lg:hidden mb-6">
             <Label className="text-sm text-muted-foreground mb-3 block font-semibold">Select your role</Label>
-            <div className="grid grid-cols-5 gap-2">
-              {roles.map((role) => (
+            <div className="grid grid-cols-4 gap-2">
+              {allRolesForDisplay.filter(r => r.id !== 'admin').map((role) => (
                 <button key={role.id} onClick={() => setSelectedRole(role.id)}
                   className={`flex flex-col items-center gap-1 p-3 rounded-2xl transition-all duration-300 ${
                     selectedRole === role.id ? `${role.color} text-white shadow-soft scale-105` : "bg-muted hover:bg-muted/80"
@@ -164,9 +184,11 @@ const Login = () => {
             </CardHeader>
             <CardContent>
               <Tabs value={isLogin ? "login" : "signup"} className="w-full">
-                <TabsList className="grid w-full grid-cols-2 mb-6 rounded-full bg-muted/60 p-1">
+              <TabsList className="grid w-full grid-cols-2 mb-6 rounded-full bg-muted/60 p-1">
                   <TabsTrigger value="login" onClick={() => setIsLogin(true)} className="rounded-full data-[state=active]:bg-white data-[state=active]:shadow-sm font-semibold">Sign In</TabsTrigger>
-                  <TabsTrigger value="signup" onClick={() => setIsLogin(false)} className="rounded-full data-[state=active]:bg-white data-[state=active]:shadow-sm font-semibold">Sign Up</TabsTrigger>
+                  {selectedRole !== "admin" && (
+                    <TabsTrigger value="signup" onClick={() => setIsLogin(false)} className="rounded-full data-[state=active]:bg-white data-[state=active]:shadow-sm font-semibold">Sign Up</TabsTrigger>
+                  )}
                 </TabsList>
                 <form onSubmit={handleSubmit} className="space-y-4">
                   {!isLogin && (

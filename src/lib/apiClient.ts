@@ -218,6 +218,44 @@ export const apiClient = {
       body: JSON.stringify({ taskId, completionImageUrl }),
     });
   },
+  async collectDustbin(citizenId: string, fillLevel: string, notes?: string) {
+    return request("/api/worker/collect-dustbin", {
+      method: "POST",
+      body: JSON.stringify({ citizenId, fillLevel, notes }),
+    });
+  },
+  async analyzeWaste(file: File) {
+    const form = new FormData();
+    form.append("file", file);
+    return request("/api/analyze-waste", { method: "POST", body: form });
+  },
+  async getCommunityFeed() {
+    return request("/api/community-feed");
+  },
+  async createCommunityPost(donation_id: string | undefined, citizen_id: string, content: string, image_url: string) {
+    return request("/api/ngo/create-post", {
+      method: "POST",
+      body: JSON.stringify({ donation_id, citizen_id, content, image_url }),
+    });
+  },
+  async getMessages(referenceId: string) {
+    return request(`/api/messages/${referenceId}`);
+  },
+  async sendMessage(receiver_id: string, content: string, reference_id?: string) {
+    return request("/api/messages", {
+      method: "POST",
+      body: JSON.stringify({ receiver_id, content, reference_id }),
+    });
+  },
+  async getPendingVerifications() {
+    return request("/api/reports/pending-verification");
+  },
+  async verifyReport(reportId: string, isLegit: boolean) {
+    return request("/api/reports/verify", {
+      method: "POST",
+      body: JSON.stringify({ reportId, isLegit }),
+    });
+  },
 };
 
 export type { Session };

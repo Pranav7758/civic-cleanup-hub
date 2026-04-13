@@ -8,6 +8,7 @@ import { StatsCard } from "@/components/shared/StatsCard";
 import { StatusBadge } from "@/components/shared/StatusBadge";
 import { TrackingMap } from "@/components/shared/TrackingMap";
 import { useScrapPrices, useDealerListings, useUpdateScrapListing } from "@/hooks/useScrap";
+import { ChatBox } from "@/components/shared/ChatBox";
 import { 
   Home, Package, ListFilter, Clock, User, MapPin, Phone, MessageCircle, CheckCircle, Navigation, Recycle, TrendingUp, ChevronRight, Scale, Newspaper, Box, Cpu, CircleDollarSign, Settings
 } from "lucide-react";
@@ -154,16 +155,19 @@ const ScrapDashboard = () => {
             <div className="flex gap-3">
               <Button className="flex-1 bg-gradient-eco" size="lg" onClick={() => handleUpdateStatus("accepted")} disabled={updateListing.isPending}>
                 <CheckCircle className="h-5 w-5 mr-2" />
-                Accept & Schedule
+                Accept Request
               </Button>
             </div>
           )}
 
           {selectedListing.status === "accepted" && (
-            <Button className="w-full bg-gradient-golden" size="lg" onClick={() => handleUpdateStatus("on_the_way")} disabled={updateListing.isPending}>
-              <Navigation className="h-5 w-5 mr-2" />
-              Start Pickup Journey
-            </Button>
+            <div className="space-y-6">
+              <ChatBox referenceId={selectedListing.id} receiverId={selectedListing.citizen_id} />
+              <Button className="w-full bg-gradient-golden" size="lg" onClick={() => handleUpdateStatus("on_the_way")} disabled={updateListing.isPending}>
+                <Navigation className="h-5 w-5 mr-2" />
+                Start Pickup Journey
+              </Button>
+            </div>
           )}
 
           {selectedListing.status === "on_the_way" && (

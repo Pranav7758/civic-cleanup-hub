@@ -13,6 +13,8 @@ import CitizenReportWaste from "./pages/CitizenReportWaste";
 import CitizenScrapSell from "./pages/CitizenScrapSell";
 import CitizenDonateHub from "./pages/CitizenDonateHub";
 import CommunityEvents from "./pages/CommunityEvents";
+import CommunityFeed from "./pages/CommunityFeed";
+import PeerVerify from "./pages/PeerVerify";
 import WorkerDashboard from "./pages/WorkerDashboard";
 import NgoDashboard from "./pages/NgoDashboard";
 import ScrapDashboard from "./pages/ScrapDashboard";
@@ -52,6 +54,8 @@ const AppRoutes = () => (
     <Route path="/citizen/scrap" element={<ProtectedRoute allowedRoles={["citizen"]}><CitizenScrapSell /></ProtectedRoute>} />
     <Route path="/citizen/donate" element={<ProtectedRoute allowedRoles={["citizen"]}><CitizenDonateHub /></ProtectedRoute>} />
     <Route path="/citizen/events" element={<ProtectedRoute allowedRoles={["citizen"]}><CommunityEvents /></ProtectedRoute>} />
+    <Route path="/citizen/verify" element={<ProtectedRoute allowedRoles={["citizen"]}><PeerVerify /></ProtectedRoute>} />
+    <Route path="/community" element={<ProtectedRoute allowedRoles={["citizen", "ngo", "admin"]}><CommunityFeed /></ProtectedRoute>} />
     <Route path="/worker/*" element={<ProtectedRoute allowedRoles={["worker"]}><WorkerDashboard /></ProtectedRoute>} />
     <Route path="/ngo/*" element={<ProtectedRoute allowedRoles={["ngo"]}><NgoDashboard /></ProtectedRoute>} />
     <Route path="/scrap/*" element={<ProtectedRoute allowedRoles={["scrap_dealer"]}><ScrapDashboard /></ProtectedRoute>} />

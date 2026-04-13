@@ -6,6 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { AppHeader } from "@/components/layout/AppHeader";
 import { ImageUpload } from "@/components/shared/ImageUpload";
 import { StatusBadge } from "@/components/shared/StatusBadge";
+import { ChatBox } from "@/components/shared/ChatBox";
 import { useScrapPrices, useCreateScrapListing, useMyScrapListings } from "@/hooks/useScrap";
 import { uploadImage } from "@/hooks/useWasteReports";
 import {
@@ -220,12 +221,21 @@ const CitizenScrapSell = () => {
                   <CardHeader className="pb-3 border-b"><CardTitle className="text-lg font-display">Your Listings</CardTitle></CardHeader>
                   <CardContent className="p-4 space-y-3">
                     {(myListings || []).map((listing: any) => (
-                      <div key={listing.id} className="flex items-center justify-between p-3 rounded-xl bg-rice-paper border shadow-sm hover:shadow-md transition-shadow">
-                        <div>
-                          <p className="text-base font-semibold text-primary">₹{listing.total_estimate}</p>
-                          <p className="text-xs text-muted-foreground mt-0.5">{listing.total_weight}kg • {new Date(listing.created_at).toLocaleDateString()}</p>
+                      <div key={listing.id} className="flex flex-col p-4 rounded-xl bg-rice-paper border shadow-sm hover:shadow-md transition-shadow">
+                        <div className="flex items-center justify-between mb-2">
+                          <div>
+                            <p className="text-base font-semibold text-primary">₹{listing.total_estimate}</p>
+                            <p className="text-xs text-muted-foreground mt-0.5">{listing.total_weight}kg • {new Date(listing.created_at).toLocaleDateString()}</p>
+                          </div>
+                          <StatusBadge status={listing.status} size="sm" />
                         </div>
-                        <StatusBadge status={listing.status} size="sm" />
+                        
+                        {listing.status === "accepted" && (
+                          <div className="mt-3 border-t pt-3">
+                            <p className="text-sm font-semibold mb-3 flex items-center gap-2 text-clay"><MessageCircle className="h-4 w-4" /> Live Negotiation</p>
+                            <ChatBox referenceId={listing.id} receiverId={listing.dealer_id} />
+                          </div>
+                        )}
                       </div>
                     ))}
                   </CardContent>

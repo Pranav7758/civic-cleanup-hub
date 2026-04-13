@@ -18,6 +18,7 @@ interface Profile {
   address: string | null;
   city: string | null;
   ward: string | null;
+  dustbin_code?: string;
 }
 
 interface AuthContextType {

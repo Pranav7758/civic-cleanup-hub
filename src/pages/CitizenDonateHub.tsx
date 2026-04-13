@@ -139,21 +139,24 @@ const CitizenDonateHub = () => {
                     <p className="text-muted-foreground font-medium">No donations yet.</p>
                   </div>
                 ) : (myDonations || []).map((donation: any) => (
-                  <Card key={donation.id} className="border hover:shadow-md transition-all shadow-sm">
-                    <CardContent className="p-5">
-                      <div className="flex items-start justify-between mb-3">
-                        <div>
-                          <h4 className="font-semibold text-base capitalize">{donation.category} items</h4>
-                          <p className="text-xs text-muted-foreground font-mono mt-0.5">{new Date(donation.created_at).toLocaleDateString()}</p>
+                  <Card key={donation.id} className="border hover:shadow-md transition-all shadow-sm overflow-hidden">
+                    <CardContent className="p-0">
+                      <div className="p-5">
+                        <div className="flex items-start justify-between mb-3">
+                          <div>
+                            <h4 className="font-semibold text-base capitalize">{donation.category} items</h4>
+                            <p className="text-xs text-muted-foreground font-mono mt-0.5">{new Date(donation.created_at).toLocaleDateString()}</p>
+                          </div>
+                          <StatusBadge status={donation.status} size="sm" />
                         </div>
-                        <StatusBadge status={donation.status} size="sm" />
+                        {donation.description && <p className="text-sm text-muted-foreground bg-muted/30 p-3 rounded-lg mb-4">{donation.description}</p>}
+
+                        {donation.proof_image_url && (
+                          <Button variant="outline" size="sm" className="w-full mt-4" onClick={() => navigate("/community")}>
+                            <Eye className="h-4 w-4 mr-2" />View Transparency Post
+                          </Button>
+                        )}
                       </div>
-                      {donation.description && <p className="text-sm text-muted-foreground bg-muted/30 p-3 rounded-lg">{donation.description}</p>}
-                      {donation.proof_image_url && (
-                        <Button variant="outline" size="sm" className="w-full mt-4">
-                          <Eye className="h-4 w-4 mr-2" />View Distribution Proof
-                        </Button>
-                      )}
                     </CardContent>
                   </Card>
                 ))}

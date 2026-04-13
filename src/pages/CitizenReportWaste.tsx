@@ -9,8 +9,9 @@ import { AppHeader } from "@/components/layout/AppHeader";
 import { ImageUpload } from "@/components/shared/ImageUpload";
 import { LocationPicker } from "@/components/shared/LocationPicker";
 import { useCreateReport, uploadImage } from "@/hooks/useWasteReports";
+import { apiClient } from "@/lib/apiClient";
 import {
-  Camera, Send, AlertTriangle, CheckCircle, Trash2, Recycle, Flame, Loader2, Info, ChevronRight,
+  Camera, Send, AlertTriangle, CheckCircle, Trash2, Recycle, Flame, Loader2, Info, ChevronRight, Sparkles
 } from "lucide-react";
 import { toast } from "sonner";
 
@@ -26,6 +27,12 @@ const CitizenReportWaste = () => {
   const [reportId, setReportId] = useState("");
 
   const [isAnalyzing, setIsAnalyzing] = useState(false);
+  const [aiAnalysis, setAiAnalysis] = useState<{
+    confidence?: number;
+    sub_categories?: string[];
+    estimated_weight_kg?: number;
+    recyclability_score?: number;
+  } | null>(null);
 
   const createReport = useCreateReport();
 
@@ -36,21 +43,39 @@ const CitizenReportWaste = () => {
     { value: "mixed", label: "Mixed / Bulk", icon: AlertTriangle, desc: "Large dumps, construction debris" },
   ];
 
-  const handleImageSelect = (file: File | null, preview: string | null) => {
+  const handleImageSelect = async (file: File | null, preview: string | null) => {
     setImageFile(file);
     setImagePreview(preview);
+    setAiAnalysis(null);
     if (file) {
       setIsAnalyzing(true);
-      setWasteType(""); // Reset
-      // Simulate AI Analysis
-      setTimeout(() => {
-        setIsAnalyzing(false);
+      setWasteType(""); 
+      try {
+        const { analysis } = await apiClient.analyzeWaste(file);
+        
+        let foundType = "mixed";
+        if (["dry", "wet", "hazardous", "mixed"].includes(analysis.waste_type)) {
+          foundType = analysis.waste_type;
+        }
+        
+        setWasteType(foundType);
+        setAiAnalysis(analysis);
+        
+        toast.success(`AI Detection: ${foundType} (Confidence: ${analysis.confidence}%)`);
+        
+        if (analysis.sub_categories && analysis.sub_categories.length > 0) {
+          setNotes(`Identified materials: ${analysis.sub_categories.join(', ')}`);
+        }
+        
+        if (step === 1) setStep(2);
+      } catch (err: any) {
+        toast.error("AI Analysis using vision models failed. Providing mock selection.", { description: err.message });
         const randomType = wasteTypes[Math.floor(Math.random() * wasteTypes.length)].value;
         setWasteType(randomType);
-        toast.success("AI Analysis Complete: Found " + randomType + " waste");
-        // Scroll or advance to step 2 automatically
         if (step === 1) setStep(2);
-      }, 2500);
+      } finally {
+        setIsAnalyzing(false);
+      }
     } else {
       setWasteType("");
     }
@@ -159,6 +184,25 @@ const CitizenReportWaste = () => {
                 )}
                 
                 <Label className="text-sm font-medium">Waste Type</Label>
+                
+                {aiAnalysis && (
+                  <div className="bg-primary/5 border-2 border-primary/20 p-4 rounded-2xl mb-4 text-left">
+                    <div className="flex items-center justify-between mb-2">
+                      <span className="text-sm font-bold font-display text-primary flex items-center gap-2"><Sparkles className="h-4 w-4" /> AI Analysis Result</span>
+                      <Badge variant="outline" className="bg-white border-primary/20">{aiAnalysis.confidence}% Match</Badge>
+                    </div>
+                    {aiAnalysis.sub_categories && aiAnalysis.sub_categories.length > 0 && (
+                      <p className="text-xs text-muted-foreground"><span className="font-semibold text-foreground">Detected:</span> {aiAnalysis.sub_categories.join(', ')}</p>
+                    )}
+                    {(aiAnalysis.estimated_weight_kg || aiAnalysis.recyclability_score) && (
+                      <div className="flex gap-4 mt-2">
+                        {aiAnalysis.estimated_weight_kg && <p className="text-xs text-muted-foreground"><span className="font-semibold text-foreground">Est. Weight:</span> {aiAnalysis.estimated_weight_kg} kg</p>}
+                        {aiAnalysis.recyclability_score && <p className="text-xs text-muted-foreground"><span className="font-semibold text-foreground">Recyclable:</span> {aiAnalysis.recyclability_score}/10</p>}
+                      </div>
+                    )}
+                  </div>
+                )}
+
                 <div className="grid grid-cols-2 gap-3">
                   {wasteTypes.map((type) => (
                     <button key={type.value} onClick={() => setWasteType(type.value)}

@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { AppHeader } from "@/components/layout/AppHeader";
 import { BottomNav } from "@/components/layout/BottomNav";
@@ -11,9 +12,11 @@ import { StatusBadge } from "@/components/shared/StatusBadge";
 import { useAuth } from "@/hooks/useAuth";
 import { useCleanlinessScore, useWalletTransactions, useGovernmentBenefits } from "@/hooks/useWallet";
 import { useMyReports } from "@/hooks/useWasteReports";
+import { useDustbinCollections } from "@/hooks/useDustbin";
+import { DustbinQR } from "@/components/shared/DustbinQR";
 import { useTrainingModules, useTrainingProgress } from "@/hooks/useTraining";
 import { 
-  Home, AlertTriangle, MapPin, Coins, GraduationCap, Recycle, Heart, Zap, Droplets, Lightbulb, Building, Clock, ChevronRight, Camera, Trophy, Target, Calendar,
+  Home, AlertTriangle, MapPin, Coins, GraduationCap, Recycle, Heart, Zap, Droplets, Lightbulb, Building, Clock, ChevronRight, Camera, Trophy, Target, Calendar, Sparkles, ShieldCheck
 } from "lucide-react";
 
 type ActiveTab = "home" | "report" | "scrap" | "donate" | "wallet";
@@ -26,6 +29,7 @@ const CitizenDashboard = () => {
   const { data: transactions } = useWalletTransactions();
   const { data: reports } = useMyReports();
   const { data: benefits } = useGovernmentBenefits();
+  const { data: collections } = useDustbinCollections();
   const { data: modules } = useTrainingModules();
   const { data: progress } = useTrainingProgress();
 
@@ -111,12 +115,61 @@ const CitizenDashboard = () => {
           </div>
         </Card>
 
+        {/* Dustbin QR Section */}
+        {profile && profile.dustbin_code && (
+          <div className="max-w-md mx-auto xl:max-w-none">
+            <DustbinQR 
+              citizenId={profile.user_id}
+              dustbinCode={profile.dustbin_code}
+              name={profile.full_name}
+              totalCollections={collections?.length || 0}
+              lastCollectionDate={collections?.[0]?.created_at}
+            />
+          </div>
+        )}
+
         {/* Quick Stats */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
           <StatsCard title="Reports" value={String(reports?.length || 0)} icon={AlertTriangle} color="amber" />
           <StatsCard title="Points Earned" value={String(totalPoints)} icon={Coins} color="green" />
           <StatsCard title="Scrap Sold" value="₹0" icon={Recycle} color="teal" />
           <StatsCard title="Donations" value="0" icon={Heart} color="rose" />
+        </div>
+
+        {/* Community Transparency Feed Banner */}
+        <div 
+          onClick={() => navigate("/community")}
+          className="bg-gradient-to-r from-primary to-primary/80 rounded-[2rem] p-6 text-white cursor-pointer hover:shadow-lg hover:scale-[1.01] transition-all flex flex-col md:flex-row items-center justify-between gap-4"
+        >
+          <div className="flex items-center gap-4">
+            <div className="bg-white/20 p-3 rounded-full">
+              <Sparkles className="h-8 w-8" />
+            </div>
+            <div>
+              <h3 className="font-display font-bold text-xl">Community Transparency Feed</h3>
+              <p className="text-white/80 text-sm mt-1">See your donations reaching real people in real-time.</p>
+            </div>
+          </div>
+          <Button variant="secondary" className="w-full md:w-auto font-bold rounded-xl bg-white text-primary hover:bg-stone-100">
+            View Live Feed
+          </Button>
+        </div>
+
+        {/* Peer Verification Banner */}
+        <div 
+          onClick={() => navigate("/citizen/verify")}
+          className="bg-gradient-to-r from-amber-500 to-orange-500 rounded-[2rem] p-5 text-white cursor-pointer hover:shadow-lg hover:scale-[1.01] transition-all flex items-center justify-between gap-4"
+        >
+          <div className="flex items-center gap-3">
+            <div className="bg-white/20 p-2.5 rounded-full">
+              <ShieldCheck className="h-6 w-6" />
+            </div>
+            <div>
+              <h3 className="font-display font-bold text-base">Verify Reports & Earn Points</h3>
+              <p className="text-white/80 text-xs mt-0.5">Help catch fake reports. Earn 10 pts per review.</p>
+            </div>
+          </div>
+          <ChevronRight className="h-5 w-5 text-white/60" />
         </div>
 
         {/* Government Benefits */}

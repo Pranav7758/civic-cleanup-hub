@@ -42,17 +42,19 @@ const CitizenWallet = () => {
   );
 
   const govBenefitItems = [
-    { id: 'gov-light', title: 'Light Bill Discount', image_emoji: '💡', points_cost: 500 },
-    { id: 'gov-water', title: 'Water Tax Waiver', image_emoji: '🚰', points_cost: 800 },
-    { id: 'gov-property', title: 'Property Tax Rebate', image_emoji: '🏢', points_cost: 1500 },
+    { id: 'gov-light', title: '5% Light Bill Discount', image_emoji: '💡', points_cost: 1500, estimated_value: 'Save up to ₹250' },
+    { id: 'gov-water', title: '10% Water Tax Waiver', image_emoji: '🚰', points_cost: 2000, estimated_value: 'Save up to ₹300' },
+    { id: 'gov-property', title: '5% Property Tax Rebate', image_emoji: '🏢', points_cost: 5000, estimated_value: 'Limit: ₹1000 OFF' },
   ];
 
-  const combinedRedeemItems = [ ...uniqueRedeemItems ];
-  govBenefitItems.forEach(govItem => {
-    if (!combinedRedeemItems.find((item: any) => item.title === govItem.title)) {
-      combinedRedeemItems.push(govItem);
-    }
-  });
+  const standardRewards = [
+    { id: 'reward-bag', title: 'Eco-Friendly Cloth Bag', image_emoji: '🛍️', points_cost: 500, estimated_value: 'Worth ₹25' },
+    { id: 'reward-metro', title: '₹50 Metro Recharge', image_emoji: '🚇', points_cost: 1000, estimated_value: 'Worth ₹50' },
+    { id: 'reward-grocery', title: '₹200 Grocery Voucher', image_emoji: '🛒', points_cost: 4000, estimated_value: 'Worth ₹200' },
+  ];
+
+  // Merge the standard, government, and db items to create a robust storefront
+  const combinedRedeemItems = [ ...standardRewards, ...govBenefitItems ];
 
   return (
     <div className="min-h-screen bg-rice-paper pb-6">
@@ -188,15 +190,25 @@ const CitizenWallet = () => {
 
             {/* Redeem Section */}
             <div className={`${activeSection !== "redeem" ? "hidden md:block" : "animate-in fade-in duration-500"}`}>
-               <Card className="border-timber/30 shadow-soft rounded-[1.5rem] bg-muted/20">
-                <CardHeader className="pb-3"><CardTitle className="text-lg font-display">Quick Redeem</CardTitle><CardDescription>Trade points for local vouchers</CardDescription></CardHeader>
-                <CardContent>
-                  <div className="grid grid-cols-2 gap-3">
+               <Card className="border-timber/30 shadow-none md:shadow-soft rounded-[1.5rem] bg-transparent border-0 md:bg-white md:border">
+                <CardHeader className="pb-4 hidden md:block">
+                  <CardTitle className="text-xl md:text-2xl font-display">Reward Catalog</CardTitle>
+                  <CardDescription className="text-base">Exchange points for local coupons and municipal benefits.</CardDescription>
+                </CardHeader>
+                <CardContent className="px-0 md:px-6">
+                  <div className="flex flex-col gap-3">
                     {combinedRedeemItems.map((item: any) => (
-                      <div key={item.id} className="bg-card p-4 rounded-xl text-center border hover:shadow-md transition-all cursor-pointer group">
-                        <div className="text-3xl mb-2 group-hover:scale-110 transition-transform">{item.image_emoji}</div>
-                        <p className="font-semibold text-sm line-clamp-1">{item.title}</p>
-                        <Badge className="mt-2 bg-gradient-eco text-white border-0"><Coins className="h-3 w-3 mr-1" />{item.points_cost}</Badge>
+                      <div key={item.id} className="bg-card p-4 outline outline-1 outline-border rounded-[1.2rem] flex items-center justify-between hover:shadow-md hover:outline-primary/40 transition-all cursor-pointer group">
+                        <div className="flex items-center gap-3">
+                           <div className="h-12 w-12 shrink-0 rounded-full bg-muted/50 flex items-center justify-center text-2xl group-hover:scale-110 transition-transform">{item.image_emoji}</div>
+                           <div className="pr-2">
+                             <p className="font-display font-semibold text-sm leading-tight">{item.title}</p>
+                             <p className="text-xs text-muted-foreground mt-1 font-medium">{item.estimated_value}</p>
+                           </div>
+                        </div>
+                        <Button variant="outline" size="sm" className="shrink-0 border-primary/20 bg-primary/5 text-primary hover:bg-primary/10 hover:text-primary font-bold shadow-sm whitespace-nowrap ml-2">
+                           {item.points_cost} <Coins className="h-3.5 w-3.5 ml-1.5 opacity-70" />
+                        </Button>
                       </div>
                     ))}
                   </div>
