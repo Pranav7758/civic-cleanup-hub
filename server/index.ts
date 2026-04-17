@@ -628,7 +628,11 @@ async function start() {
   });
 }
 
-start().catch(error => {
-  console.error(error);
-  process.exit(1);
-});
+if (!process.env.VERCEL) {
+  start().catch(error => {
+    console.error(error);
+    process.exit(1);
+  });
+}
+
+export default app;
