@@ -5,7 +5,6 @@ import path from "path";
 import fs from "fs";
 import crypto from "crypto";
 import { fileURLToPath } from "url";
-import { createServer as createViteServer } from "vite";
 import { pool } from "./db.js";
 import Groq from "groq-sdk";
 
@@ -617,6 +616,7 @@ async function start() {
     app.use(express.static(path.join(rootDir, "dist")));
     app.get("*", (_req, res) => res.sendFile(path.join(rootDir, "dist/index.html")));
   } else {
+    const { createServer: createViteServer } = await import("vite");
     const vite = await createViteServer({
       server: { middlewareMode: true, allowedHosts: true },
       appType: "spa",
