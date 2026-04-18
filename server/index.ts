@@ -7,10 +7,18 @@ import crypto from "crypto";
 import { fileURLToPath } from "url";
 import { isSupabaseDirectDbUrl, pool, supabasePoolerHint } from "./db.js";
 import Groq from "groq-sdk";
+import { createClient } from "@supabase/supabase-js";
 
 const groq = new Groq({ apiKey: process.env.GROQ_API_KEY });
 
 const app = express();
+
+function getSupabaseAdmin() {
+  const url = process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL;
+  const key = process.env.SUPABASE_SERVICE_ROLE_KEY;
+  if (!url || !key) return null;
+  return createClient(url, key, { auth: { persistSession: false } });
+}
 
 // Vercel routes all /api/* to api/index.ts; Express must see full paths like /api/auth/signin.
 if (process.env.VERCEL) {
@@ -656,17 +664,52 @@ app.post("/api/analyze-waste", upload.single("file"), async (req, res, next) => 
   }
 });
 
-app.post("/api/upload", upload.single("file"), (req, res, next) => {
+app.post("/api/upload", upload.single("file"), async (req, res, next) => {
   try {
     if (!req.file) throw new Error("File is required");
+
     const extension = path.extname(req.file.originalname).toLowerCase();
-    const fileName = `${crypto.randomUUID()}${extension}`;
-    const bucket = String(req.body.bucket || "uploads").replace(/[^a-z0-9-]/gi, "-").toLowerCase();
-    const bucketDir = path.join(rootDir, "public/uploads", bucket);
+    const fileName = `${crypto.randomUUID()}${extension || ""}`;
+    const folder = String(req.body.bucket || "uploads").replace(/[^a-z0-9-]/gi, "-").toLowerCase();
+
+    // Vercel serverless filesystem is ephemeral/read-only for persistence. Use Supabase Storage instead.
+    if (process.env.VERCEL) {
+      const supabase = getSupabaseAdmin();
+      if (!supabase) {
+        const err = new Error("Uploads are not configured on Vercel. Set SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY.");
+        (err as any).status = 500;
+        throw err;
+      }
+
+      const bucketName = process.env.SUPABASE_STORAGE_BUCKET || "uploads";
+      const objectPath = `${folder}/${fileName}`;
+      const fileBuffer = fs.readFileSync(req.file.path);
+
+      const { error: uploadError } = await supabase.storage
+        .from(bucketName)
+        .upload(objectPath, fileBuffer, {
+          contentType: req.file.mimetype,
+          upsert: false,
+        });
+      try { fs.unlinkSync(req.file.path); } catch {}
+
+      if (uploadError) {
+        const err = new Error(uploadError.message || "Upload failed");
+        (err as any).status = 500;
+        throw err;
+      }
+
+      const { data } = supabase.storage.from(bucketName).getPublicUrl(objectPath);
+      res.json({ publicUrl: data.publicUrl });
+      return;
+    }
+
+    // Local/dev: store under public/uploads so it can be served by /uploads static.
+    const bucketDir = path.join(rootDir, "public/uploads", folder);
     fs.mkdirSync(bucketDir, { recursive: true });
     const destination = path.join(bucketDir, fileName);
     fs.renameSync(req.file.path, destination);
-    res.json({ publicUrl: `/uploads/${bucket}/${fileName}` });
+    res.json({ publicUrl: `/uploads/${folder}/${fileName}` });
   } catch (error) {
     next(error);
   }

@@ -16,6 +16,8 @@ export function useDustbinCollections() {
       return data;
     },
     enabled: !!user,
+    refetchInterval: 5000,
+    refetchOnWindowFocus: true,
   });
 }
 

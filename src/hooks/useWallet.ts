@@ -16,6 +16,9 @@ export function useCleanlinessScore() {
       return data;
     },
     enabled: !!user,
+    // Demo-friendly "real-time" refresh so the citizen sees points after worker scan.
+    refetchInterval: 5000,
+    refetchOnWindowFocus: true,
   });
 }
 
@@ -33,6 +36,8 @@ export function useWalletTransactions() {
       return data;
     },
     enabled: !!user,
+    refetchInterval: 5000,
+    refetchOnWindowFocus: true,
   });
 }
 
