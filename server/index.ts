@@ -35,7 +35,8 @@ if (process.env.VERCEL) {
   });
 }
 
-const upload = multer({ dest: "public/uploads" });
+// Vercel serverless: only `/tmp` is writable. Local dev can use project folder.
+const upload = multer({ dest: process.env.VERCEL ? "/tmp" : "public/uploads" });
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const rootDir = process.cwd();
