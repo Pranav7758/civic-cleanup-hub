@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 import { Camera, Upload, X, Image as ImageIcon } from "lucide-react";
+import { LiveCameraCapture } from "@/components/shared/LiveCameraCapture";
 
 interface ImageUploadProps {
   onImageSelect: (file: File, preview: string) => void;
@@ -34,8 +35,8 @@ export function ImageUpload({
   showCamera = true,
 }: ImageUploadProps) {
   const [isDragging, setIsDragging] = useState(false);
+  const [cameraOpen, setCameraOpen] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const cameraInputRef = useRef<HTMLInputElement>(null);
 
   const handleFile = (file: File) => {
     if (file.size > maxSizeMB * 1024 * 1024) {
@@ -110,67 +111,70 @@ export function ImageUpload({
   }
 
   return (
-    <Card
-      className={cn(
-        "relative border-2 border-dashed transition-all duration-200 cursor-pointer",
-        isDragging
-          ? "border-primary bg-primary/5 scale-[1.02]"
-          : "border-muted-foreground/25 hover:border-primary/50 hover:bg-muted/50",
-        className
-      )}
-      onDragOver={(e) => {
-        e.preventDefault();
-        setIsDragging(true);
-      }}
-      onDragLeave={() => setIsDragging(false)}
-      onDrop={handleDrop}
-      onClick={() => fileInputRef.current?.click()}
-    >
-      <div className={cn("flex flex-col items-center justify-center gap-4 p-8", aspectRatioStyles[aspectRatio])}>
-        <div className="p-4 rounded-full bg-muted">
-          <ImageIcon className="h-8 w-8 text-muted-foreground" />
-        </div>
-        <div className="text-center">
-          <p className="font-medium text-foreground">{label}</p>
-          <p className="text-sm text-muted-foreground">{description}</p>
-          <p className="text-xs text-muted-foreground mt-1">Max {maxSizeMB}MB</p>
-        </div>
-        <div className="flex gap-2">
-          <Button type="button" variant="outline" size="sm">
-            <Upload className="h-4 w-4 mr-2" />
-            Browse
-          </Button>
-          {showCamera && (
-            <Button
-              type="button"
-              variant="outline"
-              size="sm"
-              onClick={(e) => {
-                e.stopPropagation();
-                cameraInputRef.current?.click();
-              }}
-            >
-              <Camera className="h-4 w-4 mr-2" />
-              Camera
+    <>
+      <Card
+        className={cn(
+          "relative border-2 border-dashed transition-all duration-200 cursor-pointer",
+          isDragging
+            ? "border-primary bg-primary/5 scale-[1.02]"
+            : "border-muted-foreground/25 hover:border-primary/50 hover:bg-muted/50",
+          className
+        )}
+        onDragOver={(e) => {
+          e.preventDefault();
+          setIsDragging(true);
+        }}
+        onDragLeave={() => setIsDragging(false)}
+        onDrop={handleDrop}
+        onClick={() => fileInputRef.current?.click()}
+      >
+        <div className={cn("flex flex-col items-center justify-center gap-4 p-8", aspectRatioStyles[aspectRatio])}>
+          <div className="p-4 rounded-full bg-muted">
+            <ImageIcon className="h-8 w-8 text-muted-foreground" />
+          </div>
+          <div className="text-center">
+            <p className="font-medium text-foreground">{label}</p>
+            <p className="text-sm text-muted-foreground">{description}</p>
+            <p className="text-xs text-muted-foreground mt-1">Max {maxSizeMB}MB</p>
+          </div>
+          <div className="flex gap-2">
+            <Button type="button" variant="outline" size="sm">
+              <Upload className="h-4 w-4 mr-2" />
+              Browse
             </Button>
-          )}
+            {showCamera && (
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setCameraOpen(true);
+                }}
+              >
+                <Camera className="h-4 w-4 mr-2" />
+                Camera
+              </Button>
+            )}
+          </div>
         </div>
-      </div>
-      <input
-        ref={fileInputRef}
-        type="file"
-        accept="image/*"
-        className="hidden"
-        onChange={handleChange}
-      />
-      <input
-        ref={cameraInputRef}
-        type="file"
-        accept="image/*"
-        capture="environment"
-        className="hidden"
-        onChange={handleChange}
-      />
-    </Card>
+        <input
+          ref={fileInputRef}
+          type="file"
+          accept="image/*"
+          className="hidden"
+          onChange={handleChange}
+        />
+      </Card>
+
+      {showCamera && (
+        <LiveCameraCapture
+          open={cameraOpen}
+          onOpenChange={setCameraOpen}
+          title={label}
+          onCapture={(file, preview) => handleFile(file)}
+        />
+      )}
+    </>
   );
 }
