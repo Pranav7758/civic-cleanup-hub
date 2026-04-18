@@ -7,6 +7,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { AppHeader } from "@/components/layout/AppHeader";
 import { ImageUpload } from "@/components/shared/ImageUpload";
+import { LocationPicker } from "@/components/shared/LocationPicker";
 import { StatusBadge } from "@/components/shared/StatusBadge";
 import { useCreateDonation, useMyDonations } from "@/hooks/useDonations";
 import { uploadImage } from "@/hooks/useWasteReports";
@@ -22,6 +23,7 @@ const CitizenDonateHub = () => {
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [category, setCategory] = useState("");
   const [description, setDescription] = useState("");
+  const [location, setLocation] = useState<{ latitude: number; longitude: number; address?: string } | null>(null);
 
   const createDonation = useCreateDonation();
   const { data: myDonations } = useMyDonations();
@@ -45,6 +47,9 @@ const CitizenDonateHub = () => {
         category: category as any,
         description: description || undefined,
         image_url,
+        latitude: location?.latitude,
+        longitude: location?.longitude,
+        address: location?.address,
       });
 
       toast.success("Donation listed! NGOs will be notified.");
@@ -52,6 +57,7 @@ const CitizenDonateHub = () => {
       setImagePreview(null);
       setCategory("");
       setDescription("");
+      setLocation(null);
     } catch (error: any) {
       toast.error(error.message);
     }
@@ -115,11 +121,22 @@ const CitizenDonateHub = () => {
               <Textarea placeholder="Describe the items, condition, quantity..." value={description} onChange={(e) => setDescription(e.target.value)} className="resize-none h-24" />
             </div>
 
+            <LocationPicker
+              label="Pickup Location (GPS)"
+              onLocationSelect={(loc) => setLocation(loc)}
+              currentLocation={location || undefined}
+            />
+
             <div className="p-4 rounded-xl bg-moss/10 border border-eco-green/20">
               <p className="text-sm font-medium flex items-center gap-2 text-primary"><CheckCircle className="h-5 w-5" />You'll earn 100 points for each donation</p>
             </div>
 
-            <Button className="w-full bg-gradient-sunset shadow-md transition-shadow hover:shadow-lg" size="lg" disabled={!category || !imageFile || createDonation.isPending} onClick={handleSubmit}>
+            <Button
+              className="w-full bg-gradient-sunset shadow-md transition-shadow hover:shadow-lg"
+              size="lg"
+              disabled={!category || !imageFile || !location || createDonation.isPending}
+              onClick={handleSubmit}
+            >
               {createDonation.isPending ? "Submitting..." : "Submit Donation"}<ChevronRight className="h-4 w-4 ml-1" />
             </Button>
           </div>
