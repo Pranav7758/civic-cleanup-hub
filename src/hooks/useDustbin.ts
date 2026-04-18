@@ -23,8 +23,8 @@ export function useCollectDustbin() {
   const qc = useQueryClient();
 
   return useMutation({
-    mutationFn: async ({ citizenId, fillLevel, notes }: { citizenId: string; fillLevel: string; notes?: string }) => {
-      return apiClient.collectDustbin(citizenId, fillLevel, notes);
+    mutationFn: async ({ dustbinCode, fillLevel, notes }: { dustbinCode: string; fillLevel: string; notes?: string }) => {
+      return apiClient.collectDustbinByCode(dustbinCode, fillLevel, notes);
     },
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["dustbin-collections"] });

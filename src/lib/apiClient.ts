@@ -227,6 +227,12 @@ export const apiClient = {
       body: JSON.stringify({ citizenId, fillLevel, notes }),
     });
   },
+  async collectDustbinByCode(dustbinCode: string, fillLevel: string, notes?: string) {
+    return request("/api/worker/collect-dustbin-by-code", {
+      method: "POST",
+      body: JSON.stringify({ dustbinCode, fillLevel, notes }),
+    });
+  },
   async analyzeWaste(file: File) {
     const form = new FormData();
     form.append("file", file);

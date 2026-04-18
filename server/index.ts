@@ -72,9 +72,9 @@ app.use("/uploads", express.static(path.join(rootDir, "public/uploads")));
 
 const tableColumns: Record<string, string[]> = {
   app_users: ["id", "email", "password_hash", "full_name", "created_at"],
-  profiles: ["id", "user_id", "full_name", "phone", "avatar_url", "address", "city", "ward", "created_at", "updated_at"],
+  profiles: ["id", "user_id", "full_name", "phone", "avatar_url", "address", "city", "ward", "dustbin_code", "created_at", "updated_at"],
   user_roles: ["id", "user_id", "role"],
-  cleanliness_scores: ["id", "user_id", "score", "tier", "total_reports", "total_scrap_sold", "total_donations", "total_events", "updated_at"],
+  cleanliness_scores: ["id", "user_id", "score", "tier", "total_reports", "total_scrap_sold", "total_donations", "total_events", "total_collections", "updated_at"],
   training_modules: ["id", "title", "description", "icon", "duration_minutes", "lesson_count", "sort_order", "requires_previous", "created_at"],
   training_progress: ["id", "user_id", "module_id", "progress", "completed", "completed_at", "updated_at"],
   waste_reports: ["id", "citizen_id", "image_url", "waste_type", "description", "latitude", "longitude", "address", "status", "assigned_worker_id", "completion_image_url", "reward_points", "priority", "completed_at", "created_at", "updated_at"],
@@ -163,11 +163,50 @@ async function createSession(userId: string) {
   return { access_token: token, expires_at: expiresAt.toISOString() };
 }
 
+function generateDustbinCode() {
+  return `ECO-${crypto.randomBytes(4).toString("hex").toUpperCase()}`;
+}
+
+async function hasRole(userId: string, role: string) {
+  const { rows } = await pool.query(`select 1 from user_roles where user_id = $1 and role = $2 limit 1`, [userId, role]);
+  return rows.length > 0;
+}
+
+async function requireWorker(req: express.Request) {
+  const user = await requireAuth(req);
+  const [isWorker, isAdmin] = await Promise.all([hasRole(user.id, "worker"), hasRole(user.id, "admin")]);
+  if (!isWorker && !isAdmin) {
+    const error = new Error("Worker access required");
+    (error as any).status = 403;
+    throw error;
+  }
+  return user;
+}
+
 async function createProfileForUser(userId: string, fullName: string, phone?: string) {
-  await pool.query(
-    `insert into profiles (user_id, full_name, phone) values ($1, $2, $3) on conflict (user_id) do update set full_name = excluded.full_name, phone = coalesce(excluded.phone, profiles.phone), updated_at = now()`,
-    [userId, fullName, phone || null],
-  );
+  const makeDustbinCode = () => generateDustbinCode();
+  let attempts = 0;
+  while (attempts < 5) {
+    try {
+      await pool.query(
+        `insert into profiles (user_id, full_name, phone, dustbin_code) values ($1, $2, $3, $4)
+         on conflict (user_id) do update
+           set full_name = excluded.full_name,
+               phone = coalesce(excluded.phone, profiles.phone),
+               dustbin_code = coalesce(profiles.dustbin_code, excluded.dustbin_code),
+               updated_at = now()`,
+        [userId, fullName, phone || null, makeDustbinCode()],
+      );
+      break;
+    } catch (error: any) {
+      if (error?.code === "23505" && String(error?.constraint || "").includes("dustbin_code")) {
+        attempts += 1;
+        continue;
+      }
+      throw error;
+    }
+  }
+  if (attempts >= 5) throw new Error("Failed to generate unique dustbin code");
   await pool.query(`insert into cleanliness_scores (user_id) values ($1) on conflict (user_id) do nothing`, [userId]);
 }
 
@@ -199,6 +238,8 @@ app.post("/api/auth/signin", async (req, res, next) => {
       (error as any).status = 401;
       throw error;
     }
+    // Backfill profile + dustbin code for legacy users created before dustbin rollout.
+    await createProfileForUser(user.id, user.full_name);
     const session = await createSession(user.id);
     res.json({ user: userResponse(user), session });
   } catch (error) {
@@ -390,7 +431,7 @@ app.post("/api/query", async (req, res, next) => {
 
 app.post("/api/worker/complete-task", async (req, res, next) => {
   try {
-    const user = await requireAuth(req);
+    const user = await requireWorker(req);
     const { taskId, completionImageUrl } = req.body || {};
 
     if (!taskId) throw new Error("Task ID is required");
@@ -461,15 +502,29 @@ app.post("/api/worker/complete-task", async (req, res, next) => {
 
 app.post("/api/worker/collect-dustbin", async (req, res, next) => {
   try {
-    const worker = await requireAuth(req);
+    const worker = await requireWorker(req);
     const { citizenId, fillLevel, notes } = req.body || {};
 
     if (!citizenId || !fillLevel) throw new Error("Missing required fields");
+    if (!["full", "half", "below_half"].includes(fillLevel)) throw new Error("Invalid fill level");
 
     // Calculate points
     let points = 30; // default below_half
     if (fillLevel === "full") points = 100;
     else if (fillLevel === "half") points = 60;
+
+    // Prevent accidental double submissions for the same citizen by same worker.
+    const { rows: recentCollections } = await pool.query(
+      `select id from dustbin_collections
+       where citizen_id = $1 and worker_id = $2 and created_at > now() - interval '10 minutes'
+       limit 1`,
+      [citizenId, worker.id],
+    );
+    if (recentCollections.length > 0) {
+      const error = new Error("Collection was already logged recently for this dustbin");
+      (error as any).status = 409;
+      throw error;
+    }
 
     // 1. Insert collection record
     await pool.query(
@@ -493,6 +548,64 @@ app.post("/api/worker/collect-dustbin", async (req, res, next) => {
   } catch (error) {
     next(error);
   }
+});
+
+app.post("/api/worker/collect-dustbin-by-code", async (req, res, next) => {
+  try {
+    const worker = await requireWorker(req);
+    const { dustbinCode, fillLevel, notes } = req.body || {};
+    const normalizedCode = String(dustbinCode || "").trim().toUpperCase();
+    if (!normalizedCode || !fillLevel) throw new Error("Missing required fields");
+    if (!["full", "half", "below_half"].includes(fillLevel)) throw new Error("Invalid fill level");
+
+    const { rows: profiles } = await pool.query(
+      `select user_id, full_name from profiles where upper(dustbin_code) = $1 limit 1`,
+      [normalizedCode],
+    );
+    const profile = profiles[0];
+    if (!profile) {
+      const error = new Error("Dustbin code not found");
+      (error as any).status = 404;
+      throw error;
+    }
+
+    let points = 30;
+    if (fillLevel === "full") points = 100;
+    else if (fillLevel === "half") points = 60;
+
+    const { rows: recentCollections } = await pool.query(
+      `select id from dustbin_collections
+       where citizen_id = $1 and worker_id = $2 and created_at > now() - interval '10 minutes'
+       limit 1`,
+      [profile.user_id, worker.id],
+    );
+    if (recentCollections.length > 0) {
+      const error = new Error("Collection was already logged recently for this dustbin");
+      (error as any).status = 409;
+      throw error;
+    }
+
+    await pool.query(
+      `insert into dustbin_collections (citizen_id, worker_id, fill_level, points_awarded, notes) values ($1, $2, $3, $4, $5)`,
+      [profile.user_id, worker.id, fillLevel, points, notes || null],
+    );
+    await pool.query(
+      `insert into wallet_transactions (user_id, type, action, points, reference_type) values ($1, 'earned', 'Dustbin Collected', $2, 'dustbin_collections')`,
+      [profile.user_id, points],
+    );
+    await pool.query(
+      `update cleanliness_scores set score = score + $1, total_collections = total_collections + 1, updated_at = now() where user_id = $2`,
+      [points, profile.user_id],
+    );
+
+    res.json({ success: true, pointsAwarded: points, citizenName: profile.full_name || null });
+  } catch (error) {
+    next(error);
+  }
+});
+
+app.get("/api/healthz", (_req, res) => {
+  res.json({ ok: true, service: "civic-cleanup-hub", time: new Date().toISOString() });
 });
 
 app.post("/api/analyze-waste", upload.single("file"), async (req, res, next) => {

@@ -15,6 +15,7 @@ import { apiClient } from "@/lib/apiClient";
 import { useToast } from "@/hooks/use-toast";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import { QRScanner } from "@/components/shared/QRScanner";
 import {
   Home,
   ClipboardList,
@@ -106,6 +107,7 @@ const WorkerDashboard = () => {
   };
 
   const handleAcceptTask = async (taskId: string) => {
+    setSelectedTaskId(taskId);
     handleUpdateStatus("assigned", { assigned_worker_id: user?.id });
   };
 
@@ -385,22 +387,38 @@ const WorkerDashboard = () => {
 
   // Scan QR Tab
   if (activeTab === "scan") {
+    const extractDustbinCode = (rawValue: string) => {
+      const raw = String(rawValue || "").trim();
+      if (!raw) return "";
+      if (!raw.startsWith("{")) return raw.toUpperCase();
+      try {
+        const parsed = JSON.parse(raw);
+        return String(parsed?.dustbinCode || "").trim().toUpperCase();
+      } catch {
+        return raw.toUpperCase();
+      }
+    };
+
+    const handleScannedData = (data: string) => {
+      const code = extractDustbinCode(data);
+      if (!code) {
+        toast({ title: "Invalid QR", description: "Could not read dustbin code from QR.", variant: "destructive" });
+        return;
+      }
+      setScanCode(code);
+      toast({ title: "QR scanned", description: `Dustbin code detected: ${code}` });
+    };
+
     const handleDustbinSubmit = async () => {
-      if (!scanCode) {
+      const normalizedCode = extractDustbinCode(scanCode);
+      if (!normalizedCode) {
         toast({ title: "Code Required", description: "Please enter the dustbin QR code.", variant: "destructive" });
         return;
       }
       setIsSubmitting(true);
       try {
-        // We simulate extracting citizen_id from the QR code payload.
-        // Since we are mocking the QR scanner, we'll try to find a user with this dustbin code
-        const { data: qProfile } = await apiClient.from("profiles").select("*").eq("dustbin_code", scanCode).maybeSingle();
-        if (!qProfile) {
-          throw new Error("Dustbin code not found");
-        }
-        
         await collectDustbin.mutateAsync({
-          citizenId: qProfile.user_id,
+          dustbinCode: normalizedCode,
           fillLevel,
           notes: scanNotes || undefined,
         });
@@ -427,13 +445,25 @@ const WorkerDashboard = () => {
               <p className="text-white/80 text-sm mt-1">Scan to credit points to their wallet</p>
             </div>
             <CardContent className="p-6 space-y-6 bg-background text-center">
-              
               <div className="space-y-2 text-left">
-                <label className="text-sm font-semibold text-muted-foreground">Manual Code Entry (Simulated Scan)</label>
+                <label className="text-sm font-semibold text-muted-foreground">Live Camera Scanner</label>
+                <div className="rounded-xl overflow-hidden border border-timber/30">
+                  <QRScanner
+                    onScan={handleScannedData}
+                    onError={() => {
+                      // html5-qrcode fires many decode errors while searching; ignore noisy logs.
+                    }}
+                  />
+                </div>
+                <p className="text-xs text-muted-foreground">Point camera to resident dustbin QR sticker.</p>
+              </div>
+
+              <div className="space-y-2 text-left">
+                <label className="text-sm font-semibold text-muted-foreground">Manual Fallback Code Entry</label>
                 <Input 
                   placeholder="e.g. ECO-XXXXXXXX" 
                   value={scanCode}
-                  onChange={(e) => setScanCode(e.target.value.toUpperCase())}
+                  onChange={(e) => setScanCode(extractDustbinCode(e.target.value))}
                   className="rounded-xl border-timber/30 text-lg uppercase bg-white py-6"
                 />
               </div>
