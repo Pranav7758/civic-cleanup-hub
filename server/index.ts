@@ -33,7 +33,41 @@ const __dirname = path.dirname(__filename);
 const rootDir = process.cwd();
 const port = Number(process.env.PORT || 5000);
 
-app.use(express.json({ limit: "2mb" }));
+const jsonLimit = 2 * 1024 * 1024;
+
+// On Vercel, the request body may already be buffered; running express.json() can consume
+// an empty stream and leave req.body empty → 400 on auth. Read JSON once here instead.
+if (process.env.VERCEL) {
+  app.use(async (req, _res, next) => {
+    if (!["POST", "PUT", "PATCH"].includes(req.method || "")) return next();
+    const ct = String(req.headers["content-type"] || "");
+    if (!ct.includes("application/json")) return next();
+    try {
+      const chunks: Buffer[] = [];
+      let total = 0;
+      for await (const chunk of req) {
+        const buf = Buffer.isBuffer(chunk) ? chunk : Buffer.from(chunk);
+        total += buf.length;
+        if (total > jsonLimit) {
+          const err = new Error("Payload too large");
+          (err as any).status = 413;
+          return next(err);
+        }
+        chunks.push(buf);
+      }
+      const text = Buffer.concat(chunks).toString("utf8");
+      (req as express.Request).body = text ? JSON.parse(text) : {};
+    } catch {
+      const err = new Error("Invalid JSON body");
+      (err as any).status = 400;
+      return next(err);
+    }
+    next();
+  });
+} else {
+  app.use(express.json({ limit: "2mb" }));
+}
+
 app.use("/uploads", express.static(path.join(rootDir, "public/uploads")));
 
 const tableColumns: Record<string, string[]> = {
@@ -82,8 +116,15 @@ function hashPassword(password: string, salt = crypto.randomBytes(16).toString("
 }
 
 function verifyPassword(password: string, stored: string) {
-  const [salt, hash] = stored.split(":");
-  return crypto.timingSafeEqual(Buffer.from(hash, "hex"), Buffer.from(hashPassword(password, salt).split(":")[1], "hex"));
+  try {
+    const parts = stored?.split(":");
+    if (!parts || parts.length < 2) return false;
+    const [salt, hash] = parts;
+    if (!/^[0-9a-f]+$/i.test(hash)) return false;
+    return crypto.timingSafeEqual(Buffer.from(hash, "hex"), Buffer.from(hashPassword(password, salt).split(":")[1], "hex"));
+  } catch {
+    return false;
+  }
 }
 
 function userResponse(user: AppUser) {
@@ -624,7 +665,15 @@ app.post("/api/messages", async (req, res, next) => {
 });
 
 app.use((err: any, _req: express.Request, res: express.Response, _next: express.NextFunction) => {
-  res.status(err.status || 400).json({ error: err.message || "Request failed" });
+  const status =
+    typeof err?.status === "number"
+      ? err.status
+      : err?.code === "ECONNREFUSED" || err?.code === "ETIMEDOUT" || err?.code === "ENOTFOUND"
+        ? 503
+        : typeof err?.statusCode === "number"
+          ? err.statusCode
+          : 400;
+  res.status(status).json({ error: err?.message || "Request failed" });
 });
 
 async function start() {
