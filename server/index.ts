@@ -11,6 +11,22 @@ import Groq from "groq-sdk";
 const groq = new Groq({ apiKey: process.env.GROQ_API_KEY });
 
 const app = express();
+
+// Vercel routes all /api/* to api/index.ts; Express must see full paths like /api/auth/signin.
+if (process.env.VERCEL) {
+  app.set("trust proxy", 1);
+  app.use((req, _res, next) => {
+    const raw = req.url ?? "/";
+    const q = raw.indexOf("?");
+    const pathname = q >= 0 ? raw.slice(0, q) : raw;
+    const search = q >= 0 ? raw.slice(q) : "";
+    if (!pathname.startsWith("/api")) {
+      req.url = `/api${pathname.startsWith("/") ? pathname : `/${pathname}`}${search}`;
+    }
+    next();
+  });
+}
+
 const upload = multer({ dest: "public/uploads" });
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
