@@ -37,7 +37,10 @@ async function request(path: string, options: RequestInit = {}) {
     },
   });
   const json = await response.json().catch(() => ({}));
-  if (!response.ok) throw new Error(json.error || "Request failed");
+  if (!response.ok) {
+    const parts = [json.error, json.hint].filter(Boolean);
+    throw new Error(parts.length ? parts.join(" — ") : "Request failed");
+  }
   return json;
 }
 

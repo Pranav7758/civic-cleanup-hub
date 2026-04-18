@@ -5,7 +5,7 @@ import path from "path";
 import fs from "fs";
 import crypto from "crypto";
 import { fileURLToPath } from "url";
-import { pool } from "./db.js";
+import { isSupabaseDirectDbUrl, pool, supabasePoolerHint } from "./db.js";
 import Groq from "groq-sdk";
 
 const groq = new Groq({ apiKey: process.env.GROQ_API_KEY });
@@ -665,15 +665,34 @@ app.post("/api/messages", async (req, res, next) => {
 });
 
 app.use((err: any, _req: express.Request, res: express.Response, _next: express.NextFunction) => {
+  const connCodes = new Set([
+    "ECONNREFUSED",
+    "ETIMEDOUT",
+    "ENOTFOUND",
+    "ECONNRESET",
+    "EPIPE",
+    "EAI_AGAIN",
+  ]);
+  const isConn = typeof err?.code === "string" && connCodes.has(err.code);
   const status =
     typeof err?.status === "number"
       ? err.status
-      : err?.code === "ECONNREFUSED" || err?.code === "ETIMEDOUT" || err?.code === "ENOTFOUND"
+      : isConn
         ? 503
         : typeof err?.statusCode === "number"
           ? err.statusCode
           : 400;
-  res.status(status).json({ error: err?.message || "Request failed" });
+  const dbUrl = process.env.SUPABASE_DATABASE_URL || process.env.DATABASE_URL;
+  const hint =
+    status === 503 && process.env.VERCEL && isConn
+      ? isSupabaseDirectDbUrl(dbUrl)
+        ? supabasePoolerHint()
+        : "Database connection failed from Vercel. Prefer Supabase Transaction pooler (port 6543), confirm SUPABASE_DATABASE_URL, and check project network / IP settings."
+      : undefined;
+  res.status(status).json({
+    error: err?.message || "Request failed",
+    ...(hint ? { hint } : {}),
+  });
 });
 
 async function start() {
