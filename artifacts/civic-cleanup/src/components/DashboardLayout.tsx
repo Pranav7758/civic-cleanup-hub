@@ -4,7 +4,7 @@ import {
   LayoutDashboard, Camera, Wallet, BookOpen, Recycle, Heart,
   Calendar, Trophy, Bell, LogOut, Menu, X, Users, Package,
   Settings, Wifi, CheckCheck, Clock, ChevronDown, Leaf, QrCode,
-  ClipboardList, GraduationCap,
+  ClipboardList, GraduationCap, AlertTriangle, CalendarCheck,
 } from "lucide-react";
 import { SwachhLogoIcon } from "@/components/SwachhLogo";
 import { useAuth } from "@/context/AuthContext";
@@ -40,11 +40,13 @@ const WORKER_NAV: NavItem[] = [
   { label: "Training",         icon: GraduationCap,   path: "/worker/training", accentColor: "#2563eb" },
 ];
 const NGO_NAV: NavItem[] = [
-  { label: "Dashboard",      icon: LayoutDashboard, path: "/ngo"              },
-  { label: "Donations",      icon: Heart,           path: "/ngo/donations"    },
-  { label: "Community Feed", icon: Users,           path: "/ngo/feed"         },
-  { label: "Events",         icon: Calendar,        path: "/ngo/events"       },
-  { label: "Reports",        icon: Camera,          path: "/ngo/reports"      },
+  { label: "Dashboard",      icon: LayoutDashboard, path: "/ngo"                  },
+  { label: "Donations",      icon: Heart,           path: "/ngo/donations"        },
+  { label: "Community Feed", icon: Users,           path: "/ngo/feed"             },
+  { label: "Manage Events",  icon: CalendarCheck,   path: "/ngo/manage-events"    },
+  { label: "Urgent Needs",   icon: AlertTriangle,   path: "/ngo/urgent", badge: "!" },
+  { label: "Events",         icon: Calendar,        path: "/ngo/events"           },
+  { label: "Reports",        icon: Camera,          path: "/ngo/reports"          },
 ];
 const SCRAP_NAV: NavItem[] = [
   { label: "Dashboard",       icon: LayoutDashboard, path: "/scrap"           },

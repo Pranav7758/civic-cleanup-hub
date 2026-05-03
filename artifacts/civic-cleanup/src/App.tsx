@@ -30,6 +30,8 @@ import WorkerTaskPage from "@/pages/worker/WorkerTaskPage";
 
 // NGO
 import NgoDashboard from "@/pages/ngo/NgoDashboard";
+import NgoEventsPage from "@/pages/ngo/NgoEventsPage";
+import NgoUrgentPage from "@/pages/ngo/NgoUrgentPage";
 
 // Scrap Dealer
 import ScrapDealerDashboard from "@/pages/scrap/ScrapDealerDashboard";
@@ -164,6 +166,12 @@ function AppRouter() {
       </Route>
       <Route path="/ngo/events">
         <AuthGuard role="ngo"><EventsPage /></AuthGuard>
+      </Route>
+      <Route path="/ngo/manage-events">
+        <AuthGuard role="ngo"><NgoEventsPage /></AuthGuard>
+      </Route>
+      <Route path="/ngo/urgent">
+        <AuthGuard role="ngo"><NgoUrgentPage /></AuthGuard>
       </Route>
 
       {/* Scrap Dealer routes */}

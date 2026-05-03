@@ -1,0 +1,103 @@
+Build an NGO module for "SwachhSaathi" focused ONLY on Events/Campaigns and Urgent Needs.
+
+Goal:
+Keep system simple, clean, and fully functional (no unnecessary features).
+
+-----------------------------------
+MODULE 1: NGO EVENTS / CAMPAIGNS
+-----------------------------------
+
+1. Create Event:
+- Fields:
+  - Event Name
+  - Type (Clean-up Drive / Awareness / Donation Camp)
+  - Location
+  - Date & Time
+  - Description
+  - Max Participants
+
+2. Event Listing:
+- Show:
+  - Upcoming Events
+  - Ongoing Events
+  - Completed Events
+- Each event card shows:
+  - Name, Date, Location, Participants count
+
+3. Join Event:
+- Users can join event
+- Limit participants based on max capacity
+- Button: Join / Joined
+
+4. Participant Management (NGO side):
+- View participant list
+- Approve / Remove users
+- Mark attendance
+
+5. Event Details Page:
+- Full event info
+- Participant list
+- Organizer info
+
+6. Event Result (after completion):
+- Waste collected (kg)
+- Total participants
+- Upload images (before/after)
+
+-----------------------------------
+MODULE 2: URGENT NEED FEATURE
+-----------------------------------
+
+1. Create Urgent Request:
+- NGO can post urgent needs like:
+  - “Need volunteers for cleanup”
+  - “Need food/water support”
+- Fields:
+  - Title
+  - Description
+  - Location
+  - Required People / Items
+  - Deadline
+
+2. Urgent Listing:
+- Show all urgent posts
+- Highlight as HIGH PRIORITY (red label)
+
+3. Respond to Urgent Need:
+- Users can click “Help Now”
+- Options:
+  - Volunteer
+  - Donate
+- Count number of responses
+
+4. Status Tracking:
+- Status:
+  - Open
+  - In Progress
+  - Completed
+- NGO can update status
+
+5. Priority UI:
+- Urgent posts appear at top
+- Red highlight badge
+
+-----------------------------------
+UI REQUIREMENTS
+-----------------------------------
+
+- Clean and simple design (no heavy 3D or animations)
+- Use card layout
+- Use color indicators:
+  - Green (normal)
+  - Red (urgent)
+- All buttons must be functional
+- Use React state for demo data
+
+-----------------------------------
+OUTPUT
+-----------------------------------
+
+- Fully working NGO module
+- Events + Urgent Needs both functional
+- No dummy UI (everything clickable)
+- Ready for backend integration
