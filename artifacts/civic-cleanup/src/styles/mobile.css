@@ -1,0 +1,194 @@
+/* ═══════════════════════════════════════════════════════════════
+   SwachhSaathi — Mobile / Android Responsive Styles
+   Targets: phones ≤768px, small tablets ≤1024px
+═══════════════════════════════════════════════════════════════ */
+
+/* ── Bottom nav bar (mobile only) ── */
+.mobile-bottom-nav {
+  display: none;
+  position: fixed;
+  bottom: 0; left: 0; right: 0;
+  height: 62px;
+  background: linear-gradient(180deg, #1b5e20 0%, #145214 100%);
+  border-top: 1px solid rgba(255,255,255,0.12);
+  box-shadow: 0 -4px 20px rgba(27,94,32,0.55);
+  z-index: 100;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+.mobile-bottom-nav::-webkit-scrollbar { display: none; }
+.mobile-bottom-nav-inner {
+  display: flex;
+  align-items: stretch;
+  height: 100%;
+  min-width: max-content;
+  padding: 0 2px;
+}
+.mobile-nav-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  padding: 6px 14px;
+  min-width: 64px;
+  cursor: pointer;
+  border: none;
+  background: transparent;
+  color: rgba(255,255,255,0.55);
+  font-size: 9px;
+  font-weight: 600;
+  font-family: 'Inter', sans-serif;
+  text-decoration: none;
+  transition: color 0.15s, background 0.15s;
+  -webkit-tap-highlight-color: transparent;
+  white-space: nowrap;
+  position: relative;
+}
+.mobile-nav-item.active {
+  color: #fff;
+  background: rgba(255,255,255,0.12);
+  border-radius: 12px;
+  margin: 6px 2px;
+}
+.mobile-nav-item.active::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 50%; transform: translateX(-50%);
+  width: 28px; height: 3px;
+  background: #a5d6a7;
+  border-radius: 0 0 3px 3px;
+}
+.mobile-nav-icon-wrap {
+  width: 30px; height: 30px;
+  border-radius: 9px;
+  display: flex; align-items: center; justify-content: center;
+  background: transparent;
+  transition: background 0.15s;
+}
+.mobile-nav-item.active .mobile-nav-icon-wrap {
+  background: rgba(255,255,255,0.18);
+}
+.mobile-nav-badge {
+  position: absolute;
+  top: 4px; right: 10px;
+  background: #ef5350;
+  color: #fff;
+  font-size: 8px;
+  font-weight: 800;
+  padding: 1px 5px;
+  border-radius: 999px;
+  line-height: 1.4;
+}
+
+/* ── Make content not hidden behind bottom nav on mobile ── */
+@media (max-width: 1023px) {
+  .mobile-bottom-nav { display: flex; }
+  .dl-main-content { padding-bottom: 74px !important; }
+
+  /* Smaller content padding on mobile */
+  .dl-main-content { padding: 14px 12px !important; }
+
+  /* Tighter header on mobile */
+  .dash-header { padding: 0 12px !important; height: 50px !important; }
+
+  /* Hide desktop title on small screens to save space */
+  .dl-header-title-text { display: none !important; }
+}
+
+/* ── Responsive grid helpers ── */
+@media (max-width: 768px) {
+  /* Stack 2+ column grids to 1 column */
+  .mob-col-1 { grid-template-columns: 1fr !important; }
+  .mob-col-2 { grid-template-columns: 1fr 1fr !important; }
+
+  /* Cards full width */
+  .gov-card { border-radius: 12px !important; }
+  .gov-stat-card { padding: 12px 10px !important; }
+  .gov-stat-value { font-size: 22px !important; }
+
+  /* Tables scroll horizontally */
+  .mob-table-scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+
+  /* Reduce font sizes */
+  .gov-section-title { font-size: 13px !important; }
+  .gov-page-title { font-size: 15px !important; }
+
+  /* Make buttons full-width friendly */
+  .mob-btn-full { width: 100% !important; justify-content: center !important; }
+}
+
+/* ── Bin card mobile layout ── */
+@media (max-width: 768px) {
+  .sb-bin-grid { grid-template-columns: 1fr 1fr !important; gap: 10px !important; }
+  .sb-stat-grid { grid-template-columns: 1fr 1fr !important; }
+  .sb-map-wrap { display: none; } /* hide complex map on tiny screens */
+}
+
+/* ── Dustbin fill gauge ── */
+.bin-fill-gauge-wrap {
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  gap: 3px;
+  height: 56px;
+  padding: 0 4px;
+}
+.bin-fill-gauge-bar {
+  width: 8px;
+  border-radius: 4px 4px 0 0;
+  transition: height 0.5s ease, background 0.3s;
+}
+.bin-fill-track {
+  width: 100%;
+  height: 7px;
+  background: #e8f5e9;
+  border-radius: 999px;
+  overflow: hidden;
+  box-shadow: inset 1px 1px 3px rgba(0,0,0,0.1);
+  margin-top: 6px;
+}
+.bin-fill-bar {
+  height: 100%;
+  border-radius: 999px;
+  transition: width 0.5s ease;
+}
+
+/* ── Touch-friendly tap targets ── */
+@media (max-width: 768px) {
+  .gov-btn { min-height: 40px; }
+  .gov-btn-sm { min-height: 34px; }
+  .gov-btn-xs { min-height: 28px; }
+  .dash-nav-item { padding: 12px 16px !important; }
+}
+
+/* ── Worker reports page mobile ── */
+@media (max-width: 768px) {
+  .worker-report-grid { grid-template-columns: 1fr !important; }
+  .worker-task-action { flex-direction: row !important; }
+}
+
+/* ── Worker task page mobile ── */
+@media (max-width: 768px) {
+  .task-page-grid { grid-template-columns: 1fr !important; }
+  .task-map { height: 220px !important; }
+}
+
+/* ── Citizen dashboard mobile ── */
+@media (max-width: 768px) {
+  .citizen-dash-top { grid-template-columns: 1fr !important; }
+  .citizen-stats-row { grid-template-columns: 1fr 1fr !important; }
+}
+
+/* ── Safe area for notch/home-bar (iOS/Android) ── */
+@supports (padding-bottom: env(safe-area-inset-bottom)) {
+  .mobile-bottom-nav {
+    padding-bottom: env(safe-area-inset-bottom);
+    height: calc(62px + env(safe-area-inset-bottom));
+  }
+  @media (max-width: 1023px) {
+    .dl-main-content {
+      padding-bottom: calc(74px + env(safe-area-inset-bottom)) !important;
+    }
+  }
+}

@@ -1,22 +1,33 @@
 openapi: 3.1.0
 info:
-  # Do not change the title, if the title changes, the import paths will be broken
   title: Api
   version: 0.1.0
-  description: API specification
+  description: Civic Cleanup Hub API
 servers:
   - url: /api
     description: Base API path
 tags:
   - name: health
-    description: Health operations
+  - name: auth
+  - name: profiles
+  - name: reports
+  - name: wallet
+  - name: training
+  - name: scrap
+  - name: donations
+  - name: events
+  - name: feed
+  - name: notifications
+  - name: messages
+  - name: admin
+  - name: dashboard
+
 paths:
   /healthz:
     get:
       operationId: healthCheck
       tags: [health]
       summary: Health check
-      description: Returns server health status
       responses:
         "200":
           description: Healthy
@@ -24,6 +35,818 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/HealthStatus"
+
+  # AUTH
+  /auth/signup:
+    post:
+      operationId: signUp
+      tags: [auth]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SignUpBody"
+      responses:
+        "200":
+          description: User created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AuthResponse"
+
+  /auth/signin:
+    post:
+      operationId: signIn
+      tags: [auth]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SignInBody"
+      responses:
+        "200":
+          description: Signed in
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AuthResponse"
+
+  /auth/signout:
+    post:
+      operationId: signOut
+      tags: [auth]
+      responses:
+        "200":
+          description: Signed out
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OkResponse"
+
+  /auth/me:
+    get:
+      operationId: getMe
+      tags: [auth]
+      responses:
+        "200":
+          description: Current user
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MeResponse"
+
+  # PROFILES
+  /profiles/me:
+    get:
+      operationId: getMyProfile
+      tags: [profiles]
+      responses:
+        "200":
+          description: Profile
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProfileResponse"
+    patch:
+      operationId: updateMyProfile
+      tags: [profiles]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateProfileBody"
+      responses:
+        "200":
+          description: Updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProfileResponse"
+
+  /profiles/{userId}:
+    get:
+      operationId: getProfile
+      tags: [profiles]
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Profile
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProfileResponse"
+
+  # WASTE REPORTS
+  /reports:
+    get:
+      operationId: getReports
+      tags: [reports]
+      parameters:
+        - name: status
+          in: query
+          schema:
+            type: string
+        - name: citizenId
+          in: query
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Reports list
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ReportsResponse"
+    post:
+      operationId: createReport
+      tags: [reports]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateReportBody"
+      responses:
+        "200":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ReportResponse"
+
+  /reports/{id}:
+    get:
+      operationId: getReport
+      tags: [reports]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Report
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ReportResponse"
+    patch:
+      operationId: updateReport
+      tags: [reports]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateReportBody"
+      responses:
+        "200":
+          description: Updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ReportResponse"
+
+  /reports/pending-verification:
+    get:
+      operationId: getPendingVerificationReports
+      tags: [reports]
+      responses:
+        "200":
+          description: Reports pending peer verification
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ReportsResponse"
+
+  /reports/verify:
+    post:
+      operationId: verifyReport
+      tags: [reports]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/VerifyReportBody"
+      responses:
+        "200":
+          description: Verified
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OkResponse"
+
+  # WALLET
+  /wallet/score:
+    get:
+      operationId: getCleanlinessScore
+      tags: [wallet]
+      responses:
+        "200":
+          description: Cleanliness score
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CleanlinessScoreResponse"
+
+  /wallet/transactions:
+    get:
+      operationId: getWalletTransactions
+      tags: [wallet]
+      responses:
+        "200":
+          description: Transactions
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TransactionsResponse"
+
+  /wallet/benefits:
+    get:
+      operationId: getGovernmentBenefits
+      tags: [wallet]
+      responses:
+        "200":
+          description: Benefits
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BenefitsResponse"
+
+  /wallet/redeem-items:
+    get:
+      operationId: getRedeemItems
+      tags: [wallet]
+      responses:
+        "200":
+          description: Redeemable items
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/RedeemItemsResponse"
+
+  /wallet/redeem:
+    post:
+      operationId: redeemItem
+      tags: [wallet]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/RedeemBody"
+      responses:
+        "200":
+          description: Redeemed
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OkResponse"
+
+  /wallet/leaderboard:
+    get:
+      operationId: getLeaderboard
+      tags: [wallet]
+      responses:
+        "200":
+          description: Leaderboard
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/LeaderboardResponse"
+
+  # TRAINING
+  /training/modules:
+    get:
+      operationId: getTrainingModules
+      tags: [training]
+      responses:
+        "200":
+          description: Training modules
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TrainingModulesResponse"
+
+  /training/progress:
+    get:
+      operationId: getTrainingProgress
+      tags: [training]
+      responses:
+        "200":
+          description: Training progress
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TrainingProgressResponse"
+    post:
+      operationId: updateTrainingProgress
+      tags: [training]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateTrainingProgressBody"
+      responses:
+        "200":
+          description: Updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TrainingProgressItemResponse"
+
+  # SCRAP
+  /scrap/prices:
+    get:
+      operationId: getScrapPrices
+      tags: [scrap]
+      responses:
+        "200":
+          description: Scrap prices
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ScrapPricesResponse"
+
+  /scrap/listings:
+    get:
+      operationId: getScrapListings
+      tags: [scrap]
+      parameters:
+        - name: citizenId
+          in: query
+          schema:
+            type: string
+        - name: status
+          in: query
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Scrap listings
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ScrapListingsResponse"
+    post:
+      operationId: createScrapListing
+      tags: [scrap]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateScrapListingBody"
+      responses:
+        "200":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ScrapListingResponse"
+
+  /scrap/listings/{id}:
+    get:
+      operationId: getScrapListing
+      tags: [scrap]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Listing
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ScrapListingResponse"
+    patch:
+      operationId: updateScrapListing
+      tags: [scrap]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateScrapListingBody"
+      responses:
+        "200":
+          description: Updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ScrapListingResponse"
+
+  # DONATIONS
+  /donations:
+    get:
+      operationId: getDonations
+      tags: [donations]
+      parameters:
+        - name: citizenId
+          in: query
+          schema:
+            type: string
+        - name: ngoId
+          in: query
+          schema:
+            type: string
+        - name: status
+          in: query
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Donations
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DonationsResponse"
+    post:
+      operationId: createDonation
+      tags: [donations]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateDonationBody"
+      responses:
+        "200":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DonationResponse"
+
+  /donations/{id}:
+    patch:
+      operationId: updateDonation
+      tags: [donations]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateDonationBody"
+      responses:
+        "200":
+          description: Updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DonationResponse"
+
+  # COMMUNITY EVENTS
+  /events:
+    get:
+      operationId: getCommunityEvents
+      tags: [events]
+      responses:
+        "200":
+          description: Events
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/EventsResponse"
+    post:
+      operationId: createEvent
+      tags: [events]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateEventBody"
+      responses:
+        "200":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/EventResponse"
+
+  /events/{id}/register:
+    post:
+      operationId: registerForEvent
+      tags: [events]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Registered
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OkResponse"
+
+  /events/my-registrations:
+    get:
+      operationId: getMyEventRegistrations
+      tags: [events]
+      responses:
+        "200":
+          description: My registrations
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/EventRegistrationsResponse"
+
+  # COMMUNITY FEED
+  /feed:
+    get:
+      operationId: getCommunityFeed
+      tags: [feed]
+      responses:
+        "200":
+          description: Feed
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/FeedResponse"
+    post:
+      operationId: createFeedPost
+      tags: [feed]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateFeedPostBody"
+      responses:
+        "200":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/FeedPostResponse"
+
+  # NOTIFICATIONS
+  /notifications:
+    get:
+      operationId: getNotifications
+      tags: [notifications]
+      responses:
+        "200":
+          description: Notifications
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/NotificationsResponse"
+
+  /notifications/{id}/read:
+    patch:
+      operationId: markNotificationRead
+      tags: [notifications]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Marked read
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OkResponse"
+
+  /notifications/read-all:
+    patch:
+      operationId: markAllNotificationsRead
+      tags: [notifications]
+      responses:
+        "200":
+          description: All marked read
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OkResponse"
+
+  # MESSAGES
+  /messages/{referenceId}:
+    get:
+      operationId: getMessages
+      tags: [messages]
+      parameters:
+        - name: referenceId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Messages
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MessagesResponse"
+
+  /messages:
+    post:
+      operationId: sendMessage
+      tags: [messages]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SendMessageBody"
+      responses:
+        "200":
+          description: Sent
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MessageResponse"
+
+  # DUSTBIN
+  /dustbin/collections:
+    get:
+      operationId: getDustbinCollections
+      tags: [reports]
+      responses:
+        "200":
+          description: Collections
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DustbinCollectionsResponse"
+    post:
+      operationId: createDustbinCollection
+      tags: [reports]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateDustbinCollectionBody"
+      responses:
+        "200":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OkResponse"
+
+  # DASHBOARD SUMMARY
+  /dashboard/citizen:
+    get:
+      operationId: getCitizenDashboard
+      tags: [dashboard]
+      responses:
+        "200":
+          description: Citizen dashboard summary
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CitizenDashboardResponse"
+
+  /dashboard/worker:
+    get:
+      operationId: getWorkerDashboard
+      tags: [dashboard]
+      responses:
+        "200":
+          description: Worker dashboard
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/WorkerDashboardResponse"
+
+  /dashboard/ngo:
+    get:
+      operationId: getNgoDashboard
+      tags: [dashboard]
+      responses:
+        "200":
+          description: NGO dashboard
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/NgoDashboardResponse"
+
+  /dashboard/admin:
+    get:
+      operationId: getAdminDashboard
+      tags: [dashboard]
+      responses:
+        "200":
+          description: Admin dashboard
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AdminDashboardResponse"
+
+  # ADMIN
+  /admin/users:
+    get:
+      operationId: getAdminUsers
+      tags: [admin]
+      responses:
+        "200":
+          description: All users
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AdminUsersResponse"
+
+  /admin/users/{id}/roles:
+    patch:
+      operationId: updateUserRoles
+      tags: [admin]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateUserRolesBody"
+      responses:
+        "200":
+          description: Updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OkResponse"
+
+  /admin/training-modules:
+    post:
+      operationId: createTrainingModule
+      tags: [admin]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateTrainingModuleBody"
+      responses:
+        "200":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TrainingModuleResponse"
+
+  /admin/redeem-items:
+    post:
+      operationId: createRedeemItem
+      tags: [admin]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateRedeemItemBody"
+      responses:
+        "200":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/RedeemItemResponse"
+
 components:
   schemas:
     HealthStatus:
@@ -31,6 +854,1095 @@ components:
       properties:
         status:
           type: string
-      required:
-        - status
+      required: [status]
 
+    OkResponse:
+      type: object
+      properties:
+        ok:
+          type: boolean
+        message:
+          type: ["string", "null"]
+        pointsEarned:
+          type: ["integer", "null"]
+      required: [ok]
+
+    # AUTH
+    SignUpBody:
+      type: object
+      properties:
+        email:
+          type: string
+        password:
+          type: string
+        fullName:
+          type: string
+        role:
+          type: string
+        phone:
+          type: ["string", "null"]
+      required: [email, password, fullName, role]
+
+    SignInBody:
+      type: object
+      properties:
+        email:
+          type: string
+        password:
+          type: string
+      required: [email, password]
+
+    AuthUser:
+      type: object
+      properties:
+        id:
+          type: string
+        email:
+          type: string
+        fullName:
+          type: string
+      required: [id, email, fullName]
+
+    AuthResponse:
+      type: object
+      properties:
+        user:
+          $ref: "#/components/schemas/AuthUser"
+        token:
+          type: string
+        roles:
+          type: array
+          items:
+            type: string
+        redirectTo:
+          type: string
+      required: [user, token, roles, redirectTo]
+
+    MeResponse:
+      type: object
+      properties:
+        user:
+          $ref: "#/components/schemas/AuthUser"
+        roles:
+          type: array
+          items:
+            type: string
+      required: [user, roles]
+
+    # PROFILES
+    Profile:
+      type: object
+      properties:
+        id:
+          type: string
+        userId:
+          type: string
+        fullName:
+          type: string
+        phone:
+          type: ["string", "null"]
+        avatarUrl:
+          type: ["string", "null"]
+        address:
+          type: ["string", "null"]
+        city:
+          type: ["string", "null"]
+        ward:
+          type: ["string", "null"]
+        dustbinCode:
+          type: ["string", "null"]
+        createdAt:
+          type: string
+      required: [id, userId, fullName]
+
+    ProfileResponse:
+      type: object
+      properties:
+        data:
+          $ref: "#/components/schemas/Profile"
+      required: [data]
+
+    UpdateProfileBody:
+      type: object
+      properties:
+        fullName:
+          type: string
+        phone:
+          type: string
+        avatarUrl:
+          type: string
+        address:
+          type: string
+        city:
+          type: string
+        ward:
+          type: string
+
+    # WASTE REPORTS
+    WasteReport:
+      type: object
+      properties:
+        id:
+          type: string
+        citizenId:
+          type: string
+        imageUrl:
+          type: ["string", "null"]
+        wasteType:
+          type: string
+        description:
+          type: ["string", "null"]
+        latitude:
+          type: ["number", "null"]
+        longitude:
+          type: ["number", "null"]
+        address:
+          type: ["string", "null"]
+        status:
+          type: string
+        assignedWorkerId:
+          type: ["string", "null"]
+        completionImageUrl:
+          type: ["string", "null"]
+        rewardPoints:
+          type: ["integer", "null"]
+        priority:
+          type: ["string", "null"]
+        reporterName:
+          type: ["string", "null"]
+        createdAt:
+          type: string
+      required: [id, citizenId, wasteType, status, createdAt]
+
+    ReportResponse:
+      type: object
+      properties:
+        data:
+          $ref: "#/components/schemas/WasteReport"
+      required: [data]
+
+    ReportsResponse:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: "#/components/schemas/WasteReport"
+      required: [data]
+
+    CreateReportBody:
+      type: object
+      properties:
+        imageUrl:
+          type: string
+        wasteType:
+          type: string
+        description:
+          type: string
+        latitude:
+          type: number
+        longitude:
+          type: number
+        address:
+          type: string
+        priority:
+          type: string
+      required: [wasteType]
+
+    UpdateReportBody:
+      type: object
+      properties:
+        status:
+          type: string
+        assignedWorkerId:
+          type: string
+        completionImageUrl:
+          type: string
+        priority:
+          type: string
+
+    VerifyReportBody:
+      type: object
+      properties:
+        reportId:
+          type: string
+        isLegit:
+          type: boolean
+      required: [reportId, isLegit]
+
+    # WALLET
+    CleanlinessScore:
+      type: object
+      properties:
+        id:
+          type: string
+        userId:
+          type: string
+        score:
+          type: integer
+        tier:
+          type: string
+        totalReports:
+          type: ["integer", "null"]
+        totalScrapSold:
+          type: ["integer", "null"]
+        totalDonations:
+          type: ["integer", "null"]
+        totalEvents:
+          type: ["integer", "null"]
+      required: [id, userId, score, tier]
+
+    CleanlinessScoreResponse:
+      type: object
+      properties:
+        data:
+          $ref: "#/components/schemas/CleanlinessScore"
+      required: [data]
+
+    WalletTransaction:
+      type: object
+      properties:
+        id:
+          type: string
+        userId:
+          type: string
+        type:
+          type: string
+        action:
+          type: string
+        points:
+          type: integer
+        referenceId:
+          type: ["string", "null"]
+        referenceType:
+          type: ["string", "null"]
+        createdAt:
+          type: string
+      required: [id, userId, type, action, points, createdAt]
+
+    TransactionsResponse:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: "#/components/schemas/WalletTransaction"
+      required: [data]
+
+    GovernmentBenefit:
+      type: object
+      properties:
+        id:
+          type: string
+        userId:
+          type: string
+        benefitType:
+          type: string
+        discountPercent:
+          type: ["integer", "null"]
+        status:
+          type: string
+        provider:
+          type: ["string", "null"]
+        couponCode:
+          type: ["string", "null"]
+        validUntil:
+          type: ["string", "null"]
+        createdAt:
+          type: string
+      required: [id, userId, benefitType, status, createdAt]
+
+    BenefitsResponse:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: "#/components/schemas/GovernmentBenefit"
+      required: [data]
+
+    RedeemItem:
+      type: object
+      properties:
+        id:
+          type: string
+        title:
+          type: string
+        description:
+          type: ["string", "null"]
+        pointsCost:
+          type: integer
+        stock:
+          type: ["integer", "null"]
+        imageEmoji:
+          type: ["string", "null"]
+        active:
+          type: ["boolean", "null"]
+      required: [id, title, pointsCost]
+
+    RedeemItemResponse:
+      type: object
+      properties:
+        data:
+          $ref: "#/components/schemas/RedeemItem"
+      required: [data]
+
+    RedeemItemsResponse:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: "#/components/schemas/RedeemItem"
+      required: [data]
+
+    RedeemBody:
+      type: object
+      properties:
+        itemId:
+          type: string
+      required: [itemId]
+
+    LeaderboardEntry:
+      type: object
+      properties:
+        userId:
+          type: string
+        fullName:
+          type: string
+        score:
+          type: integer
+        tier:
+          type: string
+        rank:
+          type: integer
+      required: [userId, fullName, score, tier, rank]
+
+    LeaderboardResponse:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: "#/components/schemas/LeaderboardEntry"
+      required: [data]
+
+    # TRAINING
+    TrainingModule:
+      type: object
+      properties:
+        id:
+          type: string
+        title:
+          type: string
+        description:
+          type: ["string", "null"]
+        icon:
+          type: ["string", "null"]
+        durationMinutes:
+          type: ["integer", "null"]
+        lessonCount:
+          type: ["integer", "null"]
+        sortOrder:
+          type: ["integer", "null"]
+        requiresPrevious:
+          type: ["boolean", "null"]
+        createdAt:
+          type: string
+      required: [id, title, createdAt]
+
+    TrainingModuleResponse:
+      type: object
+      properties:
+        data:
+          $ref: "#/components/schemas/TrainingModule"
+      required: [data]
+
+    TrainingModulesResponse:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: "#/components/schemas/TrainingModule"
+      required: [data]
+
+    TrainingProgressItem:
+      type: object
+      properties:
+        id:
+          type: string
+        userId:
+          type: string
+        moduleId:
+          type: string
+        progress:
+          type: integer
+        completed:
+          type: ["boolean", "null"]
+        completedAt:
+          type: ["string", "null"]
+      required: [id, userId, moduleId, progress]
+
+    TrainingProgressItemResponse:
+      type: object
+      properties:
+        data:
+          $ref: "#/components/schemas/TrainingProgressItem"
+      required: [data]
+
+    TrainingProgressResponse:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: "#/components/schemas/TrainingProgressItem"
+      required: [data]
+
+    UpdateTrainingProgressBody:
+      type: object
+      properties:
+        moduleId:
+          type: string
+        progress:
+          type: integer
+        completed:
+          type: boolean
+      required: [moduleId, progress]
+
+    CreateTrainingModuleBody:
+      type: object
+      properties:
+        title:
+          type: string
+        description:
+          type: string
+        icon:
+          type: string
+        durationMinutes:
+          type: integer
+        lessonCount:
+          type: integer
+        sortOrder:
+          type: integer
+        requiresPrevious:
+          type: boolean
+      required: [title]
+
+    # SCRAP
+    ScrapPrice:
+      type: object
+      properties:
+        id:
+          type: string
+        category:
+          type: string
+        itemName:
+          type: string
+        pricePerKg:
+          type: number
+      required: [id, category, itemName, pricePerKg]
+
+    ScrapPricesResponse:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: "#/components/schemas/ScrapPrice"
+      required: [data]
+
+    ScrapListingItem:
+      type: object
+      properties:
+        id:
+          type: string
+        listingId:
+          type: string
+        itemName:
+          type: string
+        category:
+          type: string
+        weightKg:
+          type: number
+        pricePerKg:
+          type: number
+        totalPrice:
+          type: ["number", "null"]
+      required: [id, listingId, itemName, category, weightKg, pricePerKg]
+
+    ScrapListing:
+      type: object
+      properties:
+        id:
+          type: string
+        citizenId:
+          type: string
+        status:
+          type: string
+        dealerId:
+          type: ["string", "null"]
+        totalEstimate:
+          type: ["number", "null"]
+        totalWeight:
+          type: ["number", "null"]
+        address:
+          type: ["string", "null"]
+        items:
+          type: array
+          items:
+            $ref: "#/components/schemas/ScrapListingItem"
+        createdAt:
+          type: string
+      required: [id, citizenId, status, createdAt]
+
+    ScrapListingResponse:
+      type: object
+      properties:
+        data:
+          $ref: "#/components/schemas/ScrapListing"
+      required: [data]
+
+    ScrapListingsResponse:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: "#/components/schemas/ScrapListing"
+      required: [data]
+
+    CreateScrapListingBody:
+      type: object
+      properties:
+        address:
+          type: string
+        latitude:
+          type: number
+        longitude:
+          type: number
+        items:
+          type: array
+          items:
+            type: object
+            properties:
+              itemName:
+                type: string
+              category:
+                type: string
+              weightKg:
+                type: number
+              pricePerKg:
+                type: number
+            required: [itemName, category, weightKg, pricePerKg]
+      required: [items]
+
+    UpdateScrapListingBody:
+      type: object
+      properties:
+        status:
+          type: string
+        dealerId:
+          type: string
+
+    # DONATIONS
+    Donation:
+      type: object
+      properties:
+        id:
+          type: string
+        citizenId:
+          type: string
+        ngoId:
+          type: ["string", "null"]
+        category:
+          type: string
+        description:
+          type: ["string", "null"]
+        imageUrl:
+          type: ["string", "null"]
+        status:
+          type: string
+        address:
+          type: ["string", "null"]
+        rewardPoints:
+          type: ["integer", "null"]
+        scheduledAt:
+          type: ["string", "null"]
+        completedAt:
+          type: ["string", "null"]
+        citizenName:
+          type: ["string", "null"]
+        createdAt:
+          type: string
+      required: [id, citizenId, category, status, createdAt]
+
+    DonationResponse:
+      type: object
+      properties:
+        data:
+          $ref: "#/components/schemas/Donation"
+      required: [data]
+
+    DonationsResponse:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: "#/components/schemas/Donation"
+      required: [data]
+
+    CreateDonationBody:
+      type: object
+      properties:
+        category:
+          type: string
+        description:
+          type: string
+        imageUrl:
+          type: string
+        address:
+          type: string
+        latitude:
+          type: number
+        longitude:
+          type: number
+        scheduledAt:
+          type: string
+      required: [category]
+
+    UpdateDonationBody:
+      type: object
+      properties:
+        status:
+          type: string
+        ngoId:
+          type: string
+        proofImageUrl:
+          type: string
+        rewardPoints:
+          type: integer
+
+    # EVENTS
+    CommunityEvent:
+      type: object
+      properties:
+        id:
+          type: string
+        title:
+          type: string
+        description:
+          type: ["string", "null"]
+        eventType:
+          type: string
+        location:
+          type: ["string", "null"]
+        latitude:
+          type: ["number", "null"]
+        longitude:
+          type: ["number", "null"]
+        startsAt:
+          type: string
+        endsAt:
+          type: ["string", "null"]
+        maxParticipants:
+          type: ["integer", "null"]
+        rewardPoints:
+          type: ["integer", "null"]
+        imageUrl:
+          type: ["string", "null"]
+        organizerId:
+          type: string
+        registrationCount:
+          type: ["integer", "null"]
+        isRegistered:
+          type: ["boolean", "null"]
+        createdAt:
+          type: string
+      required: [id, title, eventType, startsAt, organizerId, createdAt]
+
+    EventResponse:
+      type: object
+      properties:
+        data:
+          $ref: "#/components/schemas/CommunityEvent"
+      required: [data]
+
+    EventsResponse:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: "#/components/schemas/CommunityEvent"
+      required: [data]
+
+    CreateEventBody:
+      type: object
+      properties:
+        title:
+          type: string
+        description:
+          type: string
+        eventType:
+          type: string
+        location:
+          type: string
+        latitude:
+          type: number
+        longitude:
+          type: number
+        startsAt:
+          type: string
+        endsAt:
+          type: string
+        maxParticipants:
+          type: integer
+        rewardPoints:
+          type: integer
+        imageUrl:
+          type: string
+      required: [title, eventType, startsAt]
+
+    EventRegistration:
+      type: object
+      properties:
+        id:
+          type: string
+        eventId:
+          type: string
+        userId:
+          type: string
+        attended:
+          type: ["boolean", "null"]
+        event:
+          $ref: "#/components/schemas/CommunityEvent"
+        createdAt:
+          type: string
+      required: [id, eventId, userId, createdAt]
+
+    EventRegistrationsResponse:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: "#/components/schemas/EventRegistration"
+      required: [data]
+
+    # FEED
+    FeedPost:
+      type: object
+      properties:
+        id:
+          type: string
+        content:
+          type: string
+        imageUrl:
+          type: ["string", "null"]
+        ngoId:
+          type: ["string", "null"]
+        citizenId:
+          type: ["string", "null"]
+        donationId:
+          type: ["string", "null"]
+        ngoName:
+          type: ["string", "null"]
+        citizenName:
+          type: ["string", "null"]
+        createdAt:
+          type: string
+      required: [id, content, createdAt]
+
+    FeedPostResponse:
+      type: object
+      properties:
+        data:
+          $ref: "#/components/schemas/FeedPost"
+      required: [data]
+
+    FeedResponse:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: "#/components/schemas/FeedPost"
+      required: [data]
+
+    CreateFeedPostBody:
+      type: object
+      properties:
+        content:
+          type: string
+        imageUrl:
+          type: string
+        donationId:
+          type: string
+        citizenId:
+          type: string
+      required: [content]
+
+    # NOTIFICATIONS
+    Notification:
+      type: object
+      properties:
+        id:
+          type: string
+        userId:
+          type: string
+        title:
+          type: string
+        message:
+          type: string
+        type:
+          type: string
+        read:
+          type: ["boolean", "null"]
+        referenceId:
+          type: ["string", "null"]
+        referenceType:
+          type: ["string", "null"]
+        createdAt:
+          type: string
+      required: [id, userId, title, message, type, createdAt]
+
+    NotificationsResponse:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: "#/components/schemas/Notification"
+      required: [data]
+
+    # MESSAGES
+    Message:
+      type: object
+      properties:
+        id:
+          type: string
+        senderId:
+          type: string
+        receiverId:
+          type: string
+        content:
+          type: string
+        read:
+          type: ["boolean", "null"]
+        referenceId:
+          type: ["string", "null"]
+        senderName:
+          type: ["string", "null"]
+        senderAvatar:
+          type: ["string", "null"]
+        createdAt:
+          type: string
+      required: [id, senderId, receiverId, content, createdAt]
+
+    MessageResponse:
+      type: object
+      properties:
+        data:
+          $ref: "#/components/schemas/Message"
+      required: [data]
+
+    MessagesResponse:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: "#/components/schemas/Message"
+      required: [data]
+
+    SendMessageBody:
+      type: object
+      properties:
+        receiverId:
+          type: string
+        content:
+          type: string
+        referenceId:
+          type: string
+      required: [receiverId, content]
+
+    # DUSTBIN
+    DustbinCollection:
+      type: object
+      properties:
+        id:
+          type: string
+        citizenId:
+          type: string
+        workerId:
+          type: ["string", "null"]
+        fillLevel:
+          type: ["integer", "null"]
+        pointsAwarded:
+          type: ["integer", "null"]
+        notes:
+          type: ["string", "null"]
+        createdAt:
+          type: string
+      required: [id, citizenId, createdAt]
+
+    DustbinCollectionsResponse:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: "#/components/schemas/DustbinCollection"
+      required: [data]
+
+    CreateDustbinCollectionBody:
+      type: object
+      properties:
+        citizenId:
+          type: string
+        fillLevel:
+          type: integer
+        notes:
+          type: string
+      required: [citizenId, fillLevel]
+
+    # DASHBOARD SUMMARIES
+    CitizenDashboardResponse:
+      type: object
+      properties:
+        score:
+          $ref: "#/components/schemas/CleanlinessScore"
+        totalPoints:
+          type: integer
+        reportCount:
+          type: integer
+        donationCount:
+          type: integer
+        recentReports:
+          type: array
+          items:
+            $ref: "#/components/schemas/WasteReport"
+        upcomingEvents:
+          type: array
+          items:
+            $ref: "#/components/schemas/CommunityEvent"
+        recentTransactions:
+          type: array
+          items:
+            $ref: "#/components/schemas/WalletTransaction"
+      required: [totalPoints, reportCount, donationCount, recentReports, upcomingEvents, recentTransactions]
+
+    WorkerDashboardResponse:
+      type: object
+      properties:
+        assignedReports:
+          type: array
+          items:
+            $ref: "#/components/schemas/WasteReport"
+        completedToday:
+          type: integer
+        pendingCount:
+          type: integer
+        recentCollections:
+          type: array
+          items:
+            $ref: "#/components/schemas/DustbinCollection"
+      required: [assignedReports, completedToday, pendingCount, recentCollections]
+
+    NgoDashboardResponse:
+      type: object
+      properties:
+        pendingDonations:
+          type: array
+          items:
+            $ref: "#/components/schemas/Donation"
+        completedDonations:
+          type: integer
+        totalFeed:
+          type: integer
+        recentFeed:
+          type: array
+          items:
+            $ref: "#/components/schemas/FeedPost"
+      required: [pendingDonations, completedDonations, totalFeed, recentFeed]
+
+    AdminDashboardResponse:
+      type: object
+      properties:
+        totalUsers:
+          type: integer
+        totalReports:
+          type: integer
+        totalDonations:
+          type: integer
+        totalEvents:
+          type: integer
+        pendingReports:
+          type: integer
+        recentActivity:
+          type: array
+          items:
+            $ref: "#/components/schemas/WasteReport"
+        topCitizens:
+          type: array
+          items:
+            $ref: "#/components/schemas/LeaderboardEntry"
+      required: [totalUsers, totalReports, totalDonations, totalEvents, pendingReports, recentActivity, topCitizens]
+
+    # ADMIN
+    AdminUser:
+      type: object
+      properties:
+        id:
+          type: string
+        email:
+          type: string
+        fullName:
+          type: string
+        roles:
+          type: array
+          items:
+            type: string
+        score:
+          type: ["integer", "null"]
+        createdAt:
+          type: string
+      required: [id, email, fullName, roles, createdAt]
+
+    AdminUsersResponse:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: "#/components/schemas/AdminUser"
+      required: [data]
+
+    UpdateUserRolesBody:
+      type: object
+      properties:
+        roles:
+          type: array
+          items:
+            type: string
+      required: [roles]
+
+    CreateRedeemItemBody:
+      type: object
+      properties:
+        title:
+          type: string
+        description:
+          type: string
+        pointsCost:
+          type: integer
+        stock:
+          type: integer
+        imageEmoji:
+          type: string
+        active:
+          type: boolean
+      required: [title, pointsCost]

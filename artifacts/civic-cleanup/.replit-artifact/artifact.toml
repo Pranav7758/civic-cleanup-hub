@@ -1,0 +1,31 @@
+kind = "web"
+previewPath = "/"
+title = "Civic Cleanup Hub"
+version = "1.0.0"
+id = "artifacts/civic-cleanup"
+router = "path"
+
+[[integratedSkills]]
+name = "react-vite"
+version = "1.0.0"
+
+[[services]]
+name = "web"
+paths = [ "/" ]
+localPort = 20278
+
+[services.development]
+run = "pnpm --filter @workspace/civic-cleanup run dev"
+
+[services.production]
+build = [ "pnpm", "--filter", "@workspace/civic-cleanup", "run", "build" ]
+publicDir = "artifacts/civic-cleanup/dist/public"
+serve = "static"
+
+[[services.production.rewrites]]
+from = "/*"
+to = "/index.html"
+
+[services.env]
+PORT = "20278"
+BASE_PATH = "/"
