@@ -1,18 +1,11 @@
-import { useState } from "react";
-import { AlertTriangle, Plus, Users, MapPin, Clock, CheckCircle, X, Heart, HandHeart } from "lucide-react";
+import { useState, useEffect, useCallback } from "react";
+import { AlertTriangle, Plus, Users, MapPin, Clock, CheckCircle, X, Heart } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/context/AuthContext";
 import DashboardLayout from "@/components/DashboardLayout";
 import "@/styles/dashboard.css";
 
 type NeedStatus = "open" | "in_progress" | "completed";
-type ResponseType = "volunteer" | "donate";
-
-interface NeedResponse {
-  userId: string;
-  name: string;
-  type: ResponseType;
-}
 
 interface UrgentNeed {
   id: string;
@@ -22,48 +15,11 @@ interface UrgentNeed {
   required: string;
   deadline: string;
   status: NeedStatus;
-  responses: NeedResponse[];
+  responses: { userId: string; name: string; type: "volunteer" | "donate" }[];
+  ngoId: string;
+  ngoName: string;
   createdAt: string;
 }
-
-const INITIAL_NEEDS: UrgentNeed[] = [
-  {
-    id: "u1",
-    title: "Need 30 Volunteers for Yamuna Flood Cleanup",
-    description: "Urgent cleanup needed along Yamuna Ghat after heavy flooding. Requires people with rubber boots and gloves. We will provide safety equipment.",
-    location: "Yamuna Ghat, Delhi",
-    required: "30 volunteers",
-    deadline: "2026-05-08",
-    status: "open",
-    responses: [],
-    createdAt: "2026-05-03",
-  },
-  {
-    id: "u2",
-    title: "Food & Water Support for Cleanup Workers",
-    description: "Our cleanup drive workers need food and water packets for a 6-hour session starting at 8 AM. Any donation of water bottles, snacks or packed meals is welcome.",
-    location: "Lajpat Nagar, Delhi",
-    required: "100 food packets, 50 water bottles",
-    deadline: "2026-05-06",
-    status: "in_progress",
-    responses: [
-      { userId: "c1", name: "Priya S.", type: "donate" },
-      { userId: "c2", name: "Rahul G.", type: "donate" },
-    ],
-    createdAt: "2026-05-02",
-  },
-  {
-    id: "u3",
-    title: "Medical Aid — First-Aid Volunteers Needed",
-    description: "Need first-aid certified volunteers for our large-scale cleanup event. Basic training provided. Duration: half day.",
-    location: "Rohini Sec 11, Delhi",
-    required: "5 first-aid certified volunteers",
-    deadline: "2026-05-12",
-    status: "open",
-    responses: [{ userId: "c3", name: "Dr. Ananya K.", type: "volunteer" }],
-    createdAt: "2026-05-01",
-  },
-];
 
 const STATUS_CONFIG: Record<NeedStatus, { label: string; cls: string; emoji: string }> = {
   open:        { label: "Open",        cls: "gov-badge gov-badge-red",    emoji: "🔴" },
@@ -71,79 +27,91 @@ const STATUS_CONFIG: Record<NeedStatus, { label: string; cls: string; emoji: str
   completed:   { label: "Completed",   cls: "gov-badge gov-badge-green",  emoji: "✅" },
 };
 
-const BLANK_FORM = {
-  title: "", description: "", location: "", required: "", deadline: "",
-};
+const BLANK_FORM = { title: "", description: "", location: "", required: "", deadline: "" };
 
 export default function NgoUrgentPage() {
-  const { user }  = useAuth();
+  const { token } = useAuth();
   const { toast } = useToast();
 
-  const [needs, setNeeds]             = useState<UrgentNeed[]>(INITIAL_NEEDS);
-  const [showCreate, setShowCreate]   = useState(false);
-  const [form, setForm]               = useState(BLANK_FORM);
-  const [respondModal, setRespondModal] = useState<UrgentNeed | null>(null);
-  const [respondType, setRespondType] = useState<ResponseType>("volunteer");
+  const [needs, setNeeds]           = useState<UrgentNeed[]>([]);
+  const [loading, setLoading]       = useState(true);
+  const [showCreate, setShowCreate] = useState(false);
+  const [form, setForm]             = useState(BLANK_FORM);
+  const [creating, setCreating]     = useState(false);
+  const [updatingId, setUpdatingId] = useState<string | null>(null);
   const [filterStatus, setFilterStatus] = useState<"all" | NeedStatus>("all");
 
-  const userName = user?.fullName || "You";
-  const userInitial = userName[0]?.toUpperCase() || "U";
+  const fetchNeeds = useCallback(async () => {
+    try {
+      const res = await fetch("/api/urgent-needs", {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      const json = await res.json();
+      setNeeds(json.data || []);
+    } catch {
+      /* silent */
+    } finally {
+      setLoading(false);
+    }
+  }, [token]);
 
-  const sortedNeeds = [...needs]
-    .sort((a, b) => {
-      if (a.status === "open" && b.status !== "open") return -1;
-      if (b.status === "open" && a.status !== "open") return 1;
-      return new Date(a.deadline).getTime() - new Date(b.deadline).getTime();
-    })
-    .filter(n => filterStatus === "all" || n.status === filterStatus);
+  useEffect(() => { fetchNeeds(); }, [fetchNeeds]);
 
-  function handleCreate() {
+  async function handleCreate() {
     if (!form.title.trim() || !form.deadline) {
       toast({ title: "Title and deadline are required", variant: "destructive" }); return;
     }
-    const newNeed: UrgentNeed = {
-      id: `u${Date.now()}`,
-      title: form.title.trim(),
-      description: form.description.trim(),
-      location: form.location.trim(),
-      required: form.required.trim(),
-      deadline: form.deadline,
-      status: "open",
-      responses: [],
-      createdAt: new Date().toISOString().split("T")[0],
-    };
-    setNeeds(n => [newNeed, ...n]);
-    setForm(BLANK_FORM);
-    setShowCreate(false);
-    toast({ title: "Urgent need posted!", description: "It will appear at the top of the list." });
-  }
-
-  function handleRespond() {
-    if (!respondModal) return;
-    const alreadyResponded = respondModal.responses.some(r => r.userId === (user?.id || "demo"));
-    if (alreadyResponded) {
-      toast({ title: "Already responded", description: "You have already responded to this need." });
-      setRespondModal(null);
-      return;
+    setCreating(true);
+    try {
+      const res = await fetch("/api/urgent-needs", {
+        method: "POST",
+        headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+        body: JSON.stringify(form),
+      });
+      if (!res.ok) throw new Error("Failed");
+      toast({ title: "Urgent need posted!", description: "Citizens can now see and respond to it." });
+      setForm(BLANK_FORM);
+      setShowCreate(false);
+      fetchNeeds();
+    } catch {
+      toast({ title: "Failed to post", variant: "destructive" });
+    } finally {
+      setCreating(false);
     }
-    setNeeds(n => n.map(need =>
-      need.id === respondModal.id
-        ? { ...need, responses: [...need.responses, { userId: user?.id || "demo", name: userName, type: respondType }] }
-        : need
-    ));
-    setRespondModal(null);
-    toast({ title: "Response submitted!", description: `You offered to ${respondType === "volunteer" ? "volunteer" : "donate"}.` });
   }
 
-  function handleStatusUpdate(needId: string, status: NeedStatus) {
-    setNeeds(n => n.map(need => need.id === needId ? { ...need, status } : need));
-    toast({ title: "Status updated!", description: STATUS_CONFIG[status].label });
+  async function handleStatusUpdate(id: string, status: NeedStatus) {
+    setUpdatingId(id);
+    try {
+      await fetch(`/api/urgent-needs/${id}/status`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+        body: JSON.stringify({ status }),
+      });
+      toast({ title: `Status updated to: ${STATUS_CONFIG[status].label}` });
+      fetchNeeds();
+    } catch {
+      toast({ title: "Update failed", variant: "destructive" });
+    } finally {
+      setUpdatingId(null);
+    }
   }
 
-  function handleDelete(needId: string) {
-    setNeeds(n => n.filter(need => need.id !== needId));
-    toast({ title: "Urgent need removed" });
+  async function handleDelete(id: string) {
+    try {
+      await fetch(`/api/urgent-needs/${id}`, {
+        method: "DELETE",
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      toast({ title: "Urgent need removed" });
+      fetchNeeds();
+    } catch {
+      toast({ title: "Delete failed", variant: "destructive" });
+    }
   }
+
+  const sortedNeeds = [...needs]
+    .filter(n => filterStatus === "all" || n.status === filterStatus);
 
   const openCount      = needs.filter(n => n.status === "open").length;
   const inProgCount    = needs.filter(n => n.status === "in_progress").length;
@@ -160,25 +128,23 @@ export default function NgoUrgentPage() {
         <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: 10 }}>
           <div>
             <h2 style={{ fontSize: 17, fontWeight: 800, color: "#1c2833", margin: 0 }}>Urgent Needs</h2>
-            <div style={{ fontSize: 12, color: "#5d6d7e", marginTop: 2 }}>Post and manage urgent volunteer/donation requests</div>
+            <div style={{ fontSize: 12, color: "#5d6d7e", marginTop: 2 }}>
+              Post urgent needs — citizens will see them and respond in real-time
+            </div>
           </div>
-          <button
-            className="gov-btn gov-btn-red"
-            style={{ display: "flex", alignItems: "center", gap: 6 }}
-            onClick={() => setShowCreate(v => !v)}
-          >
-            <Plus style={{ width: 13, height: 13 }} />
-            Post Urgent Need
+          <button className="gov-btn gov-btn-red" style={{ display: "flex", alignItems: "center", gap: 6 }}
+            onClick={() => setShowCreate(v => !v)}>
+            <Plus style={{ width: 13, height: 13 }} /> Post Urgent Need
           </button>
         </div>
 
         {/* Stats */}
-        <div className="cd-4col" style={{ display: "grid", gridTemplateColumns: "repeat(4,1fr)", gap: 12 }}>
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(4,1fr)", gap: 12 }}>
           {[
-            { label: "Open Needs",     value: openCount,      icon: "🔴", color: "#c0392b" },
-            { label: "In Progress",    value: inProgCount,    icon: "🟡", color: "#ca6f1e" },
-            { label: "Completed",      value: completedCount, icon: "✅", color: "#1e8449" },
-            { label: "Total Responses",value: totalResponses, icon: "🤝", color: "#1a5276" },
+            { label: "Open Needs",      value: openCount,      icon: "🔴", color: "#c0392b" },
+            { label: "In Progress",     value: inProgCount,    icon: "🟡", color: "#ca6f1e" },
+            { label: "Completed",       value: completedCount, icon: "✅", color: "#1e8449" },
+            { label: "Total Responses", value: totalResponses, icon: "🤝", color: "#1a5276" },
           ].map(s => (
             <div key={s.label} className="gov-stat-card" style={{ borderLeft: `3px solid ${s.color}` }}>
               <span style={{ fontSize: 22 }}>{s.icon}</span>
@@ -186,6 +152,12 @@ export default function NgoUrgentPage() {
               <div className="gov-stat-label">{s.label}</div>
             </div>
           ))}
+        </div>
+
+        {/* Live indicator */}
+        <div style={{ display: "flex", alignItems: "center", gap: 8, padding: "8px 14px", background: "#e8f5e9", borderRadius: 10, border: "1px solid #c8e6c9", fontSize: 12, fontWeight: 600, color: "#2e7d32" }}>
+          <span style={{ width: 8, height: 8, borderRadius: "50%", background: "#2e7d32", display: "inline-block", boxShadow: "0 0 6px #2e7d32" }} />
+          Live — Citizens can see and respond to your posted needs from their "Help NGOs" section
         </div>
 
         {/* Create form */}
@@ -206,14 +178,12 @@ export default function NgoUrgentPage() {
                 <input className="gov-input" placeholder="e.g. Need volunteers for cleanup" value={form.title}
                   onChange={e => setForm(f => ({ ...f, title: e.target.value }))} />
               </div>
-
               <div>
                 <label style={{ fontSize: 11, fontWeight: 700, color: "#5d6d7e", display: "block", marginBottom: 4 }}>Description</label>
-                <textarea className="gov-input" rows={3} placeholder="Describe the urgency, what is needed, how volunteers can help…"
+                <textarea className="gov-input" rows={3} placeholder="Describe the urgency, what is needed, how citizens can help…"
                   value={form.description} onChange={e => setForm(f => ({ ...f, description: e.target.value }))} style={{ resize: "vertical" }} />
               </div>
-
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }} className="cd-2col">
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
                 <div>
                   <label style={{ fontSize: 11, fontWeight: 700, color: "#5d6d7e", display: "block", marginBottom: 4 }}>Location</label>
                   <input className="gov-input" placeholder="e.g. Yamuna Ghat, Delhi" value={form.location}
@@ -225,17 +195,16 @@ export default function NgoUrgentPage() {
                     onChange={e => setForm(f => ({ ...f, required: e.target.value }))} />
                 </div>
               </div>
-
               <div>
                 <label style={{ fontSize: 11, fontWeight: 700, color: "#5d6d7e", display: "block", marginBottom: 4 }}>Deadline *</label>
                 <input className="gov-input" type="date" value={form.deadline} style={{ maxWidth: 200 }}
                   onChange={e => setForm(f => ({ ...f, deadline: e.target.value }))} />
               </div>
-
               <div style={{ display: "flex", gap: 8 }}>
-                <button className="gov-btn gov-btn-red" onClick={handleCreate}
+                <button className="gov-btn gov-btn-red" onClick={handleCreate} disabled={creating}
                   style={{ display: "flex", alignItems: "center", gap: 6 }}>
-                  <AlertTriangle style={{ width: 13, height: 13 }} /> Post Urgent Need
+                  <AlertTriangle style={{ width: 13, height: 13 }} />
+                  {creating ? "Posting…" : "Post Urgent Need"}
                 </button>
                 <button className="gov-btn gov-btn-outline" onClick={() => setShowCreate(false)}>Cancel</button>
               </div>
@@ -258,8 +227,12 @@ export default function NgoUrgentPage() {
           ))}
         </div>
 
-        {/* Urgent needs list */}
-        {sortedNeeds.length === 0 ? (
+        {/* List */}
+        {loading ? (
+          <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+            {[1,2,3].map(i => <div key={i} style={{ height: 120, background: "#f4f6f9", borderRadius: 14, border: "1px solid #e0e6f0" }} />)}
+          </div>
+        ) : sortedNeeds.length === 0 ? (
           <div className="gov-card" style={{ padding: "48px 24px", textAlign: "center" }}>
             <div style={{ fontSize: 40, marginBottom: 12 }}>🙌</div>
             <div style={{ fontSize: 14, fontWeight: 600, color: "#1c2833", marginBottom: 6 }}>No urgent needs right now</div>
@@ -268,11 +241,11 @@ export default function NgoUrgentPage() {
         ) : (
           <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
             {sortedNeeds.map(need => {
-              const sInfo = STATUS_CONFIG[need.status];
-              const isOpen = need.status === "open";
+              const sInfo      = STATUS_CONFIG[need.status];
+              const isOpen     = need.status === "open";
               const deadlineDate = new Date(need.deadline);
-              const daysLeft = Math.ceil((deadlineDate.getTime() - Date.now()) / (1000 * 60 * 60 * 24));
-              const isUrgent = isOpen && daysLeft <= 3;
+              const daysLeft   = Math.ceil((deadlineDate.getTime() - Date.now()) / (1000 * 60 * 60 * 24));
+              const isUrgent   = isOpen && daysLeft <= 3;
               const volunteers = need.responses.filter(r => r.type === "volunteer");
               const donors     = need.responses.filter(r => r.type === "donate");
 
@@ -284,7 +257,6 @@ export default function NgoUrgentPage() {
                   boxShadow: isUrgent ? "0 2px 8px rgba(231,76,60,0.1)" : "0 1px 4px rgba(0,0,0,0.05)",
                   overflow: "hidden",
                 }}>
-                  {/* Priority banner for urgent */}
                   {isUrgent && (
                     <div style={{ background: "#e74c3c", padding: "6px 18px", display: "flex", alignItems: "center", gap: 6 }}>
                       <AlertTriangle style={{ width: 12, height: 12, color: "#fff" }} />
@@ -295,7 +267,6 @@ export default function NgoUrgentPage() {
                   )}
 
                   <div style={{ padding: "16px 18px" }}>
-                    {/* Top row */}
                     <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 12, flexWrap: "wrap", marginBottom: 10 }}>
                       <div style={{ flex: 1, minWidth: 0 }}>
                         <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap", marginBottom: 4 }}>
@@ -306,14 +277,12 @@ export default function NgoUrgentPage() {
                           <div style={{ fontSize: 12, color: "#5d6d7e", lineHeight: 1.5, marginBottom: 8 }}>{need.description}</div>
                         )}
                       </div>
-                      <button
-                        onClick={() => handleDelete(need.id)}
+                      <button onClick={() => handleDelete(need.id)}
                         style={{ background: "none", border: "none", cursor: "pointer", color: "#aaa", padding: 4, flexShrink: 0 }}>
                         <X style={{ width: 14, height: 14 }} />
                       </button>
                     </div>
 
-                    {/* Meta chips */}
                     <div style={{ display: "flex", gap: 12, flexWrap: "wrap", marginBottom: 12 }}>
                       {need.location && (
                         <span style={{ display: "flex", alignItems: "center", gap: 4, fontSize: 11, color: "#5d6d7e" }}>
@@ -331,7 +300,6 @@ export default function NgoUrgentPage() {
                       </span>
                     </div>
 
-                    {/* Responses */}
                     {need.responses.length > 0 && (
                       <div style={{ display: "flex", gap: 16, flexWrap: "wrap", marginBottom: 12, padding: "10px 14px", background: "#f8faf8", borderRadius: 10, border: "1px solid #e0ece0" }}>
                         <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
@@ -340,7 +308,6 @@ export default function NgoUrgentPage() {
                           {volunteers.slice(0, 3).map((r, i) => (
                             <span key={i} style={{ fontSize: 11, color: "#5d6d7e" }}>{r.name}{i < Math.min(volunteers.length - 1, 2) ? "," : ""}</span>
                           ))}
-                          {volunteers.length > 3 && <span style={{ fontSize: 11, color: "#5d6d7e" }}>+{volunteers.length - 3} more</span>}
                         </div>
                         {donors.length > 0 && (
                           <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
@@ -354,102 +321,34 @@ export default function NgoUrgentPage() {
                       </div>
                     )}
 
-                    {/* Actions row */}
+                    {/* NGO status controls only */}
                     <div style={{ display: "flex", gap: 8, alignItems: "center", flexWrap: "wrap" }}>
-                      {/* Help Now (citizen action) */}
-                      {need.status !== "completed" && (
-                        <button
-                          className="gov-btn gov-btn-sm"
-                          style={{ background: isUrgent ? "#e74c3c" : "#2e7d32", color: "#fff", border: "none", display: "flex", alignItems: "center", gap: 5 }}
-                          onClick={() => setRespondModal(need)}>
-                          <HandHeart style={{ width: 13, height: 13 }} /> Help Now
+                      {need.status !== "in_progress" && need.status !== "completed" && (
+                        <button className="gov-btn gov-btn-sm gov-btn-outline"
+                          disabled={updatingId === need.id}
+                          onClick={() => handleStatusUpdate(need.id, "in_progress")}>
+                          → Mark In Progress
                         </button>
                       )}
-
-                      {/* NGO status update */}
-                      <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
-                        {need.status !== "in_progress" && need.status !== "completed" && (
-                          <button className="gov-btn gov-btn-sm gov-btn-outline" onClick={() => handleStatusUpdate(need.id, "in_progress")}>
-                            → In Progress
-                          </button>
-                        )}
-                        {need.status !== "completed" && (
-                          <button className="gov-btn gov-btn-sm gov-btn-outline"
-                            style={{ display: "flex", alignItems: "center", gap: 4 }}
-                            onClick={() => handleStatusUpdate(need.id, "completed")}>
-                            <CheckCircle style={{ width: 11, height: 11 }} /> Mark Completed
-                          </button>
-                        )}
-                        {need.status === "completed" && (
-                          <span style={{ display: "flex", alignItems: "center", gap: 4, fontSize: 12, fontWeight: 600, color: "#1e8449" }}>
-                            <CheckCircle style={{ width: 13, height: 13 }} /> Resolved — Thank you!
-                          </span>
-                        )}
-                      </div>
+                      {need.status !== "completed" && (
+                        <button className="gov-btn gov-btn-sm gov-btn-outline"
+                          style={{ display: "flex", alignItems: "center", gap: 4 }}
+                          disabled={updatingId === need.id}
+                          onClick={() => handleStatusUpdate(need.id, "completed")}>
+                          <CheckCircle style={{ width: 11, height: 11 }} />
+                          {updatingId === need.id ? "Saving…" : "Mark Completed"}
+                        </button>
+                      )}
+                      {need.status === "completed" && (
+                        <span style={{ display: "flex", alignItems: "center", gap: 4, fontSize: 12, fontWeight: 600, color: "#1e8449" }}>
+                          <CheckCircle style={{ width: 13, height: 13 }} /> Resolved — Thank you!
+                        </span>
+                      )}
                     </div>
                   </div>
                 </div>
               );
             })}
-          </div>
-        )}
-
-        {/* Respond Modal */}
-        {respondModal && (
-          <div style={{
-            position: "fixed", inset: 0, background: "rgba(0,0,0,0.45)", zIndex: 1000,
-            display: "flex", alignItems: "center", justifyContent: "center", padding: 16,
-          }}
-            onClick={() => setRespondModal(null)}
-          >
-            <div style={{
-              background: "#fff", borderRadius: 16, padding: "24px", maxWidth: 400, width: "100%",
-              boxShadow: "0 20px 60px rgba(0,0,0,0.25)",
-            }}
-              onClick={e => e.stopPropagation()}
-            >
-              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 16 }}>
-                <div style={{ fontSize: 16, fontWeight: 800, color: "#1c2833" }}>Help Now</div>
-                <button onClick={() => setRespondModal(null)} style={{ background: "none", border: "none", cursor: "pointer" }}>
-                  <X style={{ width: 16, height: 16, color: "#aaa" }} />
-                </button>
-              </div>
-
-              <div style={{ fontSize: 13, color: "#374151", fontWeight: 600, marginBottom: 4 }}>{respondModal.title}</div>
-              {respondModal.location && (
-                <div style={{ display: "flex", alignItems: "center", gap: 4, fontSize: 12, color: "#5d6d7e", marginBottom: 16 }}>
-                  <MapPin style={{ width: 11, height: 11 }} />{respondModal.location}
-                </div>
-              )}
-
-              <div style={{ marginBottom: 16 }}>
-                <div style={{ fontSize: 11, fontWeight: 700, color: "#5d6d7e", marginBottom: 8 }}>How would you like to help?</div>
-                <div style={{ display: "flex", gap: 10 }}>
-                  {(["volunteer","donate"] as ResponseType[]).map(type => (
-                    <button key={type} onClick={() => setRespondType(type)}
-                      style={{
-                        flex: 1, padding: "12px 8px", borderRadius: 10,
-                        border: `2px solid ${respondType === type ? "#1b5e20" : "#e0ece0"}`,
-                        background: respondType === type ? "#e8f5e9" : "#fff",
-                        cursor: "pointer", textAlign: "center",
-                        transition: "all .15s",
-                      }}>
-                      <div style={{ fontSize: 22, marginBottom: 4 }}>{type === "volunteer" ? "🙋" : "❤️"}</div>
-                      <div style={{ fontSize: 12, fontWeight: 700, color: respondType === type ? "#1b5e20" : "#5d6d7e" }}>
-                        {type === "volunteer" ? "Volunteer" : "Donate"}
-                      </div>
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              <div style={{ display: "flex", gap: 8 }}>
-                <button className="gov-btn gov-btn-green" style={{ flex: 1 }} onClick={handleRespond}>
-                  Confirm Response
-                </button>
-                <button className="gov-btn gov-btn-outline" onClick={() => setRespondModal(null)}>Cancel</button>
-              </div>
-            </div>
           </div>
         )}
       </div>

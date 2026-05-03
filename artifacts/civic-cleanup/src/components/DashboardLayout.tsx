@@ -22,15 +22,16 @@ interface NavItem {
 }
 
 const CITIZEN_NAV: NavItem[] = [
-  { label: "Dashboard",    icon: LayoutDashboard, path: "/citizen"              },
+  { label: "Dashboard",    icon: LayoutDashboard, path: "/citizen"                        },
   { label: "My Dustbin",   icon: QrCode,          path: "/citizen/dustbin",  badge: "QR" },
-  { label: "Report Waste", icon: Camera,          path: "/citizen/reports"     },
-  { label: "Wallet",       icon: Wallet,          path: "/citizen/wallet"      },
-  { label: "Training",     icon: BookOpen,        path: "/citizen/training"    },
-  { label: "Sell Scrap",   icon: Recycle,         path: "/citizen/scrap"       },
-  { label: "Donate",       icon: Heart,           path: "/citizen/donate"      },
-  { label: "Events",       icon: Calendar,        path: "/citizen/events"      },
-  { label: "Leaderboard",  icon: Trophy,          path: "/citizen/leaderboard" },
+  { label: "Report Waste", icon: Camera,          path: "/citizen/reports"               },
+  { label: "Wallet",       icon: Wallet,          path: "/citizen/wallet"                },
+  { label: "Training",     icon: BookOpen,        path: "/citizen/training"              },
+  { label: "Sell Scrap",   icon: Recycle,         path: "/citizen/scrap"                 },
+  { label: "Donate",       icon: Heart,           path: "/citizen/donate"                },
+  { label: "Events",       icon: Calendar,        path: "/citizen/events"                },
+  { label: "Help NGOs",    icon: AlertTriangle,   path: "/citizen/ngo-needs", badge: "!" },
+  { label: "Leaderboard",  icon: Trophy,          path: "/citizen/leaderboard"           },
 ];
 const WORKER_NAV: NavItem[] = [
   { label: "Dashboard",        icon: LayoutDashboard, path: "/worker",          accentColor: "#7c3aed" },
@@ -45,7 +46,6 @@ const NGO_NAV: NavItem[] = [
   { label: "Community Feed", icon: Users,           path: "/ngo/feed"                         },
   { label: "Camps & Events", icon: CalendarCheck,   path: "/ngo/manage-events"                },
   { label: "Urgent Needs",   icon: AlertTriangle,   path: "/ngo/urgent",   badge: "!"         },
-  { label: "Reports",        icon: Camera,          path: "/ngo/reports"                      },
 ];
 const SCRAP_NAV: NavItem[] = [
   { label: "Dashboard",       icon: LayoutDashboard, path: "/scrap"           },

@@ -30,8 +30,12 @@ import WorkerTaskPage from "@/pages/worker/WorkerTaskPage";
 
 // NGO
 import NgoDashboard from "@/pages/ngo/NgoDashboard";
+import NgoDonationsPage from "@/pages/ngo/NgoDonationsPage";
 import NgoEventsPage from "@/pages/ngo/NgoEventsPage";
 import NgoUrgentPage from "@/pages/ngo/NgoUrgentPage";
+
+// Citizen extras
+import CitizenUrgentNeedsPage from "@/pages/citizen/CitizenUrgentNeedsPage";
 
 // Scrap Dealer
 import ScrapDealerDashboard from "@/pages/scrap/ScrapDealerDashboard";
@@ -130,6 +134,9 @@ function AppRouter() {
       <Route path="/citizen/dustbin">
         <AuthGuard><CitizenDustbinPage /></AuthGuard>
       </Route>
+      <Route path="/citizen/ngo-needs">
+        <AuthGuard><CitizenUrgentNeedsPage /></AuthGuard>
+      </Route>
 
       {/* Worker routes */}
       <Route path="/worker">
@@ -156,13 +163,10 @@ function AppRouter() {
         <AuthGuard role="ngo"><NgoDashboard /></AuthGuard>
       </Route>
       <Route path="/ngo/donations">
-        <AuthGuard role="ngo"><NgoDashboard /></AuthGuard>
+        <AuthGuard role="ngo"><NgoDonationsPage /></AuthGuard>
       </Route>
       <Route path="/ngo/feed">
         <AuthGuard role="ngo"><NgoDashboard /></AuthGuard>
-      </Route>
-      <Route path="/ngo/reports">
-        <AuthGuard role="ngo"><ReportsPage /></AuthGuard>
       </Route>
       <Route path="/ngo/events">
         <AuthGuard role="ngo"><EventsPage /></AuthGuard>

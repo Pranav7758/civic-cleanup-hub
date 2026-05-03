@@ -14,6 +14,7 @@ import dashboardRouter from "./dashboard";
 import adminRouter from "./admin";
 import classifyRouter from "./classify";
 import dustbinRouter from "./dustbin";
+import urgentNeedsRouter from "./urgentNeeds";
 
 const router: IRouter = Router();
 
@@ -32,6 +33,7 @@ router.use(dashboardRouter);
 router.use(adminRouter);
 router.use(classifyRouter);
 router.use(dustbinRouter);
+router.use(urgentNeedsRouter);
 
 // Global error handler
 router.use((err: any, req: Request, res: Response, _next: NextFunction) => {
