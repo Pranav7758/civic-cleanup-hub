@@ -84,9 +84,9 @@ export default function WorkerReportsPage() {
         {/* ── Stats + header ── */}
         <div style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: 12 }}>
           {[
-            { label: "Available Tasks",  value: available.length, color: "#ea580c", icon: "📋" },
-            { label: "My Assigned",      value: myTasks.length,   color: "#7c3aed", icon: "🚛" },
-            { label: "Completed Total",  value: stats.completedTotal ?? 0, color: "#1e8449", icon: "✅" },
+            { label: "Open Tasks",    value: available.length, color: "#ea580c", icon: "📋" },
+            { label: "My Tasks",      value: myTasks.length,   color: "#7c3aed", icon: "🚛" },
+            { label: "Done So Far",   value: stats.completedTotal ?? 0, color: "#1e8449", icon: "✅" },
           ].map(s => (
             <div key={s.label} className="gov-stat-card" style={{ padding: "14px 16px" }}>
               <span style={{ fontSize: 20 }}>{s.icon}</span>
@@ -100,8 +100,8 @@ export default function WorkerReportsPage() {
         <div className="gov-card" style={{ padding: 0, overflow: "hidden" }}>
           <div style={{ display: "flex", borderBottom: "1px solid #d5dae1" }}>
             {([
-              { key: "available", label: "Available Tasks", count: available.length, color: "#ea580c" },
-              { key: "my-tasks",  label: "My Tasks",        count: myTasks.length,   color: "#7c3aed" },
+              { key: "available", label: "Open Tasks", count: available.length, color: "#ea580c" },
+              { key: "my-tasks",  label: "My Tasks",  count: myTasks.length,   color: "#7c3aed" },
             ] as { key: Tab; label: string; count: number; color: string }[]).map(t => (
               <button
                 key={t.key}
@@ -151,7 +151,7 @@ export default function WorkerReportsPage() {
                   {tab === "available" ? "No available tasks right now" : "No tasks assigned to you yet"}
                 </div>
                 <div style={{ fontSize: 12, color: "#909caa", marginTop: 4 }}>
-                  {tab === "available" ? "Check back soon — citizens are actively reporting!" : "Accept tasks from the Available Tasks tab"}
+                  {tab === "available" ? "Check back soon — people are reporting waste!" : "Pick a task from the Open Tasks tab"}
                 </div>
               </div>
             )}
@@ -267,7 +267,7 @@ export default function WorkerReportsPage() {
         {tab === "available" && !isLoading && available.length > 0 && (
           <div style={{ background: "linear-gradient(145deg,#e8f5e9,#f1f8e9)", border: "1px solid #a5d6a7", borderRadius: 10, padding: "10px 16px", fontSize: 12, color: "#2e7d32", display: "flex", alignItems: "center", gap: 8 }}>
             <AlertTriangle style={{ width: 13, height: 13, flexShrink: 0 }} />
-            Accept a task to claim it exclusively. Navigate to the location, collect the waste, upload proof, and mark done to earn points.
+            Accept a task, go to the location, collect the waste, take a photo as proof, and mark it done to earn points.
           </div>
         )}
       </div>

@@ -309,7 +309,7 @@ export default function CitizenDashboard() {
                   boxShadow:"2px 2px 6px rgba(21,101,192,.3)" }}>
                   <TrendingUp style={{ width:14, height:14, color:"#fff" }} />
                 </div>
-                <span style={{ fontSize:14, fontWeight:800, color:"#1a2e1a" }}>Weekly Activity</span>
+                <span style={{ fontSize:14, fontWeight:800, color:"#1a2e1a" }}>Activity This Week</span>
               </div>
               <span style={{ fontSize:10, color:"#81c784", fontWeight:700,
                 background:"#e8f5e9", borderRadius:999, padding:"3px 8px",
@@ -409,7 +409,7 @@ export default function CitizenDashboard() {
               <div style={{ textAlign:"center", padding:"28px 18px" }}>
                 <div style={{ fontSize:36, marginBottom:8 }}>📸</div>
                 <div style={{ fontSize:12, color:"#5d7a5e", marginBottom:12,
-                  fontFamily:"'Inter',sans-serif" }}>No reports yet — be the first!</div>
+                  fontFamily:"'Inter',sans-serif" }}>No reports yet. Be the first!</div>
                 <Link href="/citizen/reports">
                   <div style={{ display:"inline-block", padding:"8px 18px",
                     background:"linear-gradient(145deg,#4caf50,#2e7d32)", color:"#fff",
@@ -456,7 +456,7 @@ export default function CitizenDashboard() {
                   background:"linear-gradient(135deg,#f57f17,#ffa000)",
                   display:"flex", alignItems:"center", justifyContent:"center",
                   boxShadow:"2px 2px 5px rgba(245,127,23,.3)", fontSize:12 }}>🪙</div>
-                <span style={{ fontSize:13, fontWeight:800, color:"#1a2e1a" }}>Points Activity</span>
+                <span style={{ fontSize:13, fontWeight:800, color:"#1a2e1a" }}>Your Points</span>
               </div>
               <Link href="/citizen/wallet"
                 style={{ fontSize:11, color:"#2e7d32", textDecoration:"none", fontWeight:700 }}>
@@ -492,7 +492,7 @@ export default function CitizenDashboard() {
             {recentTransactions.length === 0 ? (
               <div style={{ textAlign:"center", padding:"18px 18px", color:"#5d7a5e" }}>
                 <div style={{ fontSize:28, marginBottom:6 }}>💸</div>
-                <div style={{ fontSize:12 }}>No transactions yet</div>
+                <div style={{ fontSize:12 }}>No points earned yet</div>
               </div>
             ) : (
               <div style={{ padding:"4px 0" }}>
@@ -538,10 +538,10 @@ export default function CitizenDashboard() {
             {upcomingEvents.length === 0 ? (
               <div style={{ textAlign:"center", padding:"18px 18px", color:"#5d7a5e" }}>
                 <div style={{ fontSize:28, marginBottom:6 }}>🎪</div>
-                <div style={{ fontSize:12, marginBottom:8 }}>No events right now</div>
+                <div style={{ fontSize:12, marginBottom:8 }}>No events at the moment</div>
                 <Link href="/citizen/events"
                   style={{ fontSize:12, color:"#2e7d32", textDecoration:"none", fontWeight:700 }}>
-                  Browse events →
+                  See all events →
                 </Link>
               </div>
             ) : (

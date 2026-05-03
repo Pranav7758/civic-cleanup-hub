@@ -49,7 +49,7 @@ export default function EventsPage() {
             { icon: "📅", label: "Total Events",    value: events.length                                 },
             { icon: "🗓️", label: "Upcoming",         value: upcoming.length                               },
             { icon: "🧹", label: "Cleanups",         value: events.filter(e => e.eventType === "cleanup").length },
-            { icon: "🏆", label: "Max Reward",       value: "100 pts"                                     },
+            { icon: "🏆", label: "Best Reward",       value: "100 pts"                                     },
           ].map(s => (
             <div key={s.label} className="gov-stat-card">
               <span style={{ fontSize: 22 }}>{s.icon}</span>
@@ -61,7 +61,7 @@ export default function EventsPage() {
 
         {/* ── Type filter pills ── */}
         <div style={{ display: "flex", gap: 6, flexWrap: "wrap", alignItems: "center" }}>
-          <span style={{ fontSize: 12, fontWeight: 600, color: "#5d6d7e" }}>Event types:</span>
+          <span style={{ fontSize: 12, fontWeight: 600, color: "#5d6d7e" }}>Filter:</span>
           {[
             { emoji:"🧹", label:"Cleanup"    },
             { emoji:"🌱", label:"Plantation" },
@@ -98,7 +98,7 @@ export default function EventsPage() {
           ) : (
             <table className="gov-table">
               <thead>
-                <tr><th>Event</th><th>Type</th><th>Date & Time</th><th>Location</th><th>Participants</th><th>Reward</th><th>Action</th></tr>
+                <tr><th>Event</th><th>Type</th><th>Date & Time</th><th>Location</th><th>People Joined</th><th>Reward</th><th>Action</th></tr>
               </thead>
               <tbody>
                 {upcoming.map((e: any) => {

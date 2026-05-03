@@ -100,7 +100,7 @@ export default function DonationsPage() {
       category: aiResult.category || f.category,
       description: aiResult.description || f.description,
     }));
-    toast({ title: "AI suggestions applied!", description: "Form filled with detected item details." });
+    toast({ title: "Details filled in!", description: "Your form has been filled automatically." });
   };
 
   const clearImage = () => {
@@ -141,7 +141,7 @@ export default function DonationsPage() {
         <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
           <div>
             <h2 style={{ fontSize: 17, fontWeight: 800, color: "#1c2833", margin: 0 }}>Donate Items to NGOs</h2>
-            <div style={{ fontSize: 12, color: "#5d6d7e", marginTop: 2 }}>Give to NGOs and earn +50 points per donation</div>
+            <div style={{ fontSize: 12, color: "#5d6d7e", marginTop: 2 }}>Donate items and earn 50 points each time</div>
           </div>
           <Dialog open={open} onOpenChange={v => { setOpen(v); if (!v) { setSelectedCat(null); clearImage(); } }}>
             <DialogTrigger asChild>
@@ -150,15 +150,15 @@ export default function DonationsPage() {
               </button>
             </DialogTrigger>
             <DialogContent className="max-w-lg">
-              <DialogHeader><DialogTitle>Create Donation</DialogTitle></DialogHeader>
+              <DialogHeader><DialogTitle>Donate an Item</DialogTitle></DialogHeader>
               <div style={{ display: "flex", flexDirection: "column", gap: 12, paddingTop: 8, maxHeight: "80vh", overflowY: "auto" }}>
 
                 {/* ── AI Image Analyzer ── */}
                 <div style={{ border: "1.5px solid #a9dfbf", borderRadius: 10, overflow: "hidden", background: "#f0faf4" }}>
                   <div style={{ padding: "8px 12px", background: "linear-gradient(135deg,#1b5e20,#2e7d32)", display: "flex", alignItems: "center", gap: 7 }}>
                     <Sparkles style={{ width: 14, height: 14, color: "#a5d6a7" }} />
-                    <span style={{ fontSize: 12, fontWeight: 700, color: "#fff" }}>AI Item Detector</span>
-                    <span style={{ fontSize: 10, color: "#a5d6a7", marginLeft: "auto" }}>Upload a photo to auto-fill the form</span>
+                    <span style={{ fontSize: 12, fontWeight: 700, color: "#fff" }}>Smart Photo Scanner</span>
+                    <span style={{ fontSize: 10, color: "#a5d6a7", marginLeft: "auto" }}>Take a photo to fill the form automatically</span>
                   </div>
 
                   {!imgPreview ? (
@@ -170,7 +170,7 @@ export default function DonationsPage() {
                     >
                       <Upload style={{ width: 28, height: 28, color: "#2e7d32", margin: "0 auto 8px" }} />
                       <div style={{ fontSize: 12, fontWeight: 600, color: "#1e8449" }}>Drop image here or click to upload</div>
-                      <div style={{ fontSize: 10, color: "#5d6d7e", marginTop: 3 }}>JPG, PNG, WEBP — AI will detect items automatically</div>
+                      <div style={{ fontSize: 10, color: "#5d6d7e", marginTop: 3 }}>JPG or PNG — we'll detect what you're donating</div>
                       <input ref={fileRef} type="file" accept="image/*" style={{ display: "none" }}
                         onChange={e => { const f = e.target.files?.[0]; if (f) handleFile(f); }} />
                     </div>
@@ -191,13 +191,13 @@ export default function DonationsPage() {
                               style={{ width: "100%", padding: "8px 12px", background: analyzing ? "#95a5a6" : "linear-gradient(135deg,#1b5e20,#2e7d32)", color: "#fff", border: "none", borderRadius: 7, cursor: analyzing ? "default" : "pointer", fontSize: 12, fontWeight: 700, display: "flex", alignItems: "center", justifyContent: "center", gap: 6 }}
                             >
                               <Sparkles style={{ width: 13, height: 13 }} />
-                              {analyzing ? "Analyzing image…" : "Analyze with AI"}
+                              {analyzing ? "Scanning…" : "Scan Photo"}
                             </button>
                           ) : (
                             <div>
                               <div style={{ display: "flex", alignItems: "center", gap: 5, marginBottom: 6 }}>
                                 <CheckCircle style={{ width: 13, height: 13, color: "#1e8449" }} />
-                                <span style={{ fontSize: 11, fontWeight: 700, color: "#1e8449" }}>Analysis complete — {aiResult.confidence}% confident</span>
+                                <span style={{ fontSize: 11, fontWeight: 700, color: "#1e8449" }}>Scan done — {aiResult.confidence}% sure</span>
                               </div>
                               <div style={{ fontSize: 11, color: "#1c2833", fontWeight: 600, marginBottom: 2 }}>{aiResult.label}</div>
                               <div style={{ fontSize: 10, color: "#5d6d7e", marginBottom: 4, lineHeight: 1.4 }}>{aiResult.description}</div>
@@ -250,7 +250,7 @@ export default function DonationsPage() {
 
         {/* ── Quick Donate ── */}
         <div className="gov-card">
-          <div className="gov-card-header"><span className="gov-section-title">Quick Donate by Category</span></div>
+          <div className="gov-card-header"><span className="gov-section-title">What do you want to donate?</span></div>
           <div style={{ padding: "12px 16px", display: "grid", gridTemplateColumns: "repeat(6,1fr)", gap: 10 }}>
             {CATEGORIES.map(c => (
               <button key={c.value} onClick={() => openWithCategory(c.value)}
@@ -286,7 +286,7 @@ export default function DonationsPage() {
           ) : donations.length === 0 ? (
             <div style={{ textAlign: "center", padding: "40px 20px" }}>
               <Heart style={{ width: 32, height: 32, color: "#909caa", margin: "0 auto 10px" }} />
-              <div style={{ fontSize: 13, color: "#5d6d7e", marginBottom: 12 }}>No donations yet. Help your community by donating items!</div>
+              <div style={{ fontSize: 13, color: "#5d6d7e", marginBottom: 12 }}>You haven't donated anything yet. Start helping your community!</div>
               <button className="gov-btn gov-btn-green gov-btn-sm" onClick={() => setOpen(true)}>Donate Now</button>
             </div>
           ) : (

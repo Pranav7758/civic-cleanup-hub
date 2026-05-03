@@ -90,7 +90,7 @@ export default function WorkerDashboard() {
             <div style={{ display:"flex", alignItems:"flex-start", justifyContent:"space-between", marginBottom:14 }}>
               <div>
                 <div style={{ fontSize:18, fontWeight:800, color:"#1c2833" }}>Hey, {firstName}!</div>
-                <div style={{ fontSize:11, color:"#5d6d7e" }}>Field Worker · ID #W{String(user?.id ?? "042").slice(0,4)}</div>
+                <div style={{ fontSize:11, color:"#5d6d7e" }}>Worker · ID #W{String(user?.id ?? "042").slice(0,4)}</div>
               </div>
               <button
                 onClick={() => setOnline(v => !v)}
@@ -116,7 +116,7 @@ export default function WorkerDashboard() {
             </div>
             <div>
               <div style={{ display:"flex", justifyContent:"space-between", fontSize:11, color:"#5d6d7e", marginBottom:3 }}>
-                <span>Shift Progress</span>
+                <span>Today's Progress</span>
                 <span style={{ fontWeight:700, color:"#1c2833" }}>{shiftPct}%</span>
               </div>
               <div className="gov-progress-track">
@@ -130,7 +130,7 @@ export default function WorkerDashboard() {
             { icon:"🗑️", label:"Bins Today",     value: todayBins,            color:"#1e8449" },
             { icon:"📅", label:"This Week",       value: weekTotal,            color:"#1a5276" },
             { icon:"🛣️", label:"Distance (km)",   value:"18.4",               color:"#ca6f1e" },
-            { icon:"⏱️", label:"Avg Per Bin",      value:"~22 min",            color:"#7d3c98" },
+            { icon:"⏱️", label:"Time Per Bin",      value:"~22 min",            color:"#7d3c98" },
           ].map(s => (
             <div key={s.label} className="gov-stat-card">
               <span style={{ fontSize:22 }}>{s.icon}</span>
@@ -164,11 +164,11 @@ export default function WorkerDashboard() {
                 <div style={{ fontSize:28, marginBottom:8 }}>📋</div>
                 <div style={{ fontSize:13, fontWeight:700, color:"#5d6d7e" }}>No tasks assigned yet</div>
                 <div style={{ fontSize:11, color:"#909caa", marginTop:4, marginBottom:12 }}>
-                  Accept tasks from Available Tasks to start working
+                  Pick a task from Open Tasks to get started
                 </div>
                 <Link href="/worker/reports" style={{ textDecoration:"none" }}>
                   <button className="gov-btn gov-btn-primary gov-btn-sm" style={{ display:"inline-flex", alignItems:"center", gap:5 }}>
-                    <ClipboardList style={{ width:11, height:11 }} /> Browse Available Tasks
+                    <ClipboardList style={{ width:11, height:11 }} /> Find Tasks
                   </button>
                 </Link>
               </div>
@@ -313,7 +313,7 @@ export default function WorkerDashboard() {
           <div className="gov-card-header">
             <div style={{ display:"flex", alignItems:"center", gap:8 }}>
               <Trash2 style={{ width:15, height:15, color:"#1e8449" }} />
-              <span className="gov-section-title">Daily Collection History</span>
+              <span className="gov-section-title">Bins Collected This Week</span>
             </div>
             <div style={{ display:"flex", alignItems:"center", gap:12 }}>
               <span style={{ fontSize:13, fontWeight:800, color:"#1e8449" }}>{weekTotal} bins</span>

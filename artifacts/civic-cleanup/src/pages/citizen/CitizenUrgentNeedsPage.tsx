@@ -136,21 +136,21 @@ export default function CitizenUrgentNeedsPage() {
                 🚨
               </div>
               <div>
-                <div style={{ fontSize: 17, fontWeight: 900 }}>NGO Urgent Needs</div>
+                <div style={{ fontSize: 17, fontWeight: 900 }}>NGOs Need Your Help</div>
                 <div style={{ fontSize: 11, color: "rgba(255,255,255,0.8)", marginTop: 1 }}>
-                  Help local NGOs with volunteers or donations
+                  Volunteer or donate to help local NGOs
                 </div>
               </div>
             </div>
             <div style={{ display: "flex", gap: 20, marginTop: 10 }}>
               <div>
                 <div style={{ fontSize: 22, fontWeight: 900 }}>{openCount}</div>
-                <div style={{ fontSize: 11, color: "rgba(255,255,255,0.75)" }}>Open Needs</div>
+                <div style={{ fontSize: 11, color: "rgba(255,255,255,0.75)" }}>Open Requests</div>
               </div>
               <div style={{ width: 1, background: "rgba(255,255,255,0.2)" }} />
               <div>
                 <div style={{ fontSize: 22, fontWeight: 900 }}>{myResponses}</div>
-                <div style={{ fontSize: 11, color: "rgba(255,255,255,0.75)" }}>My Responses</div>
+                <div style={{ fontSize: 11, color: "rgba(255,255,255,0.75)" }}>My Help</div>
               </div>
               <div style={{ width: 1, background: "rgba(255,255,255,0.2)" }} />
               <div>
@@ -185,7 +185,7 @@ export default function CitizenUrgentNeedsPage() {
           <div style={{ background: "#fff", borderRadius: 16, padding: "52px 24px", textAlign: "center", boxShadow: "0 4px 16px rgba(0,0,0,0.06)" }}>
             <div style={{ fontSize: 44, marginBottom: 12 }}>🙌</div>
             <div style={{ fontSize: 15, fontWeight: 700, color: "#1c2833" }}>No urgent needs right now</div>
-            <div style={{ fontSize: 12, color: "#7d8fa0", marginTop: 4 }}>Come back later — NGOs post urgent needs when they need help</div>
+            <div style={{ fontSize: 12, color: "#7d8fa0", marginTop: 4 }}>Check back soon — NGOs post when they need help</div>
           </div>
         ) : (
           <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>

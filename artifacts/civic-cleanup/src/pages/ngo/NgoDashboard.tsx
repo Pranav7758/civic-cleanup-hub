@@ -97,12 +97,12 @@ export default function NgoDashboard() {
                   <div style={{ fontSize: 18, fontWeight: 900, color: "#fff", letterSpacing: "-.3px" }}>Swachh Bharat NGO Network</div>
                   <div style={{ display: "flex", alignItems: "center", gap: 6, marginTop: 2 }}>
                     <span style={{ width: 7, height: 7, borderRadius: "50%", background: "#a5d6a7", display: "inline-block", boxShadow: "0 0 6px #a5d6a7" }} />
-                    <span style={{ fontSize: 11, color: "rgba(255,255,255,0.82)", fontWeight: 600 }}>Verified Partner Organisation</span>
+                    <span style={{ fontSize: 11, color: "rgba(255,255,255,0.82)", fontWeight: 600 }}>Verified Partner</span>
                   </div>
                 </div>
               </div>
               <div style={{ fontSize: 12, color: "rgba(255,255,255,0.72)", maxWidth: 380 }}>
-                Manage donations, organize relief camps, and post urgent needs — all in one place.
+                Accept donations, run camps, and post urgent needs — all in one place.
               </div>
             </div>
             <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
@@ -126,14 +126,14 @@ export default function NgoDashboard() {
         {showPost && (
           <div className="ngo-section" style={{ padding: 0 }}>
             <div className="ngo-section-header">
-              <span className="ngo-section-title">Post Community Update</span>
+              <span className="ngo-section-title">Post an Update</span>
               <button onClick={() => setShowPost(false)} style={{ background: "none", border: "none", cursor: "pointer", color: "#aaa" }}>✕</button>
             </div>
             <div style={{ padding: "14px 20px 18px", display: "flex", flexDirection: "column", gap: 10 }}>
               <textarea
                 className="gov-input"
                 style={{ minHeight: 90, resize: "vertical" }}
-                placeholder="Share an update, success story, or announcement…"
+                placeholder="Share news, a success story, or an update…"
                 value={postContent}
                 onChange={e => setPostContent(e.target.value)}
                 rows={3}
@@ -220,7 +220,7 @@ export default function NgoDashboard() {
               <div className="ngo-section-header">
                 <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
                   <Heart style={{ width: 15, height: 15, color: "#e91e63" }} />
-                  <span className="ngo-section-title">Pending Donation Pickups</span>
+                  <span className="ngo-section-title">Donations Waiting for Pickup</span>
                 </div>
                 <span className="gov-badge gov-badge-yellow">{pendingDonations.length} pending</span>
               </div>
@@ -278,16 +278,16 @@ export default function NgoDashboard() {
               <div className="ngo-section-header">
                 <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
                   <Camera style={{ width: 15, height: 15, color: "#1565c0" }} />
-                  <span className="ngo-section-title">Donation Impact Gallery</span>
+                  <span className="ngo-section-title">What Your Donations Did</span>
                 </div>
-                <span style={{ fontSize: 11, color: "#7d8fa0" }}>Where your donations go</span>
+                <span style={{ fontSize: 11, color: "#7d8fa0" }}>See the difference you made</span>
               </div>
 
               {/* Upload zone */}
               <div className="ngo-upload-zone">
                 <Upload style={{ width: 22, height: 22, color: "#4caf50", margin: "0 auto 6px" }} />
-                <div style={{ fontSize: 12, fontWeight: 700, color: "#2e7d32" }}>Add Impact Photo</div>
-                <div style={{ fontSize: 11, color: "#7d8fa0", marginTop: 2 }}>Upload before/after photos of donation deliveries</div>
+                <div style={{ fontSize: 12, fontWeight: 700, color: "#2e7d32" }}>Add a Photo</div>
+                <div style={{ fontSize: 11, color: "#7d8fa0", marginTop: 2 }}>Upload photos of your donation work</div>
               </div>
 
               {/* Photo grid */}
@@ -387,7 +387,7 @@ export default function NgoDashboard() {
               <div style={{ padding: "10px 20px 14px" }}>
                 <button className="gov-btn gov-btn-red" style={{ width: "100%", fontSize: 12, display: "flex", alignItems: "center", justifyContent: "center", gap: 6 }}
                   onClick={() => navigate("/ngo/urgent")}>
-                  Manage Urgent Needs <ChevronRight style={{ width: 13, height: 13 }} />
+                  See All Urgent Needs <ChevronRight style={{ width: 13, height: 13 }} />
                 </button>
               </div>
             </div>
@@ -399,7 +399,7 @@ export default function NgoDashboard() {
                   <Users style={{ width: 15, height: 15, color: "#2e7d32" }} />
                   <span className="ngo-section-title">Active Volunteers</span>
                 </div>
-                <span style={{ fontSize: 11, color: "#7d8fa0" }}>Top contributors</span>
+                <span style={{ fontSize: 11, color: "#7d8fa0" }}>Most active</span>
               </div>
               {[
                 { name: "Priya Sharma",  tasks: 28, rating: "4.9", initials: "PS", badge: "⭐ Top",    bg: "linear-gradient(135deg,#1b5e20,#43a047)" },

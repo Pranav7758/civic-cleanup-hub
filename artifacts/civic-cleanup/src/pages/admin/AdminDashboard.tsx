@@ -11,10 +11,10 @@ const WEEKLY_LABELS   = ["Mon","Tue","Wed","Thu","Fri","Sat","Sun"];
 const WEEKLY_MAX = 110;
 
 const ALERTS = [
-  { id:1, level:"critical", msg:"3 unassigned urgent reports in Sector 12", time:"5 min ago",  icon:"🚨" },
-  { id:2, level:"warn",     msg:"Unusual price spike: E-Waste +38% today",  time:"22 min ago", icon:"⚠️" },
-  { id:3, level:"info",     msg:"New NGO registration pending approval",     time:"1 hr ago",   icon:"🤝" },
-  { id:4, level:"info",     msg:"Weekly report digest ready to export",      time:"2 hr ago",   icon:"📊" },
+  { id:1, level:"critical", msg:"3 waste reports in Sector 12 have no worker assigned yet", time:"5 min ago",  icon:"🚨" },
+  { id:2, level:"warn",     msg:"E-Waste price jumped +38% today",                         time:"22 min ago", icon:"⚠️" },
+  { id:3, level:"info",     msg:"A new NGO is waiting for approval",                        time:"1 hr ago",   icon:"🤝" },
+  { id:4, level:"info",     msg:"Weekly summary is ready to download",                      time:"2 hr ago",   icon:"📊" },
 ];
 
 export default function AdminDashboard() {
@@ -33,11 +33,11 @@ export default function AdminDashboard() {
     { label: "Total Users",      value: totalUsers,     icon: "👥", trend: "+14%", color: "#1a5276" },
     { label: "Waste Reports",    value: totalReports,   icon: "📋", trend: "+22%", color: "#c0392b" },
     { label: "Donations",        value: totalDonations, icon: "❤️", trend: "+9%",  color: "#6c3483" },
-    { label: "Events Organised", value: totalEvents,    icon: "📅", trend: "+7%",  color: "#ca6f1e" },
+    { label: "Events Held",      value: totalEvents,    icon: "📅", trend: "+7%",  color: "#ca6f1e" },
     { label: "Active Workers",   value: 48,             icon: "🚛", trend: "+3%",  color: "#1a5276" },
     { label: "Revenue (₹)",      value: 284000,         icon: "💰", trend: "+31%", color: "#1e8449" },
     { label: "CO₂ Saved (kg)",   value: 12480,          icon: "🌿", trend: "+18%", color: "#1e8449" },
-    { label: "Pending Reviews",  value: pendingReports, icon: "⏳", trend: "Now",  color: "#c0392b" },
+    { label: "Needs Review",     value: pendingReports, icon: "⏳", trend: "Now",  color: "#c0392b" },
   ];
 
   const S: React.CSSProperties = { fontFamily: "'Roboto', Arial, sans-serif" };
@@ -72,8 +72,8 @@ export default function AdminDashboard() {
         {/* ── Page header ── */}
         <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
           <div>
-            <h2 style={{ fontSize: 17, fontWeight: 800, color: "#1c2833", margin: 0 }}>SwachhSaathi Command Centre</h2>
-            <div style={{ fontSize: 12, color: "#5d6d7e", marginTop: 2 }}>Platform overview · All systems operational</div>
+            <h2 style={{ fontSize: 17, fontWeight: 800, color: "#1c2833", margin: 0 }}>Admin Dashboard</h2>
+            <div style={{ fontSize: 12, color: "#5d6d7e", marginTop: 2 }}>All systems are running fine</div>
           </div>
           <div style={{ display: "flex", gap: 6 }}>
             {(["overview","analytics"] as const).map(t => (
@@ -173,11 +173,11 @@ export default function AdminDashboard() {
               {/* System Alerts */}
               <div className="gov-card">
                 <div className="gov-card-header">
-                  <span className="gov-section-title">System Alerts</span>
-                  <span className="gov-badge gov-badge-red">1 critical</span>
+                  <span className="gov-section-title">Alerts</span>
+                  <span className="gov-badge gov-badge-red">1 urgent</span>
                 </div>
                 <table className="gov-table">
-                  <thead><tr><th>Type</th><th>Message</th><th>Time</th></tr></thead>
+                  <thead><tr><th>Level</th><th>Message</th><th>Time</th></tr></thead>
                   <tbody>
                     {ALERTS.map(a => (
                       <tr key={a.id}>
@@ -238,7 +238,7 @@ export default function AdminDashboard() {
                   {[
                     { label: "Manage Users",   icon: "👥", path: "/admin/users"    },
                     { label: "Review Reports", icon: "📋", path: "/admin/reports"  },
-                    { label: "Training Mods",  icon: "📚", path: "/admin/training" },
+                    { label: "Training",       icon: "📚", path: "/admin/training" },
                     { label: "Rewards",        icon: "🏆", path: "/admin/redeem"   },
                     { label: "Events",         icon: "📅", path: "/admin/events"   },
                   ].map(a => (
@@ -268,7 +268,7 @@ export default function AdminDashboard() {
             <div className="gov-card-header">
               <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
                 <BarChart2 style={{ width: 14, height: 14, color: "#1a5276" }} />
-                <span className="gov-section-title">Platform Activity This Week</span>
+                <span className="gov-section-title">Activity This Week</span>
               </div>
               <span style={{ fontSize: 11, color: "#1e8449", fontWeight: 600, display: "flex", alignItems: "center", gap: 3 }}>
                 <TrendingUp style={{ width: 12, height: 12 }} /> +26% vs last week
@@ -295,10 +295,10 @@ export default function AdminDashboard() {
               <hr className="gov-divider" style={{ margin: "16px 0" }} />
               <div className="cd-4col" style={{ display: "grid", gridTemplateColumns: "repeat(4,1fr)", gap: 12 }}>
                 {[
-                  { label: "Reports Resolved", value: "84%", color: "#1e8449"  },
-                  { label: "Avg Response",     value: "2.4h", color: "#1a5276" },
-                  { label: "New Registrations",value: "48",   color: "#6c3483" },
-                  { label: "CO₂ Offset",       value: "1.2T", color: "#1e8449" },
+                  { label: "Issues Fixed",   value: "84%", color: "#1e8449"  },
+                  { label: "Avg Reply Time", value: "2.4h", color: "#1a5276" },
+                  { label: "New Sign-ups",   value: "48",   color: "#6c3483" },
+                  { label: "CO₂ Offset",     value: "1.2T", color: "#1e8449" },
                 ].map(m => (
                   <div key={m.label} style={{ textAlign: "center", padding: "10px 8px", border: "1px solid #d5dae1", borderRadius: 3 }}>
                     <div style={{ fontSize: 20, fontWeight: 800, color: m.color }}>{m.value}</div>

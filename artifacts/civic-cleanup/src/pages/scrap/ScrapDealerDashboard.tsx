@@ -73,7 +73,7 @@ export default function ScrapDealerDashboard() {
                 </div>
                 <div>
                   <div style={{ fontSize: 18, fontWeight: 900, letterSpacing: "-0.01em" }}>Kabadi Hub Dashboard</div>
-                  <div style={{ fontSize: 11, color: "rgba(255,255,255,0.75)", marginTop: 1 }}>Scrap Dealer Portal — India's Circular Economy</div>
+                  <div style={{ fontSize: 11, color: "rgba(255,255,255,0.75)", marginTop: 1 }}>Scrap Pickup & Recycling</div>
                 </div>
               </div>
               <div style={{ display: "flex", gap: 20 }}>
@@ -100,10 +100,10 @@ export default function ScrapDealerDashboard() {
         {/* Stats */}
         <div style={{ display: "grid", gridTemplateColumns: "repeat(4,1fr)", gap: 12 }}>
           {[
-            { label: "Today's Earnings", value: "₹3,840",  icon: "💰", color: "#e64a19", bg: "linear-gradient(135deg,#fff3e0,#fbe9e7)" },
-            { label: "Weekly Revenue",   value: "₹21,600", icon: "📈", color: "#f57c00", bg: "linear-gradient(135deg,#fff8e1,#fff3e0)" },
-            { label: "Active Pickups",   value: String(allListings.length || 0), icon: "🚛", color: "#ff8f00", bg: "linear-gradient(135deg,#fffde7,#fff8e1)" },
-            { label: "Kg Collected",     value: "480 kg",  icon: "⚖️", color: "#ffa000", bg: "linear-gradient(135deg,#fff3e0,#fce4ec)" },
+            { label: "Today's Earnings",   value: "₹3,840",  icon: "💰", color: "#e64a19", bg: "linear-gradient(135deg,#fff3e0,#fbe9e7)" },
+            { label: "This Week's Earnings", value: "₹21,600", icon: "📈", color: "#f57c00", bg: "linear-gradient(135deg,#fff8e1,#fff3e0)" },
+            { label: "Waiting for Pickup",  value: String(allListings.length || 0), icon: "🚛", color: "#ff8f00", bg: "linear-gradient(135deg,#fffde7,#fff8e1)" },
+            { label: "Kg Collected",        value: "480 kg",  icon: "⚖️", color: "#ffa000", bg: "linear-gradient(135deg,#fff3e0,#fce4ec)" },
           ].map(s => (
             <div key={s.label} style={{ background: s.bg, borderRadius: 16, padding: "16px 18px", border: `1.5px solid ${s.color}30`, boxShadow: `0 4px 16px ${s.color}18`, display: "flex", flexDirection: "column", gap: 6 }}>
               <span style={{ fontSize: 26 }}>{s.icon}</span>
@@ -253,9 +253,9 @@ export default function ScrapDealerDashboard() {
         <div style={{ background: "linear-gradient(135deg,#fff3e0,#fbe9e7)", borderRadius: 14, padding: "14px 18px", border: "1px solid #ffccbc", display: "flex", alignItems: "center", gap: 12 }}>
           <span style={{ fontSize: 26, flexShrink: 0 }}>♻️</span>
           <div>
-            <div style={{ fontSize: 12, fontWeight: 700, color: "#bf360c", marginBottom: 2 }}>Circular Economy — How it works</div>
+            <div style={{ fontSize: 12, fontWeight: 700, color: "#bf360c", marginBottom: 2 }}>How it works</div>
             <div style={{ fontSize: 11, color: "#8d6e63", lineHeight: 1.6 }}>
-              Citizens list scrap → You accept and schedule pickup → Collect & Complete → Citizens earn reward points. Use <b>Market Pricing</b> to set competitive rates.
+              Citizens list their scrap → You accept &amp; pick it up → They earn reward points. Check <b>Market Pricing</b> for fair rates.
             </div>
           </div>
           <div style={{ flexShrink: 0, display: "flex", alignItems: "center", gap: 5 }}>
