@@ -17,11 +17,13 @@ router.get("/scrap/prices", async (req, res, next) => {
 router.get("/scrap/listings", async (req, res, next) => {
   try {
     const user = await requireAuth(req);
-    const { citizenId, status } = req.query;
+    const { citizenId, dealerId, status } = req.query;
     let query = db.select().from(scrapListings);
     const conditions: any[] = [];
     if (citizenId) conditions.push(eq(scrapListings.citizenId, String(citizenId)));
-    else conditions.push(eq(scrapListings.citizenId, user.id));
+    if (dealerId) conditions.push(eq(scrapListings.dealerId, String(dealerId)));
+    /* If no owner filter specified and no status filter, default to current user's listings */
+    if (!citizenId && !dealerId && !status) conditions.push(eq(scrapListings.citizenId, user.id));
     if (status) conditions.push(eq(scrapListings.status, String(status)));
     if (conditions.length) query = query.where(and(...conditions)) as any;
     const listings = await query.orderBy(desc(scrapListings.createdAt)).limit(20);

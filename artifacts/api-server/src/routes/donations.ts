@@ -15,7 +15,8 @@ router.get("/donations", async (req, res, next) => {
     if (citizenId) conditions.push(eq(donations.citizenId, String(citizenId)));
     if (ngoId) conditions.push(eq(donations.ngoId, String(ngoId)));
     if (status) conditions.push(eq(donations.status, String(status)));
-    if (!citizenId && !ngoId) conditions.push(eq(donations.citizenId, user.id));
+    /* Only default to own donations if no filter at all is provided */
+    if (!citizenId && !ngoId && !status) conditions.push(eq(donations.citizenId, user.id));
     if (conditions.length) query = query.where(and(...conditions)) as any;
     const data = await query.orderBy(desc(donations.createdAt)).limit(50);
     const enriched = await Promise.all(data.map(async (d: any) => {
