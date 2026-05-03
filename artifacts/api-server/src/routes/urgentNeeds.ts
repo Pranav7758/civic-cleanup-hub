@@ -1,6 +1,17 @@
 import { Router } from "express";
 import { requireAuth } from "./auth";
 
+interface UrgentNeedResponse {
+  userId: string;
+  name: string;
+  type: "volunteer" | "donate";
+  mobile?: string;
+  address?: string;
+  message?: string;
+  photoDataUrl?: string;
+  respondedAt: string;
+}
+
 interface UrgentNeed {
   id: string;
   title: string;
@@ -9,7 +20,7 @@ interface UrgentNeed {
   required: string;
   deadline: string;
   status: "open" | "in_progress" | "completed";
-  responses: { userId: string; name: string; type: "volunteer" | "donate" }[];
+  responses: UrgentNeedResponse[];
   ngoId: string;
   ngoName: string;
   createdAt: string;
@@ -39,8 +50,8 @@ const store: UrgentNeed[] = [
     deadline: "2026-05-06",
     status: "in_progress",
     responses: [
-      { userId: "c1", name: "Priya S.", type: "donate" },
-      { userId: "c2", name: "Rahul G.", type: "donate" },
+      { userId: "c1", name: "Priya S.", type: "donate", mobile: "9876543210", address: "Sector 5, Delhi", respondedAt: new Date(Date.now() - 3600000).toISOString() },
+      { userId: "c2", name: "Rahul G.", type: "donate", mobile: "9811223344", address: "Lajpat Nagar", respondedAt: new Date(Date.now() - 7200000).toISOString() },
     ],
     ngoId: "demo",
     ngoName: "Swachh Bharat NGO Network",
@@ -54,7 +65,9 @@ const store: UrgentNeed[] = [
     required: "5 certified volunteers",
     deadline: "2026-05-12",
     status: "open",
-    responses: [{ userId: "c3", name: "Dr. Ananya K.", type: "volunteer" }],
+    responses: [
+      { userId: "c3", name: "Dr. Ananya K.", type: "volunteer", mobile: "9988776655", address: "Rohini, Delhi", respondedAt: new Date(Date.now() - 48 * 3600000).toISOString() },
+    ],
     ngoId: "demo",
     ngoName: "Swachh Bharat NGO Network",
     createdAt: new Date(Date.now() - 48 * 3600000).toISOString(),
@@ -108,16 +121,29 @@ router.patch("/urgent-needs/:id/status", async (req, res, next) => {
   } catch (err) { next(err); }
 });
 
-/* PATCH /urgent-needs/:id/respond — Citizen responds */
+/* PATCH /urgent-needs/:id/respond — Citizen responds with full details */
 router.patch("/urgent-needs/:id/respond", async (req, res, next) => {
   try {
     const user = await requireAuth(req);
     const need = store.find(n => n.id === req.params.id);
     if (!need) { const e: any = new Error("Not found"); e.status = 404; throw e; }
-    const { type, name } = req.body || {};
+    const { type, name, mobile, address, message, photoDataUrl } = req.body || {};
     const already = need.responses.some(r => r.userId === user.id);
     if (already) { const e: any = new Error("Already responded"); e.status = 400; throw e; }
-    need.responses.push({ userId: user.id, name: name || "Anonymous", type: type || "volunteer" });
+    need.responses.push({
+      userId: user.id,
+      name: name || "Anonymous",
+      type: type || "volunteer",
+      mobile: mobile || undefined,
+      address: address || undefined,
+      message: message || undefined,
+      photoDataUrl: photoDataUrl || undefined,
+      respondedAt: new Date().toISOString(),
+    });
+    /* Auto-update status to in_progress when first response comes in */
+    if (need.status === "open" && need.responses.length >= 1) {
+      need.status = "in_progress";
+    }
     res.json({ data: need });
   } catch (err) { next(err); }
 });

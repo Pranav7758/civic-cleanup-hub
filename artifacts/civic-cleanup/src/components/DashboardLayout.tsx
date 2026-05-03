@@ -598,11 +598,12 @@ export default function DashboardLayout({ children, title }: DashboardLayoutProp
               onClick={() => { setNotifOpen(v => !v); setProfileOpen(false); }}
               data-testid="button-notifications"
               style={{
-                background: notifOpen ? "linear-gradient(145deg,#e8f5e9,#dcedc8)" : undefined,
-                borderColor: notifOpen ? "#81c784" : undefined,
+                borderColor: notifOpen ? theme.headerAccent : theme.notifBorder,
+                boxShadow: notifOpen ? `3px 3px 8px ${theme.notifShadow}, -2px -2px 6px #ffffff` : undefined,
+                background: notifOpen ? `linear-gradient(145deg,${theme.notifBorder}40,${theme.notifBorder}20)` : undefined,
               }}
             >
-              <Bell style={{ width: 17, height: 17, color: "#2e7d32" }} />
+              <Bell style={{ width: 17, height: 17, color: theme.headerAccent }} />
               {unreadCount > 0 && (
                 <span className="dl-notif-badge">{unreadCount}</span>
               )}

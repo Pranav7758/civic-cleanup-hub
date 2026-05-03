@@ -5,11 +5,13 @@ import { useQueryClient } from "@tanstack/react-query";
 import DashboardLayout from "@/components/DashboardLayout";
 import "@/styles/dashboard.css";
 
-const EVENT_TYPE_CONFIG: Record<string, { badgeClass: string; emoji: string }> = {
-  cleanup:    { badgeClass: "gov-badge gov-badge-green",  emoji: "🧹" },
-  plantation: { badgeClass: "gov-badge gov-badge-green",  emoji: "🌱" },
-  awareness:  { badgeClass: "gov-badge gov-badge-blue",   emoji: "📢" },
-  workshop:   { badgeClass: "gov-badge gov-badge-purple", emoji: "🎓" },
+const EVENT_TYPE_CONFIG: Record<string, { badgeClass: string; emoji: string; label: string }> = {
+  cleanup:        { badgeClass: "gov-badge gov-badge-green",  emoji: "🧹", label: "Cleanup Drive"   },
+  plantation:     { badgeClass: "gov-badge gov-badge-green",  emoji: "🌱", label: "Plantation"      },
+  awareness:      { badgeClass: "gov-badge gov-badge-blue",   emoji: "📢", label: "Awareness"       },
+  workshop:       { badgeClass: "gov-badge gov-badge-purple", emoji: "🎓", label: "Donation Camp"   },
+  government_camp:{ badgeClass: "gov-badge gov-badge-yellow", emoji: "🏛️", label: "Govt. Camp"      },
+  health_camp:    { badgeClass: "gov-badge gov-badge-blue",   emoji: "🏥", label: "Health Camp"     },
 };
 
 export default function EventsPage() {
@@ -60,7 +62,14 @@ export default function EventsPage() {
         {/* ── Type filter pills ── */}
         <div style={{ display: "flex", gap: 6, flexWrap: "wrap", alignItems: "center" }}>
           <span style={{ fontSize: 12, fontWeight: 600, color: "#5d6d7e" }}>Event types:</span>
-          {[{ emoji:"🧹",label:"Cleanup"},{emoji:"🌱",label:"Plantation"},{emoji:"📢",label:"Awareness"},{emoji:"🎓",label:"Workshop"}].map(t => (
+          {[
+            { emoji:"🧹", label:"Cleanup"    },
+            { emoji:"🌱", label:"Plantation" },
+            { emoji:"📢", label:"Awareness"  },
+            { emoji:"🎓", label:"Workshop"   },
+            { emoji:"🏛️", label:"Govt. Camp" },
+            { emoji:"🏥", label:"Health Camp"},
+          ].map(t => (
             <div key={t.label} style={{ display: "flex", alignItems: "center", gap: 4, background: "#f4f6f9", border: "1px solid #d5dae1", borderRadius: 3, padding: "3px 10px", fontSize: 11, color: "#1c2833" }}>
               <span>{t.emoji}</span>{t.label}
             </div>
@@ -106,7 +115,7 @@ export default function EventsPage() {
                           </div>
                         </div>
                       </td>
-                      <td><span className={config.badgeClass} style={{ textTransform: "capitalize" }}>{e.eventType}</span></td>
+                      <td><span className={config.badgeClass}>{config.emoji} {config.label}</span></td>
                       <td style={{ fontSize: 12, color: "#5d6d7e", whiteSpace: "nowrap" }}>
                         <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
                           <Clock style={{ width: 11, height: 11 }} />
@@ -170,7 +179,7 @@ export default function EventsPage() {
                           <span style={{ fontSize: 13, color: "#1c2833" }}>{e.title}</span>
                         </div>
                       </td>
-                      <td><span className={config.badgeClass} style={{ textTransform: "capitalize" }}>{e.eventType}</span></td>
+                      <td><span className={config.badgeClass}>{config.emoji} {config.label}</span></td>
                       <td style={{ fontSize: 12, color: "#5d6d7e" }}>
                         {new Date(e.startsAt).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" })}
                       </td>

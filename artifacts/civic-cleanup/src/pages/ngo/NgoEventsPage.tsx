@@ -16,10 +16,12 @@ import DashboardLayout from "@/components/DashboardLayout";
 import "@/styles/dashboard.css";
 
 const TYPE_CONFIG: Record<string, { emoji: string; label: string; color: string; bg: string }> = {
-  cleanup:    { emoji: "🧹", label: "Clean-up Drive",  color: "#1e8449", bg: "#e8f5e9" },
-  awareness:  { emoji: "📢", label: "Awareness",       color: "#1a5276", bg: "#eaf2ff" },
-  workshop:   { emoji: "🎓", label: "Donation Camp",   color: "#6c3483", bg: "#f5eef8" },
-  plantation: { emoji: "🌱", label: "Plantation",      color: "#1e7449", bg: "#e8f8f0" },
+  cleanup:         { emoji: "🧹", label: "Clean-up Drive",  color: "#1e8449", bg: "#e8f5e9" },
+  awareness:       { emoji: "📢", label: "Awareness",       color: "#1a5276", bg: "#eaf2ff" },
+  workshop:        { emoji: "🎓", label: "Donation Camp",   color: "#6c3483", bg: "#f5eef8" },
+  plantation:      { emoji: "🌱", label: "Plantation",      color: "#1e7449", bg: "#e8f8f0" },
+  government_camp: { emoji: "🏛️", label: "Govt. Camp",      color: "#7d6608", bg: "#fef9e7" },
+  health_camp:     { emoji: "🏥", label: "Health Camp",     color: "#1a5276", bg: "#eaf6ff" },
 };
 
 function statusInfo(startsAt: string, endsAt?: string | null, localStatus?: string) {
@@ -403,6 +405,8 @@ export default function NgoEventsPage() {
                     <option value="awareness">📢 Awareness</option>
                     <option value="workshop">🎓 Donation Camp</option>
                     <option value="plantation">🌱 Plantation</option>
+                    <option value="government_camp">🏛️ Government Camp</option>
+                    <option value="health_camp">🏥 Health Camp</option>
                   </select>
                 </div>
               </div>
