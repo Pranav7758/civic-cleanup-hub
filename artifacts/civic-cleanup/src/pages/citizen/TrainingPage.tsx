@@ -261,6 +261,268 @@ const RICH: RichModule[] = [
       },
     ],
   },
+
+  /* ─── 5: Water Conservation at Home ─── */
+  {
+    emoji: "💧",
+    color: "#0277bd",
+    gradient: "linear-gradient(135deg,#01579b,#0288d1)",
+    videoId: "wfXDwkBQkBo",
+    lessons: [
+      { title: "India's water crisis — the numbers",         duration: "4 min" },
+      { title: "Low-flow fixtures and dual-flush toilets",   duration: "5 min" },
+      { title: "Rainwater harvesting at home",               duration: "6 min" },
+      { title: "Greywater reuse for gardens",                duration: "5 min" },
+    ],
+    intro: "India faces severe water scarcity. Simple changes at home — from fixing leaks to harvesting rainwater — can save thousands of litres a year and cut your water bill.",
+    quiz: [
+      {
+        question: "What percentage of India's usable freshwater comes from groundwater?",
+        options: ["10%", "30%", "Over 60%", "90%"],
+        correct: 2,
+      },
+      {
+        question: "What is 'greywater'?",
+        options: [
+          "Rainwater collected from rooftops",
+          "Wastewater from sinks, showers, and washing machines (not toilets)",
+          "Water treated at a municipal plant",
+          "Floodwater from rivers",
+        ],
+        correct: 1,
+      },
+      {
+        question: "A dripping tap can waste approximately how much water per day?",
+        options: ["1 litre", "10 litres", "40–50 litres", "200 litres"],
+        correct: 2,
+      },
+      {
+        question: "Which government scheme promotes rooftop rainwater harvesting in urban India?",
+        options: [
+          "MGNREGA",
+          "Jal Shakti Abhiyan",
+          "Pradhan Mantri Awas Yojana",
+          "Swachh Bharat Mission",
+        ],
+        correct: 1,
+      },
+    ],
+  },
+
+  /* ─── 6: Plastic-Free Living ─── */
+  {
+    emoji: "🌿",
+    color: "#00695c",
+    gradient: "linear-gradient(135deg,#004d40,#00796b)",
+    videoId: "Yxu0MbMlMhc",
+    lessons: [
+      { title: "The lifecycle of a plastic bag",                       duration: "4 min" },
+      { title: "Single-use plastics to ditch first",                   duration: "5 min" },
+      { title: "Sustainable swaps for the kitchen",                    duration: "6 min" },
+      { title: "Shopping plastic-free on a budget",                    duration: "4 min" },
+      { title: "India's Plastic Waste Management Rules 2016",          duration: "7 min" },
+    ],
+    intro: "India generates over 3.5 million tonnes of plastic waste annually. This module teaches practical, affordable ways to eliminate single-use plastic from your daily life.",
+    quiz: [
+      {
+        question: "How many years does a typical plastic bag take to decompose in landfill?",
+        options: ["5 years", "20 years", "100 years", "500–1000 years"],
+        correct: 3,
+      },
+      {
+        question: "Which of the following is the BEST reusable alternative to a plastic carry bag?",
+        options: [
+          "A paper bag — it decomposes faster",
+          "A heavy-duty 'bags-for-life' plastic bag",
+          "A cloth or jute bag reused many times",
+          "A thin single-use plastic bag that is slightly thicker",
+        ],
+        correct: 2,
+      },
+      {
+        question: "Under India's Plastic Waste Management Rules, who is responsible for collecting plastic waste?",
+        options: [
+          "Only citizens",
+          "Only manufacturers",
+          "Local bodies, producers, importers, and brand owners under Extended Producer Responsibility",
+          "The Central Government exclusively",
+        ],
+        correct: 2,
+      },
+      {
+        question: "Which kitchen swap best reduces plastic waste?",
+        options: [
+          "Switching from glass bottles to plastic ones",
+          "Using stainless steel or glass containers instead of plastic boxes",
+          "Buying individually wrapped snacks",
+          "Using cling film on all leftovers",
+        ],
+        correct: 1,
+      },
+    ],
+  },
+
+  /* ─── 7: Terrace & Kitchen Gardening ─── */
+  {
+    emoji: "🌱",
+    color: "#558b2f",
+    gradient: "linear-gradient(135deg,#33691e,#689f38)",
+    videoId: "7SQAcBOCSjU",
+    lessons: [
+      { title: "Choosing the right containers",               duration: "4 min" },
+      { title: "Soil mix for terrace pots",                   duration: "5 min" },
+      { title: "Easy vegetables for beginners",               duration: "6 min" },
+      { title: "Organic pest control — neem oil & companion planting", duration: "5 min" },
+      { title: "Linking garden waste to home composting",     duration: "8 min" },
+    ],
+    intro: "You don't need a farm to grow food. A sunny terrace or windowsill is enough to produce fresh tomatoes, herbs, and greens — while reducing your household waste through composting.",
+    quiz: [
+      {
+        question: "What is the ideal potting mix ratio for most vegetables grown in terrace containers?",
+        options: [
+          "100% garden soil",
+          "Equal parts garden soil, compost, and cocopeat",
+          "Sand only — for drainage",
+          "Pure clay soil for moisture retention",
+        ],
+        correct: 1,
+      },
+      {
+        question: "Which of these vegetables is EASIEST to grow in containers for a beginner?",
+        options: ["Watermelon", "Cherry tomatoes and spinach", "Sugarcane", "Pumpkin"],
+        correct: 1,
+      },
+      {
+        question: "What is 'companion planting'?",
+        options: [
+          "Planting in pairs for decoration",
+          "Growing two or more plants close together to deter pests or improve growth",
+          "Using two types of soil in the same pot",
+          "Watering two plants at the same time",
+        ],
+        correct: 1,
+      },
+      {
+        question: "How does terrace gardening support composting?",
+        options: [
+          "Plants consume finished compost AND garden clippings can be added to the compost pile",
+          "Plants eliminate the need for compost entirely",
+          "Terrace gardens need only chemical fertilisers",
+          "Composting and gardening must always be kept separate",
+        ],
+        correct: 0,
+      },
+    ],
+  },
+
+  /* ─── 8: Green Energy & Solar Power ─── */
+  {
+    emoji: "☀️",
+    color: "#f57f17",
+    gradient: "linear-gradient(135deg,#e65100,#f9a825)",
+    videoId: "1kUE0BZtTRc",
+    lessons: [
+      { title: "How solar panels work — simplified",           duration: "4 min" },
+      { title: "Rooftop solar — sizing and installation",      duration: "6 min" },
+      { title: "PM Surya Ghar Muft Bijli Yojana subsidies",    duration: "5 min" },
+      { title: "Energy-efficient appliances — BEE star ratings", duration: "5 min" },
+    ],
+    intro: "India's solar capacity is booming. This module explains how to benefit from rooftop solar, government subsidies, and energy-efficient appliances to cut your electricity bill and carbon footprint.",
+    quiz: [
+      {
+        question: "What does a solar panel's BOS (Balance of System) include?",
+        options: [
+          "Only the solar cells",
+          "Inverter, wiring, mounting structure and battery storage",
+          "Just the glass cover and aluminium frame",
+          "The electric meter only",
+        ],
+        correct: 1,
+      },
+      {
+        question: "Under PM Surya Ghar Muft Bijli Yojana, how much free electricity per month do eligible households receive?",
+        options: ["50 units", "Up to 300 units", "1000 units", "Unlimited units"],
+        correct: 1,
+      },
+      {
+        question: "What does BEE 5-star rating on an appliance indicate?",
+        options: [
+          "It is the most expensive model in the range",
+          "It is the most energy-efficient in its category",
+          "It uses the most power to deliver top performance",
+          "It is approved for commercial use only",
+        ],
+        correct: 1,
+      },
+      {
+        question: "Which type of solar system allows you to sell surplus electricity back to the grid?",
+        options: [
+          "Off-grid standalone system",
+          "Grid-tied (on-grid) solar system",
+          "A solar water heater",
+          "A portable solar lantern",
+        ],
+        correct: 1,
+      },
+    ],
+  },
+
+  /* ─── 9: Community Cleanup Leadership ─── */
+  {
+    emoji: "🤝",
+    color: "#4527a0",
+    gradient: "linear-gradient(135deg,#311b92,#512da8)",
+    videoId: "pMcfrLYDm2U",
+    lessons: [
+      { title: "How to plan a neighbourhood cleanup drive",       duration: "5 min" },
+      { title: "Motivating and retaining volunteers",             duration: "5 min" },
+      { title: "Working with your Ward Councillor & BBMP/MC",    duration: "6 min" },
+      { title: "Documenting impact — before/after & data",       duration: "8 min" },
+    ],
+    intro: "Real change happens when communities act together. This module equips you to organise, lead, and sustain neighbourhood cleanup drives and civic campaigns that make a measurable difference.",
+    quiz: [
+      {
+        question: "What is the FIRST step before organising a community cleanup event?",
+        options: [
+          "Buy all the cleaning supplies",
+          "Identify the target area, get permissions, and assess safety",
+          "Post on social media to get maximum likes",
+          "Contact national TV channels for coverage",
+        ],
+        correct: 1,
+      },
+      {
+        question: "Which local body in most Indian cities is responsible for solid waste management?",
+        options: [
+          "The State Government directly",
+          "The Urban Local Body (UMC / Municipal Corporation / Panchayat)",
+          "The Railway Department",
+          "NITI Aayog",
+        ],
+        correct: 1,
+      },
+      {
+        question: "What is the best way to retain long-term volunteers for a cleanup group?",
+        options: [
+          "Pay them a monthly salary",
+          "Recognise contributions, build community, and create a sense of ownership",
+          "Give them strict daily targets and penalise absences",
+          "Keep all leadership decisions centralised with one person",
+        ],
+        correct: 1,
+      },
+      {
+        question: "Why is documenting 'before and after' important for a cleanup drive?",
+        options: [
+          "To apply for government grants and show impact to municipal bodies",
+          "It is required by law for all volunteer activities",
+          "Only for posting on social media",
+          "It has no practical value",
+        ],
+        correct: 0,
+      },
+    ],
+  },
 ];
 
 const PASS_THRESHOLD = 3; // out of 4 correct to pass
