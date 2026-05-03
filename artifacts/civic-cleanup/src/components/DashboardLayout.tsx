@@ -40,13 +40,12 @@ const WORKER_NAV: NavItem[] = [
   { label: "Training",         icon: GraduationCap,   path: "/worker/training", accentColor: "#2563eb" },
 ];
 const NGO_NAV: NavItem[] = [
-  { label: "Dashboard",      icon: LayoutDashboard, path: "/ngo"                  },
-  { label: "Donations",      icon: Heart,           path: "/ngo/donations"        },
-  { label: "Community Feed", icon: Users,           path: "/ngo/feed"             },
-  { label: "Manage Events",  icon: CalendarCheck,   path: "/ngo/manage-events"    },
-  { label: "Urgent Needs",   icon: AlertTriangle,   path: "/ngo/urgent", badge: "!" },
-  { label: "Events",         icon: Calendar,        path: "/ngo/events"           },
-  { label: "Reports",        icon: Camera,          path: "/ngo/reports"          },
+  { label: "Dashboard",      icon: LayoutDashboard, path: "/ngo"                              },
+  { label: "Donations",      icon: Heart,           path: "/ngo/donations"                    },
+  { label: "Community Feed", icon: Users,           path: "/ngo/feed"                         },
+  { label: "Camps & Events", icon: CalendarCheck,   path: "/ngo/manage-events"                },
+  { label: "Urgent Needs",   icon: AlertTriangle,   path: "/ngo/urgent",   badge: "!"         },
+  { label: "Reports",        icon: Camera,          path: "/ngo/reports"                      },
 ];
 const SCRAP_NAV: NavItem[] = [
   { label: "Dashboard",       icon: LayoutDashboard, path: "/scrap"           },

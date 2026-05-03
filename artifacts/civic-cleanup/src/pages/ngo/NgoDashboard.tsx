@@ -1,57 +1,49 @@
 import { useState } from "react";
-import { Link } from "wouter";
+import { useLocation } from "wouter";
 import {
   useGetNgoDashboard, useUpdateDonation, useCreateFeedPost,
   getGetNgoDashboardQueryKey, getGetCommunityFeedQueryKey,
 } from "@workspace/api-client-react";
-import { Heart, Users, CheckCircle, Plus, MapPin, Calendar, AlertTriangle, Clock, BarChart2 } from "lucide-react";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import {
+  Heart, Users, Calendar, AlertTriangle, MapPin, CheckCircle,
+  Plus, Camera, Upload, ChevronRight, Clock,
+} from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useQueryClient } from "@tanstack/react-query";
 import DashboardLayout from "@/components/DashboardLayout";
 import "@/styles/dashboard.css";
 import "@/styles/ngo.css";
 
-const MOCK_EVENTS = [
-  { id:1, title:"Yamuna Cleanup Drive",  date:"May 10, 2026", location:"Yamuna Ghat, Delhi",    participants:142, status:"upcoming", icon:"🌊" },
-  { id:2, title:"Plastic-Free Colony",   date:"May 15, 2026", location:"RWA Sector 22, Noida",  participants:87,  status:"upcoming", icon:"♻️" },
-  { id:3, title:"Green School Project",  date:"May 22, 2026", location:"DPS R.K. Puram, Delhi", participants:210, status:"planning", icon:"🌱" },
+/* ─── Mock photo gallery (donation impact) ─── */
+const IMPACT_PHOTOS = [
+  { id: 1, emoji: "🍱", bg: "linear-gradient(135deg,#e65100,#ff8f00)", caption: "50 meals distributed to flood victims", loc: "Yamuna Ghat, Delhi", date: "Apr 28" },
+  { id: 2, emoji: "👗", bg: "linear-gradient(135deg,#6a1b9a,#ab47bc)", caption: "Clothing donated to 30 families", loc: "Rohini Sec 11, Delhi", date: "Apr 22" },
+  { id: 3, emoji: "📚", bg: "linear-gradient(135deg,#1565c0,#42a5f5)", caption: "Books & stationery to school kids", loc: "DPS RK Puram, Delhi", date: "Apr 15" },
+  { id: 4, emoji: "🧴", bg: "linear-gradient(135deg,#2e7d32,#66bb6a)", caption: "Hygiene kits for 80 people", loc: "Lajpat Nagar", date: "Apr 10" },
+  { id: 5, emoji: "🫙", bg: "linear-gradient(135deg,#b71c1c,#ef5350)", caption: "Dry ration for 25 families", loc: "Okhla Phase 2", date: "Apr 5" },
+  { id: 6, emoji: "💊", bg: "linear-gradient(135deg,#004d40,#26a69a)", caption: "Medical supplies to health camp", loc: "Dwarka Sec 7", date: "Mar 30" },
 ];
 
-const MOCK_VOLUNTEERS = [
-  { id:1, name:"Priya Sharma",  tasks:28, rating:4.9, badge:"Top",    initials:"PS" },
-  { id:2, name:"Rahul Gupta",   tasks:21, rating:4.7, badge:"Active", initials:"RG" },
-  { id:3, name:"Ananya Singh",  tasks:17, rating:4.8, badge:"Rising", initials:"AS" },
-  { id:4, name:"Vikram Nair",   tasks:14, rating:4.6, badge:"",       initials:"VN" },
+/* ─── Mock camps ─── */
+const CAMPS = [
+  { id: 1, title: "Community Health Camp",   date: "May 10, 2026", loc: "Yamuna Ghat",     volunteers: 42,  icon: "🏥", bg: "#e3f2fd" },
+  { id: 2, title: "Clothes Donation Drive",  date: "May 15, 2026", loc: "RWA Sector 22",   volunteers: 28,  icon: "👕", bg: "#f3e5f5" },
+  { id: 3, title: "Food Relief Camp",        date: "May 22, 2026", loc: "DPS R.K. Puram",  volunteers: 65,  icon: "🍱", bg: "#fff3e0" },
 ];
 
-const MOCK_REPORTS = [
-  { id:1, title:"Overflowing bins near Market Gate 3",    location:"Lajpat Nagar",  priority:"high",   time:"10 min ago" },
-  { id:2, title:"Illegal dumping spotted at river bank",  location:"Okhla Phase 2", priority:"high",   time:"45 min ago" },
-  { id:3, title:"Construction debris blocking lane",      location:"Dwarka Sec 7",  priority:"medium", time:"2 hr ago"   },
-  { id:4, title:"Plastic waste near school gate",         location:"Rohini Sec 11", priority:"low",    time:"4 hr ago"   },
-];
-
-const WASTE_CHART = [
-  { label:"Plastic", pct:38, color:"#1a5276" },
-  { label:"Organic", pct:29, color:"#1e8449" },
-  { label:"E-Waste", pct:14, color:"#6c3483" },
-  { label:"Metal",   pct:11, color:"#b7950b" },
-  { label:"Other",   pct:8,  color:"#5d6d7e" },
-];
-
-const priorityBadge = (p: string) => {
-  if (p === "high")   return "gov-badge gov-badge-red";
-  if (p === "medium") return "gov-badge gov-badge-yellow";
-  return "gov-badge gov-badge-green";
+/* ─── Category emoji map ─── */
+const CAT_EMOJI: Record<string, string> = {
+  clothes: "👗", food: "🍱", electronics: "📱", furniture: "🪑",
+  books: "📚", other: "📦",
 };
 
 export default function NgoDashboard() {
+  const [, navigate]   = useLocation();
+  const { toast }      = useToast();
+  const qc             = useQueryClient();
+  const [photoModal, setPhotoModal] = useState<typeof IMPACT_PHOTOS[0] | null>(null);
   const [postContent, setPostContent] = useState("");
-  const [postOpen, setPostOpen]       = useState(false);
-  const [activeTab, setActiveTab]     = useState<"overview" | "analytics">("overview");
-  const { toast }  = useToast();
-  const qc         = useQueryClient();
+  const [showPost, setShowPost] = useState(false);
 
   const { data, isLoading } = useGetNgoDashboard();
   const updateDonation      = useUpdateDonation();
@@ -69,7 +61,7 @@ export default function NgoDashboard() {
 
   const handleComplete = (id: string) => {
     updateDonation.mutate({ id, data: { status: "completed", rewardPoints: 60 } }, {
-      onSuccess: () => { toast({ title: "Donation completed! Citizen awarded 60 points." }); qc.invalidateQueries({ queryKey: getGetNgoDashboardQueryKey() }); },
+      onSuccess: () => { toast({ title: "Donation collected! Donor rewarded 60 pts." }); qc.invalidateQueries({ queryKey: getGetNgoDashboardQueryKey() }); },
       onError: (err: any) => toast({ title: "Failed", description: err.message, variant: "destructive" }),
     });
   };
@@ -78,8 +70,8 @@ export default function NgoDashboard() {
     if (!postContent.trim()) return;
     createPost.mutate({ data: { content: postContent } }, {
       onSuccess: () => {
-        toast({ title: "Post published!" });
-        setPostContent(""); setPostOpen(false);
+        toast({ title: "Update posted!" });
+        setPostContent(""); setShowPost(false);
         qc.invalidateQueries({ queryKey: getGetNgoDashboardQueryKey() });
         qc.invalidateQueries({ queryKey: getGetCommunityFeedQueryKey() });
       },
@@ -87,289 +79,366 @@ export default function NgoDashboard() {
     });
   };
 
-  const impactStats = [
-    { label:"Waste Collected",   value:12480, suffix:" kg", icon:"🗑️", color:"#1e8449" },
-    { label:"CO₂ Saved",         value:3740,  suffix:" kg", icon:"🌿", color:"#1a5276" },
-    { label:"Total Donations",   value:completedDonations+48, suffix:"", icon:"❤️", color:"#6c3483" },
-    { label:"Active Volunteers", value:284,   suffix:"",    icon:"👥", color:"#1a5276" },
-  ];
-
-  const S: React.CSSProperties = { fontFamily: "'Roboto', Arial, sans-serif" };
+  const S: React.CSSProperties = { fontFamily: "'Inter', Arial, sans-serif" };
 
   return (
     <DashboardLayout title="NGO Dashboard">
-      <div style={{ ...S, display: "flex", flexDirection: "column", gap: 18 }}>
+      <div style={{ ...S, display: "flex", flexDirection: "column", gap: 20 }}>
 
-        {/* ── Header ── */}
-        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-          <div>
-            <h2 style={{ fontSize: 17, fontWeight: 800, color: "#1c2833", margin: 0 }}>Swachh Bharat NGO Network</h2>
-            <div style={{ display: "flex", alignItems: "center", gap: 6, marginTop: 3 }}>
-              <span style={{ width: 7, height: 7, borderRadius: "50%", background: "#1e8449", display: "inline-block" }} />
-              <span style={{ fontSize: 12, color: "#5d6d7e" }}>Verified Partner Organisation</span>
+        {/* ── Hero Banner ── */}
+        <div className="ngo-hero">
+          <div style={{ position: "relative", zIndex: 1, display: "flex", alignItems: "flex-start", justifyContent: "space-between", flexWrap: "wrap", gap: 12 }}>
+            <div>
+              <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 6 }}>
+                <div style={{ width: 44, height: 44, borderRadius: 14, background: "rgba(255,255,255,0.18)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 24, boxShadow: "0 4px 14px rgba(0,0,0,0.2)" }}>
+                  🤝
+                </div>
+                <div>
+                  <div style={{ fontSize: 18, fontWeight: 900, color: "#fff", letterSpacing: "-.3px" }}>Swachh Bharat NGO Network</div>
+                  <div style={{ display: "flex", alignItems: "center", gap: 6, marginTop: 2 }}>
+                    <span style={{ width: 7, height: 7, borderRadius: "50%", background: "#a5d6a7", display: "inline-block", boxShadow: "0 0 6px #a5d6a7" }} />
+                    <span style={{ fontSize: 11, color: "rgba(255,255,255,0.82)", fontWeight: 600 }}>Verified Partner Organisation</span>
+                  </div>
+                </div>
+              </div>
+              <div style={{ fontSize: 12, color: "rgba(255,255,255,0.72)", maxWidth: 380 }}>
+                Manage donations, organize relief camps, and post urgent needs — all in one place.
+              </div>
+            </div>
+            <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+              <button
+                className="gov-btn"
+                style={{ background: "rgba(255,255,255,0.18)", color: "#fff", border: "1px solid rgba(255,255,255,0.3)", backdropFilter: "blur(8px)", display: "flex", alignItems: "center", gap: 6, fontSize: 12 }}
+                onClick={() => setShowPost(v => !v)}>
+                <Plus style={{ width: 13, height: 13 }} /> Post Update
+              </button>
+              <button
+                className="gov-btn"
+                style={{ background: "rgba(255,255,255,0.95)", color: "#1b5e20", border: "none", fontWeight: 700, display: "flex", alignItems: "center", gap: 6, fontSize: 12 }}
+                onClick={() => navigate("/ngo/urgent")}>
+                <AlertTriangle style={{ width: 13, height: 13 }} /> Urgent Need
+              </button>
             </div>
           </div>
-          <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
-            {(["overview","analytics"] as const).map(t => (
-              <button key={t} onClick={() => setActiveTab(t)}
-                className={`gov-btn gov-btn-sm ${activeTab === t ? "gov-btn-primary" : "gov-btn-outline"}`}
-                style={{ textTransform: "capitalize" }}>{t}</button>
-            ))}
-            <Dialog open={postOpen} onOpenChange={setPostOpen}>
-              <DialogTrigger asChild>
-                <button className="gov-btn gov-btn-green" style={{ display: "flex", alignItems: "center", gap: 5 }}>
-                  <Plus style={{ width: 13, height: 13 }} /> Post Update
+        </div>
+
+        {/* ── Post Update inline form ── */}
+        {showPost && (
+          <div className="ngo-section" style={{ padding: 0 }}>
+            <div className="ngo-section-header">
+              <span className="ngo-section-title">Post Community Update</span>
+              <button onClick={() => setShowPost(false)} style={{ background: "none", border: "none", cursor: "pointer", color: "#aaa" }}>✕</button>
+            </div>
+            <div style={{ padding: "14px 20px 18px", display: "flex", flexDirection: "column", gap: 10 }}>
+              <textarea
+                className="gov-input"
+                style={{ minHeight: 90, resize: "vertical" }}
+                placeholder="Share an update, success story, or announcement…"
+                value={postContent}
+                onChange={e => setPostContent(e.target.value)}
+                rows={3}
+              />
+              <div style={{ display: "flex", gap: 8 }}>
+                <button className="gov-btn gov-btn-green" onClick={handlePost}
+                  disabled={createPost.isPending || !postContent.trim()}>
+                  {createPost.isPending ? "Publishing…" : "Publish Post"}
                 </button>
-              </DialogTrigger>
-              <DialogContent>
-                <DialogHeader>
-                  <DialogTitle>Post to Community Feed</DialogTitle>
-                </DialogHeader>
-                <div style={{ display: "flex", flexDirection: "column", gap: 12, paddingTop: 8 }}>
-                  <textarea
-                    className="gov-input"
-                    style={{ minHeight: 100, resize: "vertical" }}
-                    placeholder="Share an update with the community…"
-                    value={postContent}
-                    onChange={e => setPostContent(e.target.value)}
-                    rows={4}
-                    data-testid="textarea-post"
-                  />
-                  <button
-                    className="gov-btn gov-btn-green"
-                    onClick={handlePost}
-                    disabled={createPost.isPending || !postContent.trim()}
-                    style={{ width: "100%" }}
-                    data-testid="button-submit-post"
-                  >
-                    {createPost.isPending ? "Publishing…" : "Publish Post"}
-                  </button>
-                </div>
-              </DialogContent>
-            </Dialog>
-          </div>
-        </div>
-
-        {/* ── Impact Stats ── */}
-        <div className="cd-4col" style={{ display: "grid", gridTemplateColumns: "repeat(4,1fr)", gap: 12 }}>
-          {impactStats.map((s) => (
-            <div key={s.label} className="gov-stat-card" style={{ borderLeft: `3px solid ${s.color}` }}>
-              <span style={{ fontSize: 22 }}>{s.icon}</span>
-              <div className="gov-stat-value" style={{ color: s.color }}>{isLoading ? "—" : s.value.toLocaleString("en-IN")}{s.suffix}</div>
-              <div className="gov-stat-label">{s.label}</div>
-            </div>
-          ))}
-        </div>
-
-        {/* ── Overview Tab ── */}
-        {activeTab === "overview" && (
-          <div className="cd-2col-big" style={{ display: "grid", gridTemplateColumns: "2fr 1fr", gap: 14 }}>
-
-            {/* Left */}
-            <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
-
-              {/* Pending Donations */}
-              <div className="gov-card">
-                <div className="gov-card-header">
-                  <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                    <Heart style={{ width: 14, height: 14, color: "#6c3483" }} />
-                    <span className="gov-section-title">Pending Donation Pickups</span>
-                  </div>
-                  <span className="gov-badge gov-badge-yellow">{pendingDonations.length} Pending</span>
-                </div>
-                {isLoading ? (
-                  <div style={{ padding: 18 }}>
-                    {[1,2,3].map(i => <div key={i} style={{ height: 48, background: "#f4f6f9", borderRadius: 3, marginBottom: 6 }} />)}
-                  </div>
-                ) : pendingDonations.length === 0 ? (
-                  <div style={{ textAlign: "center", padding: "24px 18px", color: "#5d6d7e" }}>
-                    <div style={{ fontSize: 28 }}>❤️</div>
-                    <div style={{ fontSize: 12, marginTop: 6 }}>No pending donations</div>
-                  </div>
-                ) : (
-                  <table className="gov-table">
-                    <thead><tr><th>Category</th><th>Donor</th><th>Status</th><th>Actions</th></tr></thead>
-                    <tbody>
-                      {pendingDonations.map((d: any) => (
-                        <tr key={d.id} data-testid={`ngo-donation-${d.id}`}>
-                          <td>
-                            <div style={{ fontSize: 13, fontWeight: 600, color: "#1c2833", textTransform: "capitalize" }}>{d.category}</div>
-                            {d.description && <div style={{ fontSize: 11, color: "#5d6d7e" }}>{d.description}</div>}
-                          </td>
-                          <td style={{ fontSize: 12, color: "#5d6d7e" }}>
-                            <div>{d.citizenName || "Anonymous"}</div>
-                            {d.address && <div style={{ display: "flex", alignItems: "center", gap: 2 }}><MapPin style={{ width: 10, height: 10 }} />{d.address}</div>}
-                          </td>
-                          <td>
-                            <span className={d.status === "pending" ? "gov-badge gov-badge-yellow" : "gov-badge gov-badge-green"}>
-                              {d.status}
-                            </span>
-                          </td>
-                          <td>
-                            <div style={{ display: "flex", gap: 5 }}>
-                              {d.status === "pending" && (
-                                <button className="gov-btn gov-btn-primary gov-btn-xs" onClick={() => handleAccept(d.id)} disabled={updateDonation.isPending} data-testid={`button-accept-${d.id}`}>
-                                  Schedule
-                                </button>
-                              )}
-                              <button className="gov-btn gov-btn-green gov-btn-xs" onClick={() => handleComplete(d.id)} disabled={updateDonation.isPending} data-testid={`button-complete-${d.id}`}
-                                style={{ display: "flex", alignItems: "center", gap: 3 }}>
-                                <CheckCircle style={{ width: 10, height: 10 }} /> Done
-                              </button>
-                            </div>
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                )}
-              </div>
-
-              {/* Waste Reports */}
-              <div className="gov-card">
-                <div className="gov-card-header">
-                  <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                    <AlertTriangle style={{ width: 14, height: 14, color: "#c0392b" }} />
-                    <span className="gov-section-title">Waste Reports & Requests</span>
-                  </div>
-                  <button className="gov-btn gov-btn-outline gov-btn-xs">Assign All</button>
-                </div>
-                <table className="gov-table">
-                  <thead><tr><th>Report</th><th>Location</th><th>Priority</th><th>Time</th><th>Action</th></tr></thead>
-                  <tbody>
-                    {MOCK_REPORTS.map(r => (
-                      <tr key={r.id}>
-                        <td style={{ fontSize: 12, fontWeight: 600, color: "#1c2833" }}>{r.title}</td>
-                        <td style={{ fontSize: 12, color: "#5d6d7e" }}>
-                          <div style={{ display: "flex", alignItems: "center", gap: 3 }}><MapPin style={{ width: 10, height: 10 }} />{r.location}</div>
-                        </td>
-                        <td><span className={priorityBadge(r.priority)}>{r.priority}</span></td>
-                        <td style={{ fontSize: 11, color: "#909caa", whiteSpace: "nowrap" }}>
-                          <div style={{ display: "flex", alignItems: "center", gap: 3 }}><Clock style={{ width: 10, height: 10 }} />{r.time}</div>
-                        </td>
-                        <td><button className="gov-btn gov-btn-primary gov-btn-xs">Assign</button></td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            </div>
-
-            {/* Right */}
-            <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
-
-              {/* Upcoming Events */}
-              <div className="gov-card">
-                <div className="gov-card-header">
-                  <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                    <Calendar style={{ width: 14, height: 14, color: "#ca6f1e" }} />
-                    <span className="gov-section-title">Upcoming Events</span>
-                  </div>
-                  <button className="gov-btn gov-btn-primary gov-btn-xs">+ New</button>
-                </div>
-                <table className="gov-table">
-                  <thead><tr><th>Event</th><th>Date</th><th>Vol.</th></tr></thead>
-                  <tbody>
-                    {MOCK_EVENTS.map(e => (
-                      <tr key={e.id}>
-                        <td>
-                          <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-                            <span style={{ fontSize: 16 }}>{e.icon}</span>
-                            <div>
-                              <div style={{ fontSize: 12, fontWeight: 600, color: "#1c2833" }}>{e.title}</div>
-                              <div style={{ fontSize: 11, color: "#5d6d7e" }}>{e.location}</div>
-                            </div>
-                          </div>
-                        </td>
-                        <td style={{ fontSize: 11, color: "#5d6d7e", whiteSpace: "nowrap" }}>{e.date}</td>
-                        <td style={{ fontSize: 12, fontWeight: 600, color: "#1a5276" }}>{e.participants}</td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-
-              {/* Top Volunteers */}
-              <div className="gov-card">
-                <div className="gov-card-header">
-                  <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                    <Users style={{ width: 14, height: 14, color: "#1a5276" }} />
-                    <span className="gov-section-title">Top Volunteers</span>
-                  </div>
-                  <button className="gov-btn gov-btn-outline gov-btn-xs">View All</button>
-                </div>
-                <table className="gov-table">
-                  <thead><tr><th>Name</th><th>Tasks</th><th>Rating</th><th>Badge</th></tr></thead>
-                  <tbody>
-                    {MOCK_VOLUNTEERS.map(v => (
-                      <tr key={v.id}>
-                        <td>
-                          <div style={{ display: "flex", alignItems: "center", gap: 7 }}>
-                            <div style={{ width: 28, height: 28, borderRadius: 3, background: "#1a5276", color: "#fff", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 10, fontWeight: 700, flexShrink: 0 }}>{v.initials}</div>
-                            <span style={{ fontSize: 12, fontWeight: 600, color: "#1c2833" }}>{v.name}</span>
-                          </div>
-                        </td>
-                        <td style={{ fontSize: 12, color: "#5d6d7e" }}>{v.tasks}</td>
-                        <td style={{ fontSize: 12, color: "#b7950b", fontWeight: 600 }}>⭐ {v.rating}</td>
-                        <td>{v.badge && <span className="gov-badge gov-badge-blue" style={{ fontSize: 10 }}>{v.badge}</span>}</td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
+                <button className="gov-btn gov-btn-outline" onClick={() => setShowPost(false)}>Cancel</button>
               </div>
             </div>
           </div>
         )}
 
-        {/* ── Analytics Tab ── */}
-        {activeTab === "analytics" && (
-          <div className="cd-2col" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14 }}>
-
-            {/* Waste breakdown */}
-            <div className="gov-card">
-              <div className="gov-card-header">
-                <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                  <BarChart2 style={{ width: 14, height: 14, color: "#1a5276" }} />
-                  <span className="gov-section-title">Waste Composition</span>
-                </div>
+        {/* ── NGO Stats (4 cards) ── */}
+        <div className="cd-4col" style={{ display: "grid", gridTemplateColumns: "repeat(4,1fr)", gap: 14 }}>
+          {[
+            { label: "Donations Received", value: completedDonations + 48, icon: "❤️", trend: "+12%", bg: "linear-gradient(135deg,#fce4ec,#f8bbd0)", iconBg: "linear-gradient(135deg,#e91e63,#ad1457)" },
+            { label: "Camps Organised",    value: 18,                        icon: "⛺", trend: "+3",   bg: "linear-gradient(135deg,#e3f2fd,#bbdefb)", iconBg: "linear-gradient(135deg,#1565c0,#0d47a1)" },
+            { label: "Volunteers Active",  value: 284,                       icon: "👥", trend: "+17%", bg: "linear-gradient(135deg,#e8f5e9,#c8e6c9)", iconBg: "linear-gradient(135deg,#2e7d32,#1b5e20)" },
+            { label: "Urgent Needs Open",  value: 3,                         icon: "🚨", trend: "Open", bg: "linear-gradient(135deg,#fff3e0,#ffe0b2)", iconBg: "linear-gradient(135deg,#e65100,#bf360c)" },
+          ].map(s => (
+            <div key={s.label} className="ngo-stat" style={{ background: s.bg }}>
+              <div className="ngo-stat-icon" style={{ background: s.iconBg }}>
+                <span style={{ fontSize: 22 }}>{s.icon}</span>
               </div>
-              <div className="gov-card-body">
-                {WASTE_CHART.map(w => (
-                  <div key={w.label} style={{ marginBottom: 10 }}>
-                    <div style={{ display: "flex", justifyContent: "space-between", fontSize: 12, marginBottom: 3 }}>
-                      <span style={{ color: "#1c2833", fontWeight: 600 }}>{w.label}</span>
-                      <span style={{ color: w.color, fontWeight: 700 }}>{w.pct}%</span>
+              <div className="ngo-stat-value">{isLoading ? "—" : s.value.toLocaleString("en-IN")}</div>
+              <div className="ngo-stat-label">{s.label}</div>
+              <div className="ngo-stat-trend">{s.trend}</div>
+            </div>
+          ))}
+        </div>
+
+        {/* ── Quick Action Cards (3D) ── */}
+        <div className="cd-3col" style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: 14 }}>
+          {[
+            {
+              title: "Collect Donation",
+              sub: "Accept & schedule pickups",
+              icon: "🎁",
+              bg: "linear-gradient(135deg,#6a1b9a,#8e24aa)",
+              shadow: "0 8px 28px rgba(106,27,154,0.38)",
+              path: "/ngo/donations",
+            },
+            {
+              title: "Organise a Camp",
+              sub: "Create relief & health camps",
+              icon: "⛺",
+              bg: "linear-gradient(135deg,#1565c0,#1976d2)",
+              shadow: "0 8px 28px rgba(21,101,192,0.38)",
+              path: "/ngo/manage-events",
+            },
+            {
+              title: "Post Urgent Need",
+              sub: "Alert volunteers & donors now",
+              icon: "🚨",
+              bg: "linear-gradient(135deg,#c62828,#e53935)",
+              shadow: "0 8px 28px rgba(198,40,40,0.38)",
+              path: "/ngo/urgent",
+            },
+          ].map(a => (
+            <button key={a.title} className="ngo-action"
+              style={{ background: a.bg, boxShadow: a.shadow }}
+              onClick={() => navigate(a.path)}>
+              <div className="ngo-action-icon">{a.icon}</div>
+              <div>
+                <div className="ngo-action-title">{a.title}</div>
+                <div className="ngo-action-sub">{a.sub}</div>
+              </div>
+              <ChevronRight style={{ width: 16, height: 16, color: "rgba(255,255,255,0.6)", marginTop: 2 }} />
+            </button>
+          ))}
+        </div>
+
+        {/* ── Main 2-col layout ── */}
+        <div className="cd-2col-big" style={{ display: "grid", gridTemplateColumns: "3fr 2fr", gap: 16 }}>
+
+          {/* LEFT column */}
+          <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+
+            {/* Pending Donations */}
+            <div className="ngo-section">
+              <div className="ngo-section-header">
+                <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                  <Heart style={{ width: 15, height: 15, color: "#e91e63" }} />
+                  <span className="ngo-section-title">Pending Donation Pickups</span>
+                </div>
+                <span className="gov-badge gov-badge-yellow">{pendingDonations.length} pending</span>
+              </div>
+
+              {isLoading ? (
+                <div style={{ padding: "16px 20px", display: "flex", flexDirection: "column", gap: 10 }}>
+                  {[1,2,3].map(i => <div key={i} style={{ height: 54, background: "#f4f6f9", borderRadius: 12 }} />)}
+                </div>
+              ) : pendingDonations.length === 0 ? (
+                <div style={{ padding: "36px 20px", textAlign: "center" }}>
+                  <div style={{ fontSize: 38, marginBottom: 8 }}>🎉</div>
+                  <div style={{ fontSize: 13, fontWeight: 700, color: "#1c2833" }}>All caught up!</div>
+                  <div style={{ fontSize: 12, color: "#7d8fa0", marginTop: 4 }}>No pending donation pickups</div>
+                </div>
+              ) : (
+                pendingDonations.map((d: any) => (
+                  <div key={d.id} className="ngo-item-row">
+                    <div style={{ width: 44, height: 44, borderRadius: 14, background: "linear-gradient(135deg,#f3e5f5,#e1bee7)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 22, flexShrink: 0, boxShadow: "0 3px 10px rgba(0,0,0,0.1)" }}>
+                      {CAT_EMOJI[d.category] || "📦"}
                     </div>
-                    <div className="gov-progress-track">
-                      <div style={{ height: "100%", width: `${w.pct}%`, background: w.color, borderRadius: 2 }} />
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                      <div style={{ fontSize: 13, fontWeight: 700, color: "#1c2833", textTransform: "capitalize" }}>{d.category}</div>
+                      {d.description && <div style={{ fontSize: 11, color: "#7d8fa0", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{d.description}</div>}
+                      {d.address && (
+                        <div style={{ display: "flex", alignItems: "center", gap: 3, fontSize: 11, color: "#7d8fa0" }}>
+                          <MapPin style={{ width: 10, height: 10 }} />{d.address}
+                        </div>
+                      )}
+                    </div>
+                    <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", gap: 4 }}>
+                      <span className={d.status === "pending" ? "gov-badge gov-badge-yellow" : "gov-badge gov-badge-blue"} style={{ fontSize: 10 }}>
+                        {d.status}
+                      </span>
+                      <div style={{ display: "flex", gap: 5 }}>
+                        {d.status === "pending" && (
+                          <button className="gov-btn gov-btn-xs gov-btn-primary"
+                            onClick={() => handleAccept(d.id)} disabled={updateDonation.isPending}>
+                            Schedule
+                          </button>
+                        )}
+                        <button className="gov-btn gov-btn-xs gov-btn-green"
+                          onClick={() => handleComplete(d.id)} disabled={updateDonation.isPending}
+                          style={{ display: "flex", alignItems: "center", gap: 3 }}>
+                          <CheckCircle style={{ width: 10, height: 10 }} /> Done
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                ))
+              )}
+            </div>
+
+            {/* Impact Photo Gallery */}
+            <div className="ngo-section">
+              <div className="ngo-section-header">
+                <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                  <Camera style={{ width: 15, height: 15, color: "#1565c0" }} />
+                  <span className="ngo-section-title">Donation Impact Gallery</span>
+                </div>
+                <span style={{ fontSize: 11, color: "#7d8fa0" }}>Where your donations go</span>
+              </div>
+
+              {/* Upload zone */}
+              <div className="ngo-upload-zone">
+                <Upload style={{ width: 22, height: 22, color: "#4caf50", margin: "0 auto 6px" }} />
+                <div style={{ fontSize: 12, fontWeight: 700, color: "#2e7d32" }}>Add Impact Photo</div>
+                <div style={{ fontSize: 11, color: "#7d8fa0", marginTop: 2 }}>Upload before/after photos of donation deliveries</div>
+              </div>
+
+              {/* Photo grid */}
+              <div className="ngo-gallery-grid">
+                {IMPACT_PHOTOS.map(p => (
+                  <div key={p.id} className="ngo-gallery-item"
+                    onClick={() => setPhotoModal(p)}>
+                    {/* Gradient background as photo placeholder */}
+                    <div style={{ width: "100%", height: "100%", background: p.bg, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 40 }}>
+                      {p.emoji}
+                    </div>
+                    <div className="ngo-gallery-overlay">
+                      <div className="ngo-gallery-caption">{p.caption}</div>
+                      <div className="ngo-gallery-loc">
+                        <MapPin style={{ width: 9, height: 9 }} />
+                        {p.loc} · {p.date}
+                      </div>
                     </div>
                   </div>
                 ))}
               </div>
             </div>
+          </div>
 
-            {/* Monthly impact summary */}
-            <div className="gov-card">
-              <div className="gov-card-header"><span className="gov-section-title">Monthly Impact</span></div>
-              <div className="gov-card-body">
-                <table className="gov-table">
-                  <thead><tr><th>Metric</th><th>This Month</th><th>Last Month</th><th>Change</th></tr></thead>
-                  <tbody>
-                    {[
-                      { metric:"Waste Collected", now:"4.2T",    prev:"3.6T",  change:"+16.7%", up:true  },
-                      { metric:"Donations",        now:"127",     prev:"108",   change:"+17.6%", up:true  },
-                      { metric:"Volunteers",       now:"284",     prev:"241",   change:"+17.8%", up:true  },
-                      { metric:"CO₂ Offset",       now:"1,240 kg",prev:"980 kg",change:"+26.5%",up:true  },
-                    ].map(m => (
-                      <tr key={m.metric}>
-                        <td style={{ fontSize: 12, fontWeight: 600 }}>{m.metric}</td>
-                        <td style={{ fontSize: 12, fontWeight: 700, color: "#1c2833" }}>{m.now}</td>
-                        <td style={{ fontSize: 12, color: "#5d6d7e" }}>{m.prev}</td>
-                        <td><span className={m.up ? "gov-badge gov-badge-green" : "gov-badge gov-badge-red"}>{m.change}</span></td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
+          {/* RIGHT column */}
+          <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+
+            {/* Upcoming Camps */}
+            <div className="ngo-section">
+              <div className="ngo-section-header">
+                <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                  <Calendar style={{ width: 15, height: 15, color: "#1565c0" }} />
+                  <span className="ngo-section-title">Upcoming Camps</span>
+                </div>
+                <button className="gov-btn gov-btn-xs gov-btn-primary"
+                  onClick={() => navigate("/ngo/manage-events")}>
+                  + New Camp
+                </button>
+              </div>
+              {CAMPS.map(c => (
+                <div key={c.id} className="ngo-camp-row">
+                  <div className="ngo-camp-icon" style={{ background: c.bg }}>{c.icon}</div>
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <div style={{ fontSize: 13, fontWeight: 700, color: "#1c2833", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{c.title}</div>
+                    <div style={{ display: "flex", alignItems: "center", gap: 4, marginTop: 2, flexWrap: "wrap" }}>
+                      <span style={{ display: "flex", alignItems: "center", gap: 3, fontSize: 11, color: "#7d8fa0" }}>
+                        <Clock style={{ width: 10, height: 10 }} />{c.date}
+                      </span>
+                    </div>
+                    <div style={{ display: "flex", alignItems: "center", gap: 3, fontSize: 11, color: "#7d8fa0" }}>
+                      <MapPin style={{ width: 10, height: 10 }} />{c.loc}
+                    </div>
+                  </div>
+                  <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", gap: 4, flexShrink: 0 }}>
+                    <span style={{ display: "flex", alignItems: "center", gap: 3, fontSize: 12, fontWeight: 700, color: "#1565c0" }}>
+                      <Users style={{ width: 11, height: 11 }} />{c.volunteers}
+                    </span>
+                    <span className="gov-badge gov-badge-blue" style={{ fontSize: 10 }}>Upcoming</span>
+                  </div>
+                </div>
+              ))}
+              <div style={{ padding: "10px 20px 14px" }}>
+                <button className="gov-btn gov-btn-outline" style={{ width: "100%", fontSize: 12, display: "flex", alignItems: "center", justifyContent: "center", gap: 6 }}
+                  onClick={() => navigate("/ngo/manage-events")}>
+                  View All Camps <ChevronRight style={{ width: 13, height: 13 }} />
+                </button>
+              </div>
+            </div>
+
+            {/* Urgent Needs snapshot */}
+            <div className="ngo-section" style={{ border: "1.5px solid #ffcdd2" }}>
+              <div className="ngo-section-header" style={{ background: "#fff5f5" }}>
+                <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                  <AlertTriangle style={{ width: 15, height: 15, color: "#c62828" }} />
+                  <span className="ngo-section-title" style={{ color: "#c62828" }}>Urgent Needs</span>
+                </div>
+                <span className="gov-badge gov-badge-red">3 open</span>
+              </div>
+              {[
+                { title: "30 volunteers for Yamuna cleanup",   deadline: "May 8",  resp: 0 },
+                { title: "Food packets for workers",           deadline: "May 6",  resp: 2 },
+                { title: "First-aid volunteers needed",        deadline: "May 12", resp: 1 },
+              ].map((u, i) => (
+                <div key={i} className="ngo-urgent-row">
+                  <div style={{ width: 32, height: 32, borderRadius: 10, background: "linear-gradient(135deg,#ffcdd2,#ef9a9a)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 16, flexShrink: 0 }}>
+                    🚨
+                  </div>
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <div style={{ fontSize: 12, fontWeight: 700, color: "#1c2833", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{u.title}</div>
+                    <div style={{ display: "flex", gap: 8, marginTop: 2 }}>
+                      <span style={{ fontSize: 11, color: "#c62828", fontWeight: 600 }}>Deadline: {u.deadline}</span>
+                      <span style={{ fontSize: 11, color: "#7d8fa0" }}>{u.resp} response{u.resp !== 1 ? "s" : ""}</span>
+                    </div>
+                  </div>
+                </div>
+              ))}
+              <div style={{ padding: "10px 20px 14px" }}>
+                <button className="gov-btn gov-btn-red" style={{ width: "100%", fontSize: 12, display: "flex", alignItems: "center", justifyContent: "center", gap: 6 }}
+                  onClick={() => navigate("/ngo/urgent")}>
+                  Manage Urgent Needs <ChevronRight style={{ width: 13, height: 13 }} />
+                </button>
+              </div>
+            </div>
+
+            {/* Active Volunteers */}
+            <div className="ngo-section">
+              <div className="ngo-section-header">
+                <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                  <Users style={{ width: 15, height: 15, color: "#2e7d32" }} />
+                  <span className="ngo-section-title">Active Volunteers</span>
+                </div>
+                <span style={{ fontSize: 11, color: "#7d8fa0" }}>Top contributors</span>
+              </div>
+              {[
+                { name: "Priya Sharma",  tasks: 28, rating: "4.9", initials: "PS", badge: "⭐ Top",    bg: "linear-gradient(135deg,#1b5e20,#43a047)" },
+                { name: "Rahul Gupta",   tasks: 21, rating: "4.7", initials: "RG", badge: "Active",   bg: "linear-gradient(135deg,#1565c0,#42a5f5)" },
+                { name: "Ananya Singh",  tasks: 17, rating: "4.8", initials: "AS", badge: "Rising",   bg: "linear-gradient(135deg,#6a1b9a,#ba68c8)" },
+                { name: "Vikram Nair",   tasks: 14, rating: "4.6", initials: "VN", badge: "",          bg: "linear-gradient(135deg,#e65100,#ff8f00)" },
+              ].map((v, i) => (
+                <div key={i} className="ngo-vol-row">
+                  <div className="ngo-avatar" style={{ background: v.bg }}>{v.initials}</div>
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <div style={{ fontSize: 13, fontWeight: 700, color: "#1c2833" }}>{v.name}</div>
+                    <div style={{ fontSize: 11, color: "#7d8fa0" }}>{v.tasks} tasks · ⭐ {v.rating}</div>
+                  </div>
+                  {v.badge && <span className="gov-badge gov-badge-green" style={{ fontSize: 10 }}>{v.badge}</span>}
+                </div>
+              ))}
+            </div>
+
+          </div>
+        </div>
+
+        {/* ── Photo detail modal ── */}
+        {photoModal && (
+          <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.72)", zIndex: 2000, display: "flex", alignItems: "center", justifyContent: "center", padding: 16 }}
+            onClick={() => setPhotoModal(null)}>
+            <div style={{ background: "#fff", borderRadius: 20, overflow: "hidden", maxWidth: 440, width: "100%", boxShadow: "0 24px 60px rgba(0,0,0,0.4)" }}
+              onClick={e => e.stopPropagation()}>
+              <div style={{ width: "100%", height: 220, background: photoModal.bg, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 72 }}>
+                {photoModal.emoji}
+              </div>
+              <div style={{ padding: "20px 24px 24px" }}>
+                <div style={{ fontSize: 16, fontWeight: 800, color: "#1c2833", marginBottom: 6 }}>{photoModal.caption}</div>
+                <div style={{ display: "flex", alignItems: "center", gap: 4, fontSize: 12, color: "#7d8fa0", marginBottom: 14 }}>
+                  <MapPin style={{ width: 12, height: 12 }} />{photoModal.loc} · {photoModal.date}
+                </div>
+                <div style={{ display: "flex", gap: 8 }}>
+                  <button className="gov-btn gov-btn-green" style={{ flex: 1 }} onClick={() => setPhotoModal(null)}>Close</button>
+                  <button className="gov-btn gov-btn-outline" onClick={() => setPhotoModal(null)}>Share</button>
+                </div>
               </div>
             </div>
           </div>

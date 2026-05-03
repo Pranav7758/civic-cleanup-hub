@@ -1,1 +1,281 @@
-/* NGO — see dashboard.css for gov design system */
+/* ═══════════════════════════════════════════════
+   NGO Module — 3D Modern Design
+═══════════════════════════════════════════════ */
+
+/* ── Hero banner ── */
+.ngo-hero {
+  background: linear-gradient(135deg, #1b5e20 0%, #2e7d32 40%, #1565c0 100%);
+  border-radius: 20px;
+  padding: 28px 32px;
+  color: #fff;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 12px 40px rgba(27,94,32,0.35), 0 4px 16px rgba(0,0,0,0.15);
+}
+.ngo-hero::before {
+  content: '';
+  position: absolute;
+  top: -40px; right: -40px;
+  width: 200px; height: 200px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.06);
+  pointer-events: none;
+}
+.ngo-hero::after {
+  content: '';
+  position: absolute;
+  bottom: -30px; left: 30%;
+  width: 140px; height: 140px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.04);
+  pointer-events: none;
+}
+
+/* ── 3D stat card ── */
+.ngo-stat {
+  background: #fff;
+  border-radius: 18px;
+  padding: 20px 18px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  position: relative;
+  overflow: hidden;
+  transition: transform .22s cubic-bezier(.34,1.56,.64,1), box-shadow .22s ease;
+  cursor: default;
+  box-shadow: 0 4px 24px rgba(0,0,0,0.09), 0 1px 4px rgba(0,0,0,0.06), inset 0 1px 0 rgba(255,255,255,0.9);
+}
+.ngo-stat:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 12px 36px rgba(0,0,0,0.14), 0 2px 8px rgba(0,0,0,0.08);
+}
+.ngo-stat-icon {
+  width: 46px; height: 46px;
+  border-radius: 14px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 22px;
+  margin-bottom: 4px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.14);
+}
+.ngo-stat-value {
+  font-size: 28px;
+  font-weight: 900;
+  color: #1c2833;
+  line-height: 1;
+  letter-spacing: -.5px;
+}
+.ngo-stat-label {
+  font-size: 11px;
+  font-weight: 600;
+  color: #7d8fa0;
+  text-transform: uppercase;
+  letter-spacing: .06em;
+}
+.ngo-stat-trend {
+  position: absolute;
+  top: 14px; right: 14px;
+  font-size: 10px;
+  font-weight: 700;
+  padding: 3px 8px;
+  border-radius: 999px;
+  background: #e8f5e9;
+  color: #2e7d32;
+}
+
+/* ── Quick action card (3D lift) ── */
+.ngo-action {
+  border-radius: 18px;
+  padding: 22px 18px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 10px;
+  cursor: pointer;
+  border: none;
+  text-align: left;
+  transition: transform .22s cubic-bezier(.34,1.56,.64,1), box-shadow .22s ease;
+  position: relative;
+  overflow: hidden;
+  width: 100%;
+}
+.ngo-action::before {
+  content: '';
+  position: absolute;
+  top: -20px; right: -20px;
+  width: 80px; height: 80px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.13);
+  pointer-events: none;
+}
+.ngo-action:hover {
+  transform: translateY(-6px) scale(1.03);
+}
+.ngo-action-icon {
+  width: 48px; height: 48px;
+  border-radius: 14px;
+  background: rgba(255,255,255,0.22);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 24px;
+  box-shadow: 0 4px 14px rgba(0,0,0,0.18);
+}
+.ngo-action-title {
+  font-size: 14px;
+  font-weight: 800;
+  color: #fff;
+  line-height: 1.25;
+}
+.ngo-action-sub {
+  font-size: 11px;
+  color: rgba(255,255,255,0.78);
+  font-weight: 500;
+}
+
+/* ── Section card ── */
+.ngo-section {
+  background: #fff;
+  border-radius: 18px;
+  overflow: hidden;
+  box-shadow: 0 4px 24px rgba(0,0,0,0.08), 0 1px 4px rgba(0,0,0,0.05);
+}
+.ngo-section-header {
+  padding: 16px 20px 12px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid #f0f4f0;
+}
+.ngo-section-title {
+  font-size: 14px;
+  font-weight: 800;
+  color: #1c2833;
+}
+
+/* ── Donation item row ── */
+.ngo-item-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 13px 20px;
+  border-bottom: 1px solid #f5f8f5;
+  transition: background .15s;
+}
+.ngo-item-row:last-child { border-bottom: none; }
+.ngo-item-row:hover { background: #fafcfa; }
+
+/* ── Impact photo gallery ── */
+.ngo-gallery-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+  padding: 16px 20px;
+}
+@media (max-width: 700px) {
+  .ngo-gallery-grid { grid-template-columns: repeat(2, 1fr); }
+}
+.ngo-gallery-item {
+  border-radius: 14px;
+  overflow: hidden;
+  position: relative;
+  aspect-ratio: 4/3;
+  cursor: pointer;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.12);
+  transition: transform .22s cubic-bezier(.34,1.56,.64,1), box-shadow .22s ease;
+}
+.ngo-gallery-item:hover {
+  transform: scale(1.04) translateY(-2px);
+  box-shadow: 0 12px 32px rgba(0,0,0,0.20);
+}
+.ngo-gallery-bg {
+  width: 100%; height: 100%;
+  object-fit: cover;
+  display: block;
+}
+.ngo-gallery-overlay {
+  position: absolute;
+  bottom: 0; left: 0; right: 0;
+  background: linear-gradient(to top, rgba(0,0,0,0.78) 0%, rgba(0,0,0,0.1) 60%, transparent 100%);
+  padding: 24px 12px 10px;
+}
+.ngo-gallery-caption {
+  font-size: 11px;
+  font-weight: 700;
+  color: #fff;
+  line-height: 1.35;
+}
+.ngo-gallery-loc {
+  font-size: 10px;
+  color: rgba(255,255,255,0.72);
+  margin-top: 2px;
+  display: flex;
+  align-items: center;
+  gap: 3px;
+}
+
+/* ── Camp / event card row ── */
+.ngo-camp-row {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 13px 20px;
+  border-bottom: 1px solid #f0f4f0;
+  transition: background .15s;
+}
+.ngo-camp-row:last-child { border-bottom: none; }
+.ngo-camp-row:hover { background: #fafcfa; }
+.ngo-camp-icon {
+  width: 46px; height: 46px;
+  border-radius: 14px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 22px;
+  flex-shrink: 0;
+  box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+}
+
+/* ── Urgent row ── */
+.ngo-urgent-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 12px 20px;
+  border-bottom: 1px solid #fff3f3;
+  transition: background .15s;
+}
+.ngo-urgent-row:last-child { border-bottom: none; }
+.ngo-urgent-row:hover { background: #fff9f9; }
+
+/* ── Volunteer row ── */
+.ngo-vol-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 11px 20px;
+  border-bottom: 1px solid #f0f4f0;
+  transition: background .15s;
+}
+.ngo-vol-row:last-child { border-bottom: none; }
+.ngo-vol-row:hover { background: #fafcfa; }
+.ngo-avatar {
+  width: 36px; height: 36px;
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 13px; font-weight: 800;
+  color: #fff; flex-shrink: 0;
+  box-shadow: 0 3px 8px rgba(0,0,0,0.18);
+}
+
+/* ── Upload/add photo zone ── */
+.ngo-upload-zone {
+  border: 2px dashed #a5d6a7;
+  border-radius: 14px;
+  padding: 24px 20px;
+  text-align: center;
+  cursor: pointer;
+  transition: border-color .2s, background .2s, transform .2s;
+  background: #fafcfa;
+  margin: 0 20px 16px;
+}
+.ngo-upload-zone:hover {
+  border-color: #2e7d32;
+  background: #f0f8f0;
+  transform: scale(1.01);
+}
