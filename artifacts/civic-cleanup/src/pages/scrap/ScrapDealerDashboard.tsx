@@ -105,7 +105,7 @@ export default function ScrapDealerDashboard() {
         </div>
 
         {/* ── Summary stats ── */}
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(4,1fr)", gap: 12 }}>
+        <div className="cd-4col" style={{ display: "grid", gridTemplateColumns: "repeat(4,1fr)", gap: 12 }}>
           {[
             { label:"Today's Earnings", value:"₹3,840",   icon:"💰", color:"#b7950b" },
             { label:"Weekly Revenue",   value:"₹21,600",  icon:"📈", color:"#1e8449" },
@@ -254,7 +254,7 @@ export default function ScrapDealerDashboard() {
         {/* ══ INVENTORY TAB ══ */}
         {tab === "inventory" && (
           <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: 12 }}>
+            <div className="cd-3col" style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: 12 }}>
               {[
                 { label:"Total Value",   value:`₹${totalInventoryValue.toLocaleString("en-IN")}`, icon:"💰", color:"#b7950b" },
                 { label:"Total Items",   value:`${INVENTORY.length} types`,                        icon:"📦", color:"#1a5276" },

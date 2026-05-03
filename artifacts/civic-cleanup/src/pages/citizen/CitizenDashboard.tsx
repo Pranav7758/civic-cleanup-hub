@@ -115,7 +115,7 @@ export default function CitizenDashboard() {
             width:160, height:160, borderRadius:"50%",
             background:"rgba(76,175,80,.08)", pointerEvents:"none" }} />
 
-          <div style={{ display:"grid", gridTemplateColumns:"1fr auto", gap:20, position:"relative" }}>
+          <div className="cd-hero" style={{ display:"grid", gridTemplateColumns:"1fr auto", gap:20, position:"relative" }}>
             {/* Left: greeting */}
             <div>
               <div style={{ fontSize:12, color:"rgba(165,214,167,.75)", fontWeight:700,
@@ -172,7 +172,7 @@ export default function CitizenDashboard() {
             </div>
 
             {/* Right: action links */}
-            <div style={{ display:"flex", flexDirection:"column", gap:8, alignSelf:"center" }}>
+            <div className="cd-hide-mobile" style={{ display:"flex", flexDirection:"column", gap:8, alignSelf:"center" }}>
               {[
                 { label:"View Wallet",  path:"/citizen/wallet",  emoji:"💳" },
                 { label:"My Reports",   path:"/citizen/reports", emoji:"📸" },
@@ -196,7 +196,7 @@ export default function CitizenDashboard() {
         </div>
 
         {/* ═══ ROW 2: STAT CHIPS ═══ */}
-        <div style={{ display:"grid", gridTemplateColumns:"repeat(4,1fr)", gap:14 }}>
+        <div className="cd-4col" style={{ display:"grid", gridTemplateColumns:"repeat(4,1fr)", gap:14 }}>
           {STATS.map((s) => (
             <div key={s.label} style={{
               ...card3d,
@@ -243,7 +243,7 @@ export default function CitizenDashboard() {
         </div>
 
         {/* ═══ ROW 3: QUICK ACTIONS + WEEKLY CHART ═══ */}
-        <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:14 }}>
+        <div className="cd-2col" style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:14 }}>
 
           {/* Quick Actions */}
           <div style={{ ...card3d, padding:"0" }}>
@@ -380,7 +380,7 @@ export default function CitizenDashboard() {
         </div>
 
         {/* ═══ ROW 4: REPORTS + TRANSACTIONS + EVENTS ═══ */}
-        <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr 1fr", gap:14 }}>
+        <div className="cd-3col" style={{ display:"grid", gridTemplateColumns:"1fr 1fr 1fr", gap:14 }}>
 
           {/* Recent Reports */}
           <div style={{ ...card3d }}>

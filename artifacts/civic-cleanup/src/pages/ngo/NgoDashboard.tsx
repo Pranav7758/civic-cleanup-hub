@@ -151,7 +151,7 @@ export default function NgoDashboard() {
         </div>
 
         {/* ── Impact Stats ── */}
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(4,1fr)", gap: 12 }}>
+        <div className="cd-4col" style={{ display: "grid", gridTemplateColumns: "repeat(4,1fr)", gap: 12 }}>
           {impactStats.map((s) => (
             <div key={s.label} className="gov-stat-card" style={{ borderLeft: `3px solid ${s.color}` }}>
               <span style={{ fontSize: 22 }}>{s.icon}</span>
@@ -163,7 +163,7 @@ export default function NgoDashboard() {
 
         {/* ── Overview Tab ── */}
         {activeTab === "overview" && (
-          <div style={{ display: "grid", gridTemplateColumns: "2fr 1fr", gap: 14 }}>
+          <div className="cd-2col-big" style={{ display: "grid", gridTemplateColumns: "2fr 1fr", gap: 14 }}>
 
             {/* Left */}
             <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
@@ -323,7 +323,7 @@ export default function NgoDashboard() {
 
         {/* ── Analytics Tab ── */}
         {activeTab === "analytics" && (
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14 }}>
+          <div className="cd-2col" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14 }}>
 
             {/* Waste breakdown */}
             <div className="gov-card">

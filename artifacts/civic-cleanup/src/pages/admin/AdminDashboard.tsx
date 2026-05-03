@@ -88,7 +88,7 @@ export default function AdminDashboard() {
         </div>
 
         {/* ── KPI Grid ── */}
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(4,1fr)", gap: 12 }}>
+        <div className="cd-4col" style={{ display: "grid", gridTemplateColumns: "repeat(4,1fr)", gap: 12 }}>
           {kpis.slice(0, 4).map((k) => (
             <div key={k.label} className="gov-stat-card" data-testid={`stat-${k.label.toLowerCase().replace(/\s+/g,"‑")}`}
               style={{ borderLeft: `3px solid ${k.color}` }}>
@@ -103,7 +103,7 @@ export default function AdminDashboard() {
             </div>
           ))}
         </div>
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(4,1fr)", gap: 12 }}>
+        <div className="cd-4col" style={{ display: "grid", gridTemplateColumns: "repeat(4,1fr)", gap: 12 }}>
           {kpis.slice(4).map((k) => (
             <div key={k.label} className="gov-stat-card" style={{ borderLeft: `3px solid ${k.color}` }}>
               <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 6 }}>
@@ -120,7 +120,7 @@ export default function AdminDashboard() {
 
         {/* ── Overview Tab ── */}
         {activeTab === "overview" && (
-          <div style={{ display: "grid", gridTemplateColumns: "2fr 1fr", gap: 14 }}>
+          <div className="cd-2col-big" style={{ display: "grid", gridTemplateColumns: "2fr 1fr", gap: 14 }}>
 
             {/* Left column */}
             <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
@@ -293,7 +293,7 @@ export default function AdminDashboard() {
                 })}
               </div>
               <hr className="gov-divider" style={{ margin: "16px 0" }} />
-              <div style={{ display: "grid", gridTemplateColumns: "repeat(4,1fr)", gap: 12 }}>
+              <div className="cd-4col" style={{ display: "grid", gridTemplateColumns: "repeat(4,1fr)", gap: 12 }}>
                 {[
                   { label: "Reports Resolved", value: "84%", color: "#1e8449"  },
                   { label: "Avg Response",     value: "2.4h", color: "#1a5276" },

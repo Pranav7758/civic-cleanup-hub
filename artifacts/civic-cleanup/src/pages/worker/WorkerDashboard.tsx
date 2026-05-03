@@ -83,7 +83,7 @@ export default function WorkerDashboard() {
       <div style={{ ...S, display:"flex", flexDirection:"column", gap:18 }}>
 
         {/* ── Row 1: Status card + Collection stats ── */}
-        <div style={{ display:"grid", gridTemplateColumns:"1.4fr 1fr 1fr 1fr 1fr", gap:14 }}>
+        <div className="cd-5col" style={{ display:"grid", gridTemplateColumns:"1.4fr 1fr 1fr 1fr 1fr", gap:14 }}>
 
           {/* Worker status card */}
           <div className="gov-card" style={{ padding:18 }}>
@@ -141,7 +141,7 @@ export default function WorkerDashboard() {
         </div>
 
         {/* ── Row 2: My assigned tasks + Quick panel ── */}
-        <div style={{ display:"grid", gridTemplateColumns:"1.5fr 1fr", gap:14 }}>
+        <div className="cd-2col-big" style={{ display:"grid", gridTemplateColumns:"1.5fr 1fr", gap:14 }}>
 
           {/* My Tasks table */}
           <div className="gov-card">

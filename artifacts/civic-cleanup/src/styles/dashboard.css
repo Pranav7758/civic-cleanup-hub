@@ -571,3 +571,90 @@
   display: inline-block;
   flex-shrink: 0;
 }
+
+/* ══════════════════════════════════════════════
+   RESPONSIVE GRID UTILITIES
+   Desktop: inline style wins (no column set here)
+   Mobile (≤599px): !important overrides inline
+══════════════════════════════════════════════ */
+
+/* Prevent horizontal overflow on all pages */
+.cd-page-wrap {
+  min-width: 0;
+  overflow-x: hidden;
+}
+
+@media (max-width: 599px) {
+  /* 4-column stat grids → 2 per row */
+  .cd-4col { grid-template-columns: repeat(2,1fr) !important; gap: 10px !important; }
+
+  /* 3-column grids → single column */
+  .cd-3col { grid-template-columns: 1fr !important; }
+
+  /* 2-column grids → single column */
+  .cd-2col { grid-template-columns: 1fr !important; }
+
+  /* 2-column large/asymmetric → single column */
+  .cd-2col-big { grid-template-columns: 1fr !important; }
+
+  /* Worker 5-column row → 2 columns */
+  .cd-5col { grid-template-columns: 1fr 1fr !important; }
+
+  /* Hero card inner grid → single column */
+  .cd-hero { grid-template-columns: 1fr !important; }
+
+  /* Hide elements not needed on mobile */
+  .cd-hide-mobile { display: none !important; }
+
+  /* Stat cards: compact padding on small screens */
+  .gov-stat-card { padding: 12px 12px 10px !important; }
+
+  /* WalletPage reward card → 2-col on mobile */
+  .rw-card {
+    grid-template-columns: 48px 1fr !important;
+    grid-template-rows: auto auto auto !important;
+    gap: 10px 12px !important;
+    padding: 14px 14px !important;
+  }
+  .rw-card > :nth-child(3),
+  .rw-card > :nth-child(4),
+  .rw-card > :nth-child(5) {
+    grid-column: 2 !important;
+  }
+
+  /* WalletPage my-reward row → 2-col on mobile */
+  .rw-my-row {
+    grid-template-columns: 28px 1fr !important;
+    grid-template-rows: auto auto auto !important;
+    gap: 8px 10px !important;
+    padding: 12px 14px !important;
+  }
+  .rw-my-row > :nth-child(3),
+  .rw-my-row > :nth-child(4),
+  .rw-my-row > :nth-child(5) {
+    grid-column: 2 !important;
+  }
+
+  /* WalletPage tx row → 2-col on mobile */
+  .rw-tx-row {
+    grid-template-columns: 32px 1fr !important;
+    grid-template-rows: auto auto auto !important;
+    gap: 8px 10px !important;
+    padding: 12px 14px !important;
+  }
+  .rw-tx-row > :nth-child(3),
+  .rw-tx-row > :nth-child(4) {
+    grid-column: 2 !important;
+  }
+
+  /* WalletPage gov-benefits 4-col → 2-col */
+  .rw-benefits-grid {
+    grid-template-columns: 1fr 1fr !important;
+  }
+
+  /* Redeem button: full width on mobile */
+  .rw-btn-redeem {
+    min-width: unset !important;
+    width: 100% !important;
+  }
+}
