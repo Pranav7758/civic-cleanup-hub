@@ -1,95 +1,85 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="none">
   <defs>
-    <!-- 3D ambient background gradient -->
-    <linearGradient id="bgGrad" x1="0" y1="0" x2="64" y2="64" gradientUnits="userSpaceOnUse">
-      <stop offset="0%" stop-color="#0d4f2f"/>
-      <stop offset="45%" stop-color="#0a7c45"/>
-      <stop offset="100%" stop-color="#05b86a"/>
+    <linearGradient id="bg" x1="0" y1="0" x2="64" y2="64" gradientUnits="userSpaceOnUse">
+      <stop offset="0%"   stop-color="#1b6b3a"/>
+      <stop offset="55%"  stop-color="#0d4a28"/>
+      <stop offset="100%" stop-color="#021a0e"/>
     </linearGradient>
-    <!-- Sheen on top-left for 3D effect -->
-    <radialGradient id="sheen" cx="22%" cy="18%" r="55%">
-      <stop offset="0%" stop-color="rgba(255,255,255,0.22)"/>
+    <radialGradient id="hl" cx="28%" cy="22%" r="55%">
+      <stop offset="0%"   stop-color="rgba(255,255,255,0.28)"/>
+      <stop offset="70%"  stop-color="rgba(255,255,255,0.06)"/>
       <stop offset="100%" stop-color="rgba(255,255,255,0)"/>
     </radialGradient>
-    <!-- Bin body gradient -->
-    <linearGradient id="binBody" x1="14" y1="22" x2="50" y2="56" gradientUnits="userSpaceOnUse">
-      <stop offset="0%" stop-color="#e8fff2"/>
-      <stop offset="100%" stop-color="#b2e8cc"/>
+    <radialGradient id="glow" cx="75%" cy="80%" r="50%">
+      <stop offset="0%"   stop-color="rgba(16,185,129,0.2)"/>
+      <stop offset="100%" stop-color="rgba(16,185,129,0)"/>
+    </radialGradient>
+    <linearGradient id="top" x1="18" y1="26" x2="46" y2="20" gradientUnits="userSpaceOnUse">
+      <stop offset="0%"   stop-color="#6ee7b7"/>
+      <stop offset="100%" stop-color="#34d399"/>
     </linearGradient>
-    <!-- Bin lid gradient -->
-    <linearGradient id="lidGrad" x1="10" y1="18" x2="54" y2="24" gradientUnits="userSpaceOnUse">
-      <stop offset="0%" stop-color="#5dffa0"/>
-      <stop offset="100%" stop-color="#00c96a"/>
+    <linearGradient id="left" x1="18" y1="26" x2="18" y2="44" gradientUnits="userSpaceOnUse">
+      <stop offset="0%"   stop-color="#10b981"/>
+      <stop offset="100%" stop-color="#059669"/>
     </linearGradient>
-    <!-- Waste fill gradient -->
-    <linearGradient id="fillGrad" x1="16" y1="36" x2="48" y2="54" gradientUnits="userSpaceOnUse">
-      <stop offset="0%" stop-color="#ffd54f"/>
-      <stop offset="100%" stop-color="#ff9800"/>
+    <linearGradient id="right" x1="46" y1="26" x2="46" y2="44" gradientUnits="userSpaceOnUse">
+      <stop offset="0%"   stop-color="#059669"/>
+      <stop offset="100%" stop-color="#047857"/>
     </linearGradient>
-    <!-- Drop shadow filter -->
-    <filter id="shadow" x="-15%" y="-10%" width="130%" height="130%">
-      <feDropShadow dx="0" dy="3" stdDeviation="3" flood-color="rgba(0,0,0,0.4)"/>
+    <linearGradient id="leaf" x1="40" y1="8" x2="54" y2="28" gradientUnits="userSpaceOnUse">
+      <stop offset="0%"   stop-color="#a7f3d0"/>
+      <stop offset="100%" stop-color="#34d399"/>
+    </linearGradient>
+    <linearGradient id="sweep" x1="10" y1="56" x2="54" y2="52" gradientUnits="userSpaceOnUse">
+      <stop offset="0%"   stop-color="rgba(255,255,255,0.85)"/>
+      <stop offset="100%" stop-color="rgba(255,255,255,0.4)"/>
+    </linearGradient>
+    <filter id="shd" x="-20%" y="-15%" width="150%" height="150%">
+      <feDropShadow dx="0" dy="5" stdDeviation="5" flood-color="rgba(0,0,0,0.5)"/>
     </filter>
-    <!-- Glow filter for lid -->
-    <filter id="glow" x="-20%" y="-40%" width="140%" height="180%">
-      <feGaussianBlur stdDeviation="1.5" result="blur"/>
-      <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
-    </filter>
-    <!-- Leaf gradient -->
-    <linearGradient id="leafGr" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0%" stop-color="#a8ff78"/>
-      <stop offset="100%" stop-color="#78ffd6"/>
-    </linearGradient>
   </defs>
 
-  <!-- ── Rounded square base ── -->
-  <rect width="64" height="64" rx="16" fill="url(#bgGrad)"/>
-  <!-- Top-left sheen for 3D convex feel -->
-  <rect width="64" height="64" rx="16" fill="url(#sheen)"/>
-  <!-- Thin border highlight -->
-  <rect x="1" y="1" width="62" height="62" rx="15" fill="none" stroke="rgba(255,255,255,0.18)" stroke-width="1.2"/>
-  <!-- Bottom-right shadow edge -->
-  <rect x="1" y="1" width="62" height="62" rx="15" fill="none" stroke="rgba(0,0,0,0.25)" stroke-width="1" opacity="0.5"/>
+  <!-- Drop shadow -->
+  <rect width="62" height="62" rx="15" fill="rgba(0,0,0,0.38)" transform="translate(3,5)" filter="url(#shd)"/>
 
-  <!-- ── 3D Dustbin (centered, slightly right) ── -->
-  <!-- Cast shadow under bin -->
-  <ellipse cx="33" cy="58" rx="16" ry="3.5" fill="rgba(0,0,0,0.22)"/>
+  <!-- Background -->
+  <rect width="64" height="64" rx="16" fill="url(#bg)"/>
+  <rect width="64" height="64" rx="16" fill="url(#hl)"/>
+  <rect width="64" height="64" rx="16" fill="url(#glow)"/>
+  <rect x="0.8" y="0.8" width="62.4" height="62.4" rx="15.2" fill="none" stroke="rgba(255,255,255,0.16)" stroke-width="1.2"/>
 
-  <!-- Bin body with 3D bevel shadow on right/bottom -->
-  <rect x="17" y="26" width="32" height="28" rx="4.5" fill="rgba(0,0,0,0.18)" transform="translate(2,2)"/>
-  <rect x="17" y="26" width="32" height="28" rx="4.5" fill="url(#binBody)" stroke="rgba(255,255,255,0.35)" stroke-width="1"/>
-  <!-- Left shine panel on body -->
-  <rect x="20" y="29" width="7" height="20" rx="3.5" fill="rgba(255,255,255,0.28)"/>
-  <!-- Vertical ribs -->
-  <line x1="28" y1="28" x2="28" y2="52" stroke="rgba(0,100,60,0.12)" stroke-width="1.2"/>
-  <line x1="35" y1="28" x2="35" y2="52" stroke="rgba(0,100,60,0.12)" stroke-width="1.2"/>
-  <line x1="42" y1="28" x2="42" y2="52" stroke="rgba(0,100,60,0.12)" stroke-width="1.2"/>
+  <!-- 3D Cube shadow -->
+  <polygon points="32,21 18,29 32,37 46,29" fill="rgba(0,0,0,0.18)" transform="translate(2,4)"/>
 
-  <!-- Waste fill inside bin (warm orange = organic waste) -->
-  <rect x="19" y="38" width="28" height="14" rx="2.5" fill="url(#fillGrad)" opacity="0.88"/>
-  <!-- Shine on fill -->
-  <rect x="21" y="39" width="7" height="6" rx="2" fill="rgba(255,255,255,0.25)"/>
+  <!-- Left face -->
+  <polygon points="18,26 18,42 32,50 32,34" fill="url(#left)"/>
+  <line x1="18" y1="26" x2="18" y2="42" stroke="rgba(255,255,255,0.18)" stroke-width="0.8"/>
 
-  <!-- Bin lid — with 3D shadow -->
-  <rect x="14" y="20" width="38" height="8" rx="4" fill="rgba(0,0,0,0.18)" transform="translate(1.5,2)"/>
-  <rect x="14" y="20" width="38" height="8" rx="4" fill="url(#lidGrad)" filter="url(#glow)" stroke="rgba(255,255,255,0.4)" stroke-width="0.8"/>
-  <!-- Lid top shine -->
-  <rect x="17" y="21.5" width="20" height="2.5" rx="1.2" fill="rgba(255,255,255,0.45)"/>
+  <!-- Right face -->
+  <polygon points="46,26 46,42 32,50 32,34" fill="url(#right)"/>
+  <line x1="46" y1="26" x2="46" y2="42" stroke="rgba(0,0,0,0.2)" stroke-width="0.6"/>
 
-  <!-- Handle -->
-  <rect x="26" y="14" width="14" height="8" rx="4" fill="none" stroke="url(#lidGrad)" stroke-width="2.5"/>
-  <rect x="26" y="14" width="14" height="8" rx="4" fill="none" stroke="rgba(255,255,255,0.2)" stroke-width="1"/>
+  <!-- Top face -->
+  <polygon points="32,18 18,26 32,34 46,26" fill="url(#top)"/>
+  <ellipse cx="26" cy="23" rx="4" ry="2.5" fill="rgba(255,255,255,0.35)" transform="rotate(-15,26,23)"/>
 
-  <!-- ── Tiny eco leaf badge (top-right corner) ── -->
-  <circle cx="53" cy="13" r="8" fill="rgba(0,0,0,0.25)"/>
-  <circle cx="53" cy="13" r="8" fill="#1a7a40" stroke="rgba(255,255,255,0.25)" stroke-width="1"/>
-  <!-- Leaf -->
-  <path d="M53 8 C49 8 46 11 46 14 C46 17 48 19 51 19.5 C51 19.5 50 16 52 14 C53.5 12.5 57 12 57 12 C57 12 56 16.5 53 18.5 C54.5 19 57 17.5 58.5 15.5 C60 13.5 59.5 10 58 9 C56.5 8 55 8 53 8 Z" fill="url(#leafGr)" opacity="0.95"/>
-  <!-- Leaf vein -->
-  <path d="M53 9 C52.5 13 51.5 17 51 19" stroke="rgba(0,80,40,0.3)" stroke-width="0.6" fill="none" stroke-linecap="round"/>
+  <!-- Cube edges -->
+  <polyline points="18,26 32,18 46,26 32,34 18,26" fill="none" stroke="rgba(255,255,255,0.12)" stroke-width="0.7"/>
+  <line x1="32" y1="34" x2="32" y2="50" stroke="rgba(0,0,0,0.15)" stroke-width="0.6"/>
 
-  <!-- ── Sparkle dots (bottom-left) ── -->
-  <circle cx="10" cy="52" r="1.4" fill="rgba(255,255,255,0.55)"/>
-  <circle cx="14" cy="57" r="1" fill="rgba(255,255,255,0.35)"/>
-  <circle cx="8" cy="46" r="0.8" fill="rgba(255,255,255,0.3)"/>
+  <!-- Eco leaf -->
+  <path d="M45 10 C41 7 36 9 35 14 C34 19 38 23 42 20 C40 24 37 26 35 26 C38 27 44 24 46 18 C47 14 47 11 45 10 Z" fill="url(#leaf)" opacity="0.95"/>
+  <path d="M39 11 C38 16 37 21 36 26" stroke="rgba(6,78,59,0.35)" stroke-width="0.7" stroke-linecap="round" fill="none"/>
+  <path d="M36 26 Q38 29 41 28" stroke="rgba(110,231,183,0.6)" stroke-width="1.2" stroke-linecap="round" fill="none"/>
+
+  <!-- Sweep arc -->
+  <path d="M10 57 Q21 50 32 49 Q43 50 54 57" stroke="url(#sweep)" stroke-width="2.8" stroke-linecap="round" fill="none"/>
+  <circle cx="10" cy="57" r="1.8" fill="rgba(255,255,255,0.55)"/>
+  <circle cx="54" cy="57" r="1.8" fill="rgba(255,255,255,0.55)"/>
+  <circle cx="32" cy="49" r="1.2" fill="rgba(110,231,183,0.7)"/>
+
+  <!-- Sparkle -->
+  <path d="M11 15 L12 12 L13 15 L16 16 L13 17 L12 20 L11 17 L8 16 Z" fill="rgba(255,255,255,0.55)" opacity="0.7"/>
+  <circle cx="47" cy="43" r="1.2" fill="rgba(255,255,255,0.25)"/>
+  <circle cx="17" cy="43" r="1.0" fill="rgba(255,255,255,0.18)"/>
 </svg>

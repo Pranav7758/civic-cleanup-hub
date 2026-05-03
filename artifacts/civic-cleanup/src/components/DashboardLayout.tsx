@@ -465,6 +465,7 @@ export default function DashboardLayout({ children, title }: DashboardLayoutProp
               border: "1px solid #c8e6c9", borderRadius: 10,
               padding: "7px 10px", cursor: "pointer", display: "flex", alignItems: "center",
               boxShadow: "2px 2px 6px #c5d8c5,-1px -1px 4px #fff",
+              flexShrink: 0,
             }}
             onClick={() => setSidebarOpen(true)}
             data-testid="button-menu"
@@ -472,17 +473,30 @@ export default function DashboardLayout({ children, title }: DashboardLayoutProp
             <Menu style={{ width: 16, height: 16, color: "#2e7d32" }} />
           </button>
 
+          {/* Mobile brand logo — shown only on mobile when no title */}
+          {!title && (
+            <div className="lg:hidden" style={{ display: "flex", alignItems: "center", gap: 8 }}>
+              <SwachhLogoIcon size={30} />
+              <div>
+                <div style={{ fontSize: 13, fontWeight: 900, color: "#1a2e1a", letterSpacing: "-0.01em", fontFamily: "'Inter',sans-serif", lineHeight: 1 }}>
+                  SwachhSaathi
+                </div>
+                <div style={{ fontSize: 9, color: "#5d7a5e", fontWeight: 600, marginTop: 1 }}>Clean &amp; Green India</div>
+              </div>
+            </div>
+          )}
+
           {/* Page title */}
           {title && (
             <h1 className="dl-header-title">
               <Leaf style={{ width: 15, height: 15, color: "#4caf50", flexShrink: 0 }} />
-              {title}
+              <span style={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{title}</span>
             </h1>
           )}
 
           <div style={{ flex: 1 }} />
 
-          {/* ── Eco tagline chip ── */}
+          {/* ── Eco tagline chip (desktop only) ── */}
           <div style={{
             display: "none",
             alignItems: "center", gap: 5, padding: "4px 12px",
@@ -513,7 +527,7 @@ export default function DashboardLayout({ children, title }: DashboardLayoutProp
 
             {notifOpen && (
               <div
-                className="gov-dropdown"
+                className="gov-dropdown notif-dropdown-panel"
                 style={{ position: "absolute", right: 0, top: "calc(100% + 8px)", width: 330, zIndex: 100 }}
               >
                 {/* Dropdown header */}
@@ -596,14 +610,14 @@ export default function DashboardLayout({ children, title }: DashboardLayoutProp
               }}
             >
               <div className="dl-header-avatar">{initial}</div>
-              <span style={{ fontSize: 13, fontWeight: 700, color: "#1a2e1a", fontFamily: "'Inter', sans-serif" }}>
+              <span className="hidden sm:inline" style={{ fontSize: 13, fontWeight: 700, color: "#1a2e1a", fontFamily: "'Inter', sans-serif" }}>
                 {user?.fullName?.split(" ")[0] || "User"}
               </span>
-              <ChevronDown style={{ width: 13, height: 13, color: "#5d7a5e" }} />
+              <ChevronDown className="hidden sm:inline" style={{ width: 13, height: 13, color: "#5d7a5e" }} />
             </button>
 
             {profileOpen && (
-              <div className="gov-dropdown" style={{ position: "absolute", right: 0, top: "calc(100% + 8px)", width: 210, zIndex: 100 }}>
+              <div className="gov-dropdown profile-dropdown-panel" style={{ position: "absolute", right: 0, top: "calc(100% + 8px)", width: 210, zIndex: 100 }}>
                 <div style={{ padding: "12px 16px", borderBottom: "1px solid #c8e6c9", background: "linear-gradient(145deg,#fafffe,#f4faf4)" }}>
                   <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 8 }}>
                     <div className="dl-header-avatar" style={{ width: 36, height: 36, fontSize: 14 }}>{initial}</div>

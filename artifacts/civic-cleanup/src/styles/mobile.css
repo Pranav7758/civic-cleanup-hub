@@ -1,42 +1,67 @@
 /* ═══════════════════════════════════════════════════════════════
    SwachhSaathi — Mobile / Android Responsive Styles
-   Targets: phones ≤768px, small tablets ≤1024px
+   Targets: phones ≤768px, tablets ≤1024px
+   Follows Material Design 3 touch targets (48×48 dp minimum)
 ═══════════════════════════════════════════════════════════════ */
 
-/* ── Bottom nav bar (mobile only) ── */
+/* ── Prevent overscroll bounce / pull-to-refresh on Android ── */
+html, body {
+  overscroll-behavior: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* ── Smooth scrolling for all scrollable containers ── */
+.dl-main-content,
+.dash-scroll {
+  -webkit-overflow-scrolling: touch;
+  scroll-behavior: smooth;
+}
+
+/* ── All buttons: prevent double-tap zoom on Android ── */
+button, a, [role="button"] {
+  touch-action: manipulation;
+}
+
+/* ══════════════════════════════════════════════
+   BOTTOM NAVIGATION BAR (mobile only)
+══════════════════════════════════════════════ */
 .mobile-bottom-nav {
   display: none;
   position: fixed;
   bottom: 0; left: 0; right: 0;
-  height: 62px;
-  background: linear-gradient(180deg, #1b5e20 0%, #145214 100%);
-  border-top: 1px solid rgba(255,255,255,0.12);
-  box-shadow: 0 -4px 20px rgba(27,94,32,0.55);
+  height: 64px;
+  background: linear-gradient(180deg, #1b5e20 0%, #143d16 100%);
+  border-top: 1px solid rgba(255,255,255,0.1);
+  box-shadow: 0 -4px 24px rgba(27,94,32,0.6), 0 -1px 0 rgba(255,255,255,0.06);
   z-index: 100;
   overflow-x: auto;
+  overflow-y: hidden;
   -webkit-overflow-scrolling: touch;
 }
 .mobile-bottom-nav::-webkit-scrollbar { display: none; }
+
 .mobile-bottom-nav-inner {
   display: flex;
   align-items: stretch;
   height: 100%;
   min-width: max-content;
-  padding: 0 2px;
+  padding: 0 4px;
 }
+
 .mobile-nav-item {
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   gap: 3px;
-  padding: 6px 14px;
-  min-width: 64px;
+  padding: 6px 12px;
+  min-width: 62px;
+  min-height: 48px; /* MD3 minimum touch target */
   cursor: pointer;
   border: none;
   background: transparent;
-  color: rgba(255,255,255,0.55);
-  font-size: 9px;
+  color: rgba(255,255,255,0.52);
+  font-size: 9.5px;
   font-weight: 600;
   font-family: 'Inter', sans-serif;
   text-decoration: none;
@@ -44,88 +69,183 @@
   -webkit-tap-highlight-color: transparent;
   white-space: nowrap;
   position: relative;
+  border-radius: 12px;
+  margin: 6px 2px;
 }
 .mobile-nav-item.active {
   color: #fff;
-  background: rgba(255,255,255,0.12);
-  border-radius: 12px;
-  margin: 6px 2px;
+  background: rgba(255,255,255,0.14);
 }
 .mobile-nav-item.active::before {
   content: '';
   position: absolute;
-  top: 0; left: 50%; transform: translateX(-50%);
-  width: 28px; height: 3px;
-  background: #a5d6a7;
-  border-radius: 0 0 3px 3px;
+  top: -6px; left: 50%;
+  transform: translateX(-50%);
+  width: 32px; height: 3px;
+  background: linear-gradient(90deg, #a5d6a7, #66bb6a);
+  border-radius: 0 0 4px 4px;
 }
+
 .mobile-nav-icon-wrap {
-  width: 30px; height: 30px;
-  border-radius: 9px;
+  width: 28px; height: 28px;
+  border-radius: 8px;
   display: flex; align-items: center; justify-content: center;
   background: transparent;
-  transition: background 0.15s;
+  transition: background 0.15s, transform 0.15s;
 }
 .mobile-nav-item.active .mobile-nav-icon-wrap {
-  background: rgba(255,255,255,0.18);
+  background: rgba(255,255,255,0.2);
+  transform: translateY(-1px);
 }
+
 .mobile-nav-badge {
   position: absolute;
-  top: 4px; right: 10px;
-  background: #ef5350;
+  top: 2px; right: 6px;
+  background: linear-gradient(135deg, #ef5350, #c62828);
   color: #fff;
   font-size: 8px;
   font-weight: 800;
   padding: 1px 5px;
   border-radius: 999px;
   line-height: 1.4;
+  box-shadow: 0 1px 4px rgba(198,40,40,0.5);
 }
 
-/* ── Make content not hidden behind bottom nav on mobile ── */
+/* ══════════════════════════════════════════════
+   SHOW BOTTOM NAV + ADJUST CONTENT ON MOBILE
+══════════════════════════════════════════════ */
 @media (max-width: 1023px) {
   .mobile-bottom-nav { display: flex; }
-  .dl-main-content { padding-bottom: 74px !important; }
 
-  /* Smaller content padding on mobile */
-  .dl-main-content { padding: 14px 12px !important; }
+  .dl-main-content {
+    padding: 14px 12px 80px !important;
+  }
 
-  /* Tighter header on mobile */
-  .dash-header { padding: 0 12px !important; height: 50px !important; }
+  /* Tighter header */
+  .dash-header {
+    padding: 0 10px !important;
+    height: 52px !important;
+  }
 
-  /* Hide desktop title on small screens to save space */
-  .dl-header-title-text { display: none !important; }
+  /* Hide desktop-only elements */
+  .dl-header-title { font-size: 13px !important; }
 }
 
-/* ── Responsive grid helpers ── */
+/* ══════════════════════════════════════════════
+   SAFE AREA (Android nav bar + iOS home bar)
+══════════════════════════════════════════════ */
+@supports (padding-bottom: env(safe-area-inset-bottom)) {
+  .mobile-bottom-nav {
+    padding-bottom: env(safe-area-inset-bottom);
+    height: calc(64px + env(safe-area-inset-bottom));
+  }
+  @media (max-width: 1023px) {
+    .dl-main-content {
+      padding-bottom: calc(80px + env(safe-area-inset-bottom)) !important;
+    }
+  }
+}
+
+/* ══════════════════════════════════════════════
+   CARD & GRID RESPONSIVENESS
+══════════════════════════════════════════════ */
 @media (max-width: 768px) {
-  /* Stack 2+ column grids to 1 column */
+  /* Stack multi-column grids to 1 col */
   .mob-col-1 { grid-template-columns: 1fr !important; }
   .mob-col-2 { grid-template-columns: 1fr 1fr !important; }
 
-  /* Cards full width */
+  /* Cards */
   .gov-card { border-radius: 12px !important; }
-  .gov-stat-card { padding: 12px 10px !important; }
-  .gov-stat-value { font-size: 22px !important; }
+  .gov-card-body { padding: 12px 14px !important; }
+  .gov-card-header { padding: 10px 14px !important; }
+  .gov-stat-card { padding: 12px 10px !important; border-radius: 12px !important; }
+  .gov-stat-value { font-size: 24px !important; }
+  .gov-stat-label { font-size: 11px !important; }
 
-  /* Tables scroll horizontally */
-  .mob-table-scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; }
-
-  /* Reduce font sizes */
+  /* Font sizes */
   .gov-section-title { font-size: 13px !important; }
-  .gov-page-title { font-size: 15px !important; }
+  .gov-page-title { font-size: 14px !important; }
+  .gov-section-sub { font-size: 11px !important; }
 
-  /* Make buttons full-width friendly */
+  /* Full-width buttons */
   .mob-btn-full { width: 100% !important; justify-content: center !important; }
+
+  /* Page header padding */
+  .gov-page-header { padding: 12px 14px !important; flex-wrap: wrap; gap: 8px; }
 }
 
-/* ── Bin card mobile layout ── */
+/* ══════════════════════════════════════════════
+   TABLES → horizontal scroll on mobile
+══════════════════════════════════════════════ */
 @media (max-width: 768px) {
-  .sb-bin-grid { grid-template-columns: 1fr 1fr !important; gap: 10px !important; }
-  .sb-stat-grid { grid-template-columns: 1fr 1fr !important; }
-  .sb-map-wrap { display: none; } /* hide complex map on tiny screens */
+  .mob-table-scroll {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    border-radius: 12px;
+  }
+  .mob-table-scroll .gov-table { min-width: 480px; }
+  .gov-table th,
+  .gov-table td { padding: 9px 12px !important; font-size: 12px !important; }
 }
 
-/* ── Dustbin fill gauge ── */
+/* ══════════════════════════════════════════════
+   MINIMUM TOUCH TARGETS (Material Design 3)
+══════════════════════════════════════════════ */
+@media (max-width: 768px) {
+  .gov-btn         { min-height: 44px; padding: 10px 18px !important; }
+  .gov-btn-sm      { min-height: 38px; }
+  .gov-btn-xs      { min-height: 32px; }
+  .dash-nav-item   { padding: 12px 18px !important; min-height: 48px; }
+  .gov-input       { min-height: 44px; font-size: 16px !important; } /* 16px prevents iOS zoom */
+  .gov-select      { min-height: 44px; font-size: 16px !important; }
+}
+
+/* ══════════════════════════════════════════════
+   SPECIFIC PAGE LAYOUTS
+══════════════════════════════════════════════ */
+/* Citizen dashboard */
+@media (max-width: 768px) {
+  .citizen-dash-top  { grid-template-columns: 1fr !important; }
+  .citizen-stats-row { grid-template-columns: 1fr 1fr !important; gap: 10px !important; }
+}
+
+/* Worker pages */
+@media (max-width: 768px) {
+  .worker-report-grid { grid-template-columns: 1fr !important; }
+  .worker-task-action { flex-direction: row !important; flex-wrap: wrap; gap: 8px !important; }
+  .task-page-grid     { grid-template-columns: 1fr !important; }
+  .task-map           { height: 200px !important; }
+}
+
+/* Smart bins */
+@media (max-width: 768px) {
+  .sb-bin-grid  { grid-template-columns: 1fr 1fr !important; gap: 10px !important; }
+  .sb-stat-grid { grid-template-columns: 1fr 1fr !important; }
+  .sb-map-wrap  { display: none; }
+}
+
+/* ══════════════════════════════════════════════
+   AUTH PAGE — Android optimised
+══════════════════════════════════════════════ */
+@media (max-width: 480px) {
+  .auth-card-wrap {
+    padding: 0 10px !important;
+  }
+  .auth-brand-block {
+    padding: 16px 14px 14px !important;
+  }
+  .auth-demo-grid {
+    grid-template-columns: 1fr 1fr 1fr !important;
+    gap: 6px !important;
+  }
+  .auth-tab-row {
+    gap: 0 !important;
+  }
+}
+
+/* ══════════════════════════════════════════════
+   FILL GAUGE & BIN STATUS COMPONENTS
+══════════════════════════════════════════════ */
 .bin-fill-gauge-wrap {
   display: flex;
   align-items: flex-end;
@@ -141,7 +261,7 @@
 }
 .bin-fill-track {
   width: 100%;
-  height: 7px;
+  height: 8px;
   background: #e8f5e9;
   border-radius: 999px;
   overflow: hidden;
@@ -154,41 +274,69 @@
   transition: width 0.5s ease;
 }
 
-/* ── Touch-friendly tap targets ── */
-@media (max-width: 768px) {
-  .gov-btn { min-height: 40px; }
-  .gov-btn-sm { min-height: 34px; }
-  .gov-btn-xs { min-height: 28px; }
-  .dash-nav-item { padding: 12px 16px !important; }
-}
-
-/* ── Worker reports page mobile ── */
-@media (max-width: 768px) {
-  .worker-report-grid { grid-template-columns: 1fr !important; }
-  .worker-task-action { flex-direction: row !important; }
-}
-
-/* ── Worker task page mobile ── */
-@media (max-width: 768px) {
-  .task-page-grid { grid-template-columns: 1fr !important; }
-  .task-map { height: 220px !important; }
-}
-
-/* ── Citizen dashboard mobile ── */
-@media (max-width: 768px) {
-  .citizen-dash-top { grid-template-columns: 1fr !important; }
-  .citizen-stats-row { grid-template-columns: 1fr 1fr !important; }
-}
-
-/* ── Safe area for notch/home-bar (iOS/Android) ── */
-@supports (padding-bottom: env(safe-area-inset-bottom)) {
-  .mobile-bottom-nav {
-    padding-bottom: env(safe-area-inset-bottom);
-    height: calc(62px + env(safe-area-inset-bottom));
+/* ══════════════════════════════════════════════
+   DROPDOWN — full screen on very small phones
+══════════════════════════════════════════════ */
+@media (max-width: 400px) {
+  .gov-dropdown {
+    position: fixed !important;
+    left: 8px !important; right: 8px !important;
+    top: auto !important;
+    max-height: 55vh;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
   }
-  @media (max-width: 1023px) {
-    .dl-main-content {
-      padding-bottom: calc(74px + env(safe-area-inset-bottom)) !important;
-    }
+}
+
+/* ══════════════════════════════════════════════
+   TABS — scroll horizontally on small screens
+══════════════════════════════════════════════ */
+@media (max-width: 600px) {
+  .gov-tabs {
+    flex-wrap: nowrap !important;
+    overflow-x: auto;
+    overflow-y: hidden;
+    -webkit-overflow-scrolling: touch;
+    padding-bottom: 4px;
+    gap: 6px !important;
   }
+  .gov-tabs::-webkit-scrollbar { display: none; }
+  .gov-tab {
+    flex-shrink: 0;
+    padding: 8px 14px !important;
+    font-size: 12px !important;
+  }
+}
+
+/* ══════════════════════════════════════════════
+   NOTIFICATION DROPDOWN — mobile full width
+══════════════════════════════════════════════ */
+@media (max-width: 768px) {
+  .notif-dropdown-panel {
+    position: fixed !important;
+    left: 8px !important;
+    right: 8px !important;
+    top: 58px !important;
+    max-height: 60vh;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+  .profile-dropdown-panel {
+    position: fixed !important;
+    right: 8px !important;
+    top: 58px !important;
+    left: auto !important;
+    min-width: 200px !important;
+  }
+}
+
+/* ══════════════════════════════════════════════
+   SMALL PHONES (< 360px, older Android)
+══════════════════════════════════════════════ */
+@media (max-width: 359px) {
+  .gov-stat-value { font-size: 20px !important; }
+  .gov-section-title { font-size: 12px !important; }
+  .mobile-nav-item { min-width: 54px !important; padding: 6px 8px !important; font-size: 8.5px !important; }
+  .gov-card-body { padding: 10px !important; }
+  .gov-badge { font-size: 9.5px !important; padding: 2px 7px !important; }
 }
