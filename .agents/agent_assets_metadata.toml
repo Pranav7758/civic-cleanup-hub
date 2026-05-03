@@ -1,0 +1,8 @@
+uploads = []
+generated = []
+
+[[outputs]]
+id = "-guBYOaJr36Y_QtLm1Fd1"
+uri = "file://README.md"
+type = "text"
+title = "SwachhSaathi — Full Ecosystem README"
