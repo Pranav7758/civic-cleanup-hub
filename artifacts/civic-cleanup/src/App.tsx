@@ -39,6 +39,10 @@ import CitizenUrgentNeedsPage from "@/pages/citizen/CitizenUrgentNeedsPage";
 
 // Scrap Dealer
 import ScrapDealerDashboard from "@/pages/scrap/ScrapDealerDashboard";
+import ScrapListingsPage from "@/pages/scrap/ScrapListingsPage";
+import ScrapSchedulePage from "@/pages/scrap/ScrapSchedulePage";
+import ScrapAnalyticsPage from "@/pages/scrap/ScrapAnalyticsPage";
+import ScrapPricingPage from "@/pages/scrap/ScrapPricingPage";
 
 // Admin
 import AdminDashboard from "@/pages/admin/AdminDashboard";
@@ -183,9 +187,18 @@ function AppRouter() {
         <AuthGuard role="scrap_dealer"><ScrapDealerDashboard /></AuthGuard>
       </Route>
       <Route path="/scrap/listings">
-        <AuthGuard role="scrap_dealer"><ScrapDealerDashboard /></AuthGuard>
+        <AuthGuard role="scrap_dealer"><ScrapListingsPage /></AuthGuard>
+      </Route>
+      <Route path="/scrap/schedule">
+        <AuthGuard role="scrap_dealer"><ScrapSchedulePage /></AuthGuard>
+      </Route>
+      <Route path="/scrap/analytics">
+        <AuthGuard role="scrap_dealer"><ScrapAnalyticsPage /></AuthGuard>
       </Route>
       <Route path="/scrap/prices">
+        <AuthGuard role="scrap_dealer"><ScrapPricingPage /></AuthGuard>
+      </Route>
+      <Route path="/scrap/settings">
         <AuthGuard role="scrap_dealer"><ScrapDealerDashboard /></AuthGuard>
       </Route>
 

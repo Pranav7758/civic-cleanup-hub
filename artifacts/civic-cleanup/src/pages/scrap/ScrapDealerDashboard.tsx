@@ -1,9 +1,9 @@
 import { useState } from "react";
-import { Link } from "wouter";
+import { useLocation } from "wouter";
 import {
   useGetScrapListings, useUpdateScrapListing, getGetScrapListingsQueryKey,
 } from "@workspace/api-client-react";
-import { Recycle, CheckCircle, MapPin, Package, ArrowUp, ArrowDown, Search } from "lucide-react";
+import { Recycle, TrendingUp, BarChart3, Truck, MapPin, CheckCircle, Clock } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useQueryClient } from "@tanstack/react-query";
 import { useAuth } from "@/context/AuthContext";
@@ -11,320 +11,258 @@ import DashboardLayout from "@/components/DashboardLayout";
 import "@/styles/dashboard.css";
 import "@/styles/scrap.css";
 
-const SCRAP_TYPES = [
-  { id:1, name:"Plastic",   icon:"🧴", price:12,  unit:"kg", trend:+8,  stock:"High",   sellers:24, color:"#1a5276" },
-  { id:2, name:"Metal",     icon:"⚙️",  price:45,  unit:"kg", trend:+3,  stock:"Medium", sellers:18, color:"#b7950b" },
-  { id:3, name:"Paper",     icon:"📄", price:8,   unit:"kg", trend:-2,  stock:"High",   sellers:31, color:"#1e8449" },
-  { id:4, name:"E-Waste",   icon:"💻", price:120, unit:"kg", trend:+15, stock:"Low",    sellers:9,  color:"#6c3483" },
-  { id:5, name:"Glass",     icon:"🍶", price:6,   unit:"kg", trend:-1,  stock:"Medium", sellers:12, color:"#c0392b" },
-  { id:6, name:"Cardboard", icon:"📦", price:5,   unit:"kg", trend:+1,  stock:"High",   sellers:27, color:"#ca6f1e" },
-];
+const WEEK_EARNINGS = [3200, 5800, 4100, 7200, 3840, 6500, 5100];
+const WEEK_LABELS   = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
+const MAX_EARN = Math.max(...WEEK_EARNINGS);
 
-const INVENTORY = [
-  { id:1, type:"Plastic",   qty:340, unit:"kg", status:"available", value:4080,  icon:"🧴" },
-  { id:2, type:"Metal",     qty:120, unit:"kg", status:"available", value:5400,  icon:"⚙️"  },
-  { id:3, type:"E-Waste",   qty:28,  unit:"kg", status:"sold",      value:3360,  icon:"💻" },
-  { id:4, type:"Paper",     qty:500, unit:"kg", status:"available", value:4000,  icon:"📄" },
-  { id:5, type:"Cardboard", qty:200, unit:"kg", status:"reserved",  value:1000,  icon:"📦" },
+const MATERIAL_BREAKDOWN = [
+  { name: "Metal",     pct: 38, color: "#ffa000", icon: "⚙️"  },
+  { name: "E-Waste",   pct: 27, color: "#e64a19", icon: "💻" },
+  { name: "Plastic",   pct: 20, color: "#ff6f00", icon: "🧴" },
+  { name: "Paper",     pct: 10, color: "#ffb300", icon: "📄" },
+  { name: "Other",     pct:  5, color: "#ff8f00", icon: "📦" },
 ];
-
-const ORDERS = [
-  { id:"ORD-001", type:"Plastic",  qty:80,  price:960,  buyer:"Ravi Scrap Co.",    status:"completed", time:"2h ago"    },
-  { id:"ORD-002", type:"E-Waste",  qty:12,  price:1440, buyer:"TechRecycle Ltd.",  status:"pending",   time:"4h ago"    },
-  { id:"ORD-003", type:"Metal",    qty:45,  price:2025, buyer:"Metro Metals",      status:"completed", time:"Yesterday" },
-  { id:"ORD-004", type:"Paper",    qty:200, price:1600, buyer:"GreenPaper Mills",  status:"accepted",  time:"Yesterday" },
-];
-
-function statusBadge(s: string) {
-  const m: Record<string, string> = {
-    completed: "gov-badge gov-badge-green",
-    pending:   "gov-badge gov-badge-yellow",
-    accepted:  "gov-badge gov-badge-blue",
-    cancelled: "gov-badge gov-badge-red",
-    available: "gov-badge gov-badge-green",
-    sold:      "gov-badge gov-badge-gray",
-    reserved:  "gov-badge gov-badge-purple",
-  };
-  return m[s] || "gov-badge gov-badge-gray";
-}
 
 export default function ScrapDealerDashboard() {
   const { user } = useAuth();
   const { toast } = useToast();
   const qc = useQueryClient();
-  const [tab, setTab]           = useState<"marketplace" | "inventory" | "orders">("marketplace");
-  const [searchQ, setSearchQ]   = useState("");
-  const [buyingId, setBuyingId] = useState<string | null>(null);
+  const [, setLocation] = useLocation();
+  const [accepting, setAccepting] = useState<string | null>(null);
 
-  const { data: allData, isLoading: allLoading } = useGetScrapListings({ status: "pending" } as any);
-  const { data: myData }                         = useGetScrapListings({ dealerId: user?.id } as any);
+  const { data: allData, isLoading } = useGetScrapListings({ status: "pending" } as any);
   const updateListing = useUpdateScrapListing();
 
   const allListings: any[] = (allData as any)?.data || [];
+  const recentRequests = allListings.slice(0, 4);
 
   const handleAccept = (id: string) => {
-    setBuyingId(id);
+    setAccepting(id);
     updateListing.mutate({ id, data: { status: "accepted", dealerId: user?.id } }, {
-      onSuccess: () => { toast({ title: "Deal accepted!" }); qc.invalidateQueries({ queryKey: getGetScrapListingsQueryKey({}) }); },
+      onSuccess: () => {
+        toast({ title: "Request accepted!", description: "Citizen notified. Added to your schedule." });
+        qc.invalidateQueries({ queryKey: getGetScrapListingsQueryKey({}) });
+      },
       onError:   (err: any) => toast({ title: "Failed", description: err.message, variant: "destructive" }),
-      onSettled: () => setBuyingId(null),
+      onSettled: () => setAccepting(null),
     });
   };
 
-  const handleComplete = (id: string) => {
-    updateListing.mutate({ id, data: { status: "completed" } }, {
-      onSuccess: () => { toast({ title: "Deal completed! Citizen rewarded." }); qc.invalidateQueries({ queryKey: getGetScrapListingsQueryKey({}) }); },
-      onError:   (err: any) => toast({ title: "Failed", description: err.message, variant: "destructive" }),
-    });
-  };
+  const QUICK_ACTIONS = [
+    { label: "Citizen Requests", icon: Recycle, color: "#e64a19", desc: `${allListings.length} pending`, path: "/scrap/listings" },
+    { label: "Pickup Schedule",  icon: Truck,     color: "#f57c00", desc: "Today's route",              path: "/scrap/schedule"  },
+    { label: "Market Pricing",   icon: TrendingUp, color: "#ffa000", desc: "Live prices",               path: "/scrap/prices"    },
+    { label: "Analytics",        icon: BarChart3,  color: "#ff6f00", desc: "Earnings & stats",          path: "/scrap/analytics" },
+  ];
 
-  const filteredListings = allListings.filter(l =>
-    !searchQ ||
-    l.items?.some((i: any) => i.itemName?.toLowerCase().includes(searchQ.toLowerCase())) ||
-    l.address?.toLowerCase().includes(searchQ.toLowerCase())
-  );
-
-  const totalInventoryValue = INVENTORY.filter(i => i.status === "available").reduce((a, b) => a + b.value, 0);
-
-  const S: React.CSSProperties = { fontFamily: "'Roboto', Arial, sans-serif" };
+  const S: React.CSSProperties = { fontFamily: "'Inter', Arial, sans-serif" };
 
   return (
-    <DashboardLayout title="Scrap Dealer">
+    <DashboardLayout title="Kabadi Hub">
       <div style={{ ...S, display: "flex", flexDirection: "column", gap: 18 }}>
 
-        {/* ── Header stats ── */}
-        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-          <div>
-            <h2 style={{ fontSize: 17, fontWeight: 800, color: "#1c2833", margin: 0 }}>Kabadi Hub Dashboard</h2>
-            <div style={{ fontSize: 12, color: "#5d6d7e", marginTop: 2 }}>Live marketplace · Prices updated 2 min ago</div>
-          </div>
-          <div style={{ textAlign: "right" }}>
-            <div style={{ fontSize: 11, color: "#5d6d7e" }}>Wallet Balance</div>
-            <div style={{ fontSize: 22, fontWeight: 800, color: "#b7950b" }}>₹28,450</div>
+        {/* Hero */}
+        <div style={{ background: "linear-gradient(135deg,#7f2500 0%,#bf360c 35%,#e64a19 65%,#f57c00 100%)", borderRadius: 22, padding: "22px 26px", color: "#fff", boxShadow: "0 12px 36px rgba(191,54,12,0.4)", position: "relative", overflow: "hidden" }}>
+          <div style={{ position: "absolute", top: -40, right: -40, width: 150, height: 150, borderRadius: "50%", background: "rgba(255,255,255,0.07)" }} />
+          <div style={{ position: "absolute", bottom: -20, left: -20, width: 100, height: 100, borderRadius: "50%", background: "rgba(255,255,255,0.05)" }} />
+          <div style={{ position: "relative", zIndex: 1, display: "flex", alignItems: "flex-start", justifyContent: "space-between", flexWrap: "wrap", gap: 12 }}>
+            <div>
+              <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 8 }}>
+                <div style={{ width: 44, height: 44, borderRadius: 13, background: "rgba(255,255,255,0.18)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 24, boxShadow: "inset 1px 1px 4px rgba(255,255,255,0.2)" }}>
+                  ♻️
+                </div>
+                <div>
+                  <div style={{ fontSize: 18, fontWeight: 900, letterSpacing: "-0.01em" }}>Kabadi Hub Dashboard</div>
+                  <div style={{ fontSize: 11, color: "rgba(255,255,255,0.75)", marginTop: 1 }}>Scrap Dealer Portal — India's Circular Economy</div>
+                </div>
+              </div>
+              <div style={{ display: "flex", gap: 20 }}>
+                <div><div style={{ fontSize: 24, fontWeight: 900 }}>₹28,450</div><div style={{ fontSize: 10, color: "rgba(255,255,255,0.7)" }}>Wallet Balance</div></div>
+                <div style={{ width: 1, background: "rgba(255,255,255,0.2)" }} />
+                <div><div style={{ fontSize: 24, fontWeight: 900 }}>₹35,840</div><div style={{ fontSize: 10, color: "rgba(255,255,255,0.7)" }}>This Month</div></div>
+                <div style={{ width: 1, background: "rgba(255,255,255,0.2)" }} />
+                <div><div style={{ fontSize: 24, fontWeight: 900 }}>1,240</div><div style={{ fontSize: 10, color: "rgba(255,255,255,0.7)" }}>kg Collected</div></div>
+              </div>
+            </div>
+            <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+              <button onClick={() => setLocation("/scrap/listings")}
+                style={{ padding: "9px 18px", background: "rgba(255,255,255,0.18)", border: "1px solid rgba(255,255,255,0.35)", borderRadius: 10, color: "#fff", cursor: "pointer", fontSize: 12, fontWeight: 700, backdropFilter: "blur(4px)", whiteSpace: "nowrap" }}>
+                🔔 {allListings.length} New Requests
+              </button>
+              <button onClick={() => setLocation("/scrap/schedule")}
+                style={{ padding: "9px 18px", background: "rgba(0,0,0,0.18)", border: "1px solid rgba(255,255,255,0.2)", borderRadius: 10, color: "#fff", cursor: "pointer", fontSize: 12, fontWeight: 700, whiteSpace: "nowrap" }}>
+                🗺️ View Today's Route
+              </button>
+            </div>
           </div>
         </div>
 
-        {/* ── Summary stats ── */}
-        <div className="cd-4col" style={{ display: "grid", gridTemplateColumns: "repeat(4,1fr)", gap: 12 }}>
+        {/* Stats */}
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(4,1fr)", gap: 12 }}>
           {[
-            { label:"Today's Earnings", value:"₹3,840",   icon:"💰", color:"#b7950b" },
-            { label:"Weekly Revenue",   value:"₹21,600",  icon:"📈", color:"#1e8449" },
-            { label:"Scrap Sold",       value:"480 kg",   icon:"⚖️", color:"#1a5276" },
-            { label:"Active Listings",  value:String(allListings.length||12), icon:"📋", color:"#6c3483" },
+            { label: "Today's Earnings", value: "₹3,840",  icon: "💰", color: "#e64a19", bg: "linear-gradient(135deg,#fff3e0,#fbe9e7)" },
+            { label: "Weekly Revenue",   value: "₹21,600", icon: "📈", color: "#f57c00", bg: "linear-gradient(135deg,#fff8e1,#fff3e0)" },
+            { label: "Active Pickups",   value: String(allListings.length || 0), icon: "🚛", color: "#ff8f00", bg: "linear-gradient(135deg,#fffde7,#fff8e1)" },
+            { label: "Kg Collected",     value: "480 kg",  icon: "⚖️", color: "#ffa000", bg: "linear-gradient(135deg,#fff3e0,#fce4ec)" },
           ].map(s => (
-            <div key={s.label} className="gov-stat-card" style={{ borderLeft: `3px solid ${s.color}` }}>
-              <span style={{ fontSize: 22 }}>{s.icon}</span>
-              <div className="gov-stat-value" style={{ color: s.color }}>{s.value}</div>
-              <div className="gov-stat-label">{s.label}</div>
+            <div key={s.label} style={{ background: s.bg, borderRadius: 16, padding: "16px 18px", border: `1.5px solid ${s.color}30`, boxShadow: `0 4px 16px ${s.color}18`, display: "flex", flexDirection: "column", gap: 6 }}>
+              <span style={{ fontSize: 26 }}>{s.icon}</span>
+              <div style={{ fontSize: 20, fontWeight: 900, color: s.color }}>{s.value}</div>
+              <div style={{ fontSize: 10, fontWeight: 700, color: "#8d6e63", textTransform: "uppercase", letterSpacing: ".06em" }}>{s.label}</div>
             </div>
           ))}
         </div>
 
-        {/* ── Tab bar ── */}
-        <div className="gov-tabs">
-          {([
-            { key:"marketplace", label:"🛒 Marketplace" },
-            { key:"inventory",   label:"📦 Inventory"   },
-            { key:"orders",      label:"📋 Orders"      },
-          ] as const).map(t => (
-            <button key={t.key} className={`gov-tab${tab === t.key ? " active" : ""}`} onClick={() => setTab(t.key)}>
-              {t.label}
+        {/* Quick actions */}
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(4,1fr)", gap: 12 }}>
+          {QUICK_ACTIONS.map(a => (
+            <button key={a.label} onClick={() => setLocation(a.path)}
+              style={{
+                background: "#fff", borderRadius: 18, padding: "18px 14px",
+                border: `1.5px solid ${a.color}30`,
+                boxShadow: `0 6px 20px ${a.color}18`,
+                cursor: "pointer", textAlign: "center",
+                transition: "transform .2s ease, box-shadow .2s ease",
+                display: "flex", flexDirection: "column", alignItems: "center", gap: 8,
+              }}
+              onMouseEnter={e => { (e.currentTarget as HTMLElement).style.transform = "translateY(-4px)"; (e.currentTarget as HTMLElement).style.boxShadow = `0 12px 32px ${a.color}30`; }}
+              onMouseLeave={e => { (e.currentTarget as HTMLElement).style.transform = "translateY(0)"; (e.currentTarget as HTMLElement).style.boxShadow = `0 6px 20px ${a.color}18`; }}
+            >
+              <div style={{ width: 46, height: 46, borderRadius: 14, background: `linear-gradient(135deg,${a.color},${a.color}cc)`, display: "flex", alignItems: "center", justifyContent: "center", boxShadow: `0 4px 14px ${a.color}50` }}>
+                <a.icon style={{ width: 22, height: 22, color: "#fff" }} />
+              </div>
+              <div style={{ fontSize: 12, fontWeight: 800, color: "#2d2d2d" }}>{a.label}</div>
+              <div style={{ fontSize: 10, color: "#8d6e63" }}>{a.desc}</div>
             </button>
           ))}
         </div>
 
-        {/* ══ MARKETPLACE TAB ══ */}
-        {tab === "marketplace" && (
-          <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
+        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
 
-            {/* Price ticker */}
-            <div className="gov-card">
-              <div className="gov-card-header"><span className="gov-section-title">Live Market Prices</span></div>
-              <div style={{ overflowX: "auto" }}>
-                <table className="gov-table">
-                  <thead>
-                    <tr><th>Material</th><th>Price</th><th>Trend</th><th>Stock Level</th><th>Sellers</th><th>Action</th></tr>
-                  </thead>
-                  <tbody>
-                    {SCRAP_TYPES.map(s => (
-                      <tr key={s.id}>
-                        <td>
-                          <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                            <span style={{ fontSize: 20 }}>{s.icon}</span>
-                            <span style={{ fontSize: 13, fontWeight: 600, color: "#1c2833" }}>{s.name}</span>
-                          </div>
-                        </td>
-                        <td style={{ fontSize: 14, fontWeight: 800, color: s.color }}>₹{s.price}/{s.unit}</td>
-                        <td>
-                          <span style={{ fontSize: 12, fontWeight: 700, color: s.trend > 0 ? "#1e8449" : "#c0392b", display: "flex", alignItems: "center", gap: 2 }}>
-                            {s.trend > 0 ? <ArrowUp style={{ width: 12, height: 12 }} /> : <ArrowDown style={{ width: 12, height: 12 }} />}
-                            {Math.abs(s.trend)}%
-                          </span>
-                        </td>
-                        <td>
-                          <span className={s.stock === "High" ? "gov-badge gov-badge-green" : s.stock === "Low" ? "gov-badge gov-badge-red" : "gov-badge gov-badge-yellow"}>
-                            {s.stock}
-                          </span>
-                        </td>
-                        <td style={{ fontSize: 12, color: "#5d6d7e" }}>{s.sellers} sellers</td>
-                        <td><button className="gov-btn gov-btn-primary gov-btn-xs">Buy Now</button></td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
+          {/* Recent citizen requests */}
+          <div style={{ background: "#fff", borderRadius: 18, border: "1.5px solid #ffccbc", boxShadow: "0 4px 20px rgba(230,74,25,0.08)" }}>
+            <div style={{ padding: "14px 18px", borderBottom: "1px solid #ffe0b2", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                <Recycle style={{ width: 15, height: 15, color: "#e64a19" }} />
+                <span style={{ fontSize: 14, fontWeight: 800, color: "#2d2d2d" }}>Recent Requests</span>
               </div>
+              <button onClick={() => setLocation("/scrap/listings")} style={{ fontSize: 11, fontWeight: 700, color: "#e64a19", background: "none", border: "none", cursor: "pointer" }}>View all →</button>
             </div>
-
-            {/* Citizen Listings */}
-            <div className="gov-card">
-              <div className="gov-card-header">
-                <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                  <Recycle style={{ width: 14, height: 14, color: "#b7950b" }} />
-                  <span className="gov-section-title">Citizen Listings</span>
-                  <span className="gov-badge gov-badge-yellow">{allListings.length} available</span>
-                </div>
-                <div style={{ display: "flex", alignItems: "center", gap: 6, border: "1px solid #d5dae1", borderRadius: 3, padding: "4px 8px", background: "#fff" }}>
-                  <Search style={{ width: 12, height: 12, color: "#909caa" }} />
-                  <input
-                    value={searchQ}
-                    onChange={e => setSearchQ(e.target.value)}
-                    placeholder="Search listings…"
-                    style={{ border: "none", outline: "none", fontSize: 12, color: "#1c2833", width: 120, background: "transparent" }}
-                  />
-                </div>
+            {isLoading ? (
+              <div style={{ padding: 16 }}>{[1,2,3].map(i => <div key={i} style={{ height: 52, background: "#fafafa", borderRadius: 10, marginBottom: 8 }} />)}</div>
+            ) : recentRequests.length === 0 ? (
+              <div style={{ padding: "36px 16px", textAlign: "center" }}>
+                <div style={{ fontSize: 36, marginBottom: 8 }}>🎉</div>
+                <div style={{ fontSize: 13, color: "#8d6e63" }}>No pending requests</div>
               </div>
-
-              {allLoading ? (
-                <div style={{ padding: 18 }}>
-                  {[1,2,3].map(i => <div key={i} style={{ height: 56, background: "#f4f6f9", borderRadius: 3, marginBottom: 6 }} />)}
-                </div>
-              ) : filteredListings.length === 0 ? (
-                <div style={{ textAlign: "center", padding: "32px 18px", color: "#5d6d7e" }}>
-                  <div style={{ fontSize: 28 }}>♻️</div>
-                  <div style={{ fontSize: 13, marginTop: 6 }}>No listings available right now</div>
-                </div>
-              ) : (
-                <table className="gov-table">
-                  <thead><tr><th>Listing</th><th>Location</th><th>Items</th><th>Total</th><th>Status</th><th>Actions</th></tr></thead>
-                  <tbody>
-                    {filteredListings.map((l: any) => (
-                      <tr key={l.id} data-testid={`dealer-listing-${l.id}`}>
-                        <td style={{ fontSize: 12, fontWeight: 600, color: "#1c2833" }}>
-                          {l.items?.length || 0} item type{(l.items?.length || 0) !== 1 ? "s" : ""}
-                        </td>
-                        <td style={{ fontSize: 12, color: "#5d6d7e" }}>
-                          {l.address && <div style={{ display: "flex", alignItems: "center", gap: 3 }}><MapPin style={{ width: 10, height: 10 }} />{l.address}</div>}
-                        </td>
-                        <td style={{ fontSize: 11, color: "#5d6d7e" }}>
-                          {l.items?.map((item: any, j: number) => (
-                            <div key={j}>• {item.itemName} — {item.weightKg}kg @ ₹{item.pricePerKg}/kg</div>
-                          ))}
-                        </td>
-                        <td>
-                          {l.totalEstimate && <div style={{ fontWeight: 700, color: "#b7950b", fontSize: 14 }}>₹{l.totalEstimate?.toFixed(0)}</div>}
-                          <div style={{ fontSize: 11, color: "#5d6d7e" }}>{l.totalWeight?.toFixed(1)} kg</div>
-                        </td>
-                        <td><span className={statusBadge(l.status)}>{l.status}</span></td>
-                        <td>
-                          <div style={{ display: "flex", gap: 5 }}>
-                            {l.status === "pending" && (
-                              <button className="gov-btn gov-btn-primary gov-btn-xs" onClick={() => handleAccept(l.id)}
-                                disabled={updateListing.isPending && buyingId === l.id} data-testid={`button-accept-${l.id}`}>
-                                {buyingId === l.id ? "…" : "Accept"}
-                              </button>
-                            )}
-                            {l.status === "accepted" && (
-                              <button className="gov-btn gov-btn-green gov-btn-xs" onClick={() => handleComplete(l.id)}
-                                disabled={updateListing.isPending} data-testid={`button-complete-${l.id}`}
-                                style={{ display: "flex", alignItems: "center", gap: 3 }}>
-                                <CheckCircle style={{ width: 10, height: 10 }} /> Done
-                              </button>
-                            )}
-                          </div>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              )}
-            </div>
-          </div>
-        )}
-
-        {/* ══ INVENTORY TAB ══ */}
-        {tab === "inventory" && (
-          <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
-            <div className="cd-3col" style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: 12 }}>
-              {[
-                { label:"Total Value",   value:`₹${totalInventoryValue.toLocaleString("en-IN")}`, icon:"💰", color:"#b7950b" },
-                { label:"Total Items",   value:`${INVENTORY.length} types`,                        icon:"📦", color:"#1a5276" },
-                { label:"Available Now", value:`${INVENTORY.filter(i => i.status==="available").length} types`, icon:"✅", color:"#1e8449" },
-              ].map(c => (
-                <div key={c.label} className="gov-stat-card" style={{ borderLeft: `3px solid ${c.color}` }}>
-                  <span style={{ fontSize: 22 }}>{c.icon}</span>
-                  <div className="gov-stat-value" style={{ color: c.color }}>{c.value}</div>
-                  <div className="gov-stat-label">{c.label}</div>
-                </div>
-              ))}
-            </div>
-            <div className="gov-card">
-              <div className="gov-card-header">
-                <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                  <Package style={{ width: 14, height: 14, color: "#1a5276" }} />
-                  <span className="gov-section-title">Inventory Stock</span>
-                </div>
-                <button className="gov-btn gov-btn-primary gov-btn-xs">+ Add Stock</button>
-              </div>
-              <table className="gov-table">
-                <thead><tr><th>Material</th><th>Quantity</th><th>Market Value</th><th>Status</th><th>Action</th></tr></thead>
-                <tbody>
-                  {INVENTORY.map(item => (
-                    <tr key={item.id}>
-                      <td>
-                        <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                          <span style={{ fontSize: 18 }}>{item.icon}</span>
-                          <span style={{ fontSize: 13, fontWeight: 600, color: "#1c2833" }}>{item.type}</span>
+            ) : (
+              <div style={{ padding: "8px 0" }}>
+                {recentRequests.map((l: any) => {
+                  const firstItem = l.items?.[0];
+                  return (
+                    <div key={l.id} style={{ display: "flex", alignItems: "center", gap: 12, padding: "10px 18px", borderBottom: "1px solid #fff3e0" }}>
+                      <div style={{ width: 38, height: 38, borderRadius: 10, background: "linear-gradient(135deg,#fff3e0,#ffe0b2)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 18, flexShrink: 0 }}>
+                        ♻️
+                      </div>
+                      <div style={{ flex: 1, minWidth: 0 }}>
+                        <div style={{ fontSize: 12, fontWeight: 700, color: "#2d2d2d", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                          {firstItem?.itemName || "Scrap items"}
                         </div>
-                      </td>
-                      <td style={{ fontSize: 13, fontWeight: 600 }}>{item.qty} <span style={{ fontSize: 11, color: "#5d6d7e" }}>{item.unit}</span></td>
-                      <td style={{ fontSize: 13, fontWeight: 700, color: "#b7950b" }}>₹{item.value.toLocaleString("en-IN")}</td>
-                      <td><span className={statusBadge(item.status)}>{item.status}</span></td>
-                      <td>
-                        {item.status === "available" && <button className="gov-btn gov-btn-outline gov-btn-xs">List for Sale</button>}
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
+                        {l.address && (
+                          <div style={{ display: "flex", alignItems: "center", gap: 3, fontSize: 11, color: "#8d6e63", marginTop: 1 }}>
+                            <MapPin style={{ width: 9, height: 9 }} />{l.address}
+                          </div>
+                        )}
+                      </div>
+                      <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", gap: 4, flexShrink: 0 }}>
+                        {l.totalEstimate && <span style={{ fontSize: 12, fontWeight: 800, color: "#e64a19" }}>₹{l.totalEstimate?.toFixed(0)}</span>}
+                        <button
+                          onClick={() => handleAccept(l.id)}
+                          disabled={accepting === l.id}
+                          style={{ padding: "3px 10px", background: "#e64a19", color: "#fff", border: "none", borderRadius: 6, cursor: "pointer", fontSize: 10, fontWeight: 700 }}>
+                          {accepting === l.id ? "…" : "Accept"}
+                        </button>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
           </div>
-        )}
 
-        {/* ══ ORDERS TAB ══ */}
-        {tab === "orders" && (
-          <div className="gov-card">
-            <div className="gov-card-header">
-              <span className="gov-section-title">Recent Orders</span>
-              <span style={{ fontSize: 12, color: "#5d6d7e" }}>{ORDERS.length} orders</span>
+          {/* Weekly earnings chart */}
+          <div style={{ background: "#fff", borderRadius: 18, border: "1.5px solid #ffccbc", boxShadow: "0 4px 20px rgba(230,74,25,0.08)", padding: "14px 18px" }}>
+            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 14 }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                <BarChart3 style={{ width: 15, height: 15, color: "#e64a19" }} />
+                <span style={{ fontSize: 14, fontWeight: 800, color: "#2d2d2d" }}>Weekly Earnings</span>
+              </div>
+              <span style={{ fontSize: 11, color: "#8d6e63" }}>This week</span>
             </div>
-            <table className="gov-table">
-              <thead><tr><th>Order ID</th><th>Material</th><th>Quantity</th><th>Buyer</th><th>Amount</th><th>Status</th><th>Time</th></tr></thead>
-              <tbody>
-                {ORDERS.map(o => (
-                  <tr key={o.id}>
-                    <td style={{ fontSize: 12, fontWeight: 700, color: "#1a5276" }}>{o.id}</td>
-                    <td style={{ fontSize: 12 }}>{o.type}</td>
-                    <td style={{ fontSize: 12, color: "#5d6d7e" }}>{o.qty} kg</td>
-                    <td style={{ fontSize: 12 }}>{o.buyer}</td>
-                    <td style={{ fontSize: 13, fontWeight: 700, color: "#b7950b" }}>₹{o.price.toLocaleString("en-IN")}</td>
-                    <td><span className={statusBadge(o.status)}>{o.status}</span></td>
-                    <td style={{ fontSize: 11, color: "#909caa" }}>{o.time}</td>
-                  </tr>
+
+            {/* Bar chart */}
+            <div style={{ display: "flex", alignItems: "flex-end", gap: 8, height: 120 }}>
+              {WEEK_EARNINGS.map((val, i) => {
+                const heightPct = (val / MAX_EARN) * 100;
+                const isToday = i === 4;
+                return (
+                  <div key={i} style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", gap: 4 }}>
+                    <div style={{ fontSize: 9, fontWeight: 700, color: isToday ? "#e64a19" : "#bbb" }}>
+                      ₹{(val/1000).toFixed(1)}k
+                    </div>
+                    <div style={{ width: "100%", display: "flex", alignItems: "flex-end", height: 80 }}>
+                      <div style={{
+                        width: "100%",
+                        height: `${heightPct}%`,
+                        borderRadius: "6px 6px 0 0",
+                        background: isToday
+                          ? "linear-gradient(180deg,#e64a19,#f57c00)"
+                          : "linear-gradient(180deg,#ffccbc,#ffe0b2)",
+                        boxShadow: isToday ? "0 3px 12px rgba(230,74,25,0.4)" : "none",
+                        transition: "height .3s ease",
+                      }} />
+                    </div>
+                    <div style={{ fontSize: 9, color: isToday ? "#e64a19" : "#bbb", fontWeight: isToday ? 800 : 400 }}>
+                      {WEEK_LABELS[i]}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+
+            {/* Material breakdown */}
+            <div style={{ marginTop: 16, paddingTop: 14, borderTop: "1px solid #fff3e0" }}>
+              <div style={{ fontSize: 11, fontWeight: 700, color: "#8d6e63", marginBottom: 8 }}>Material Breakdown</div>
+              <div style={{ display: "flex", flexDirection: "column", gap: 5 }}>
+                {MATERIAL_BREAKDOWN.map(m => (
+                  <div key={m.name} style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                    <span style={{ fontSize: 12, width: 18, textAlign: "center" }}>{m.icon}</span>
+                    <div style={{ fontSize: 11, color: "#555", width: 52 }}>{m.name}</div>
+                    <div style={{ flex: 1, height: 6, background: "#ffe0b2", borderRadius: 999 }}>
+                      <div style={{ height: "100%", width: `${m.pct}%`, background: m.color, borderRadius: 999 }} />
+                    </div>
+                    <div style={{ fontSize: 10, fontWeight: 700, color: m.color, width: 28, textAlign: "right" }}>{m.pct}%</div>
+                  </div>
                 ))}
-              </tbody>
-            </table>
+              </div>
+            </div>
           </div>
-        )}
+        </div>
+
+        {/* Info row */}
+        <div style={{ background: "linear-gradient(135deg,#fff3e0,#fbe9e7)", borderRadius: 14, padding: "14px 18px", border: "1px solid #ffccbc", display: "flex", alignItems: "center", gap: 12 }}>
+          <span style={{ fontSize: 26, flexShrink: 0 }}>♻️</span>
+          <div>
+            <div style={{ fontSize: 12, fontWeight: 700, color: "#bf360c", marginBottom: 2 }}>Circular Economy — How it works</div>
+            <div style={{ fontSize: 11, color: "#8d6e63", lineHeight: 1.6 }}>
+              Citizens list scrap → You accept and schedule pickup → Collect & Complete → Citizens earn reward points. Use <b>Market Pricing</b> to set competitive rates.
+            </div>
+          </div>
+          <div style={{ flexShrink: 0, display: "flex", alignItems: "center", gap: 5 }}>
+            <CheckCircle style={{ width: 14, height: 14, color: "#2e7d32" }} />
+            <span style={{ fontSize: 11, fontWeight: 700, color: "#2e7d32" }}>Live</span>
+          </div>
+        </div>
 
       </div>
     </DashboardLayout>

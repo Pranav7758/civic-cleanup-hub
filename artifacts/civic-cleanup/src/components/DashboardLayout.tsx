@@ -5,6 +5,7 @@ import {
   Calendar, Trophy, Bell, LogOut, Menu, X, Users, Package,
   Settings, Wifi, CheckCheck, Clock, ChevronDown, Leaf, QrCode,
   ClipboardList, GraduationCap, AlertTriangle, CalendarCheck,
+  Truck, TrendingUp, BarChart3,
 } from "lucide-react";
 import { SwachhLogoIcon } from "@/components/SwachhLogo";
 import { useAuth } from "@/context/AuthContext";
@@ -48,9 +49,11 @@ const NGO_NAV: NavItem[] = [
   { label: "Urgent Needs",   icon: AlertTriangle,   path: "/ngo/urgent",   badge: "!"         },
 ];
 const SCRAP_NAV: NavItem[] = [
-  { label: "Dashboard",       icon: LayoutDashboard, path: "/scrap"           },
-  { label: "Active Listings", icon: Recycle,         path: "/scrap/listings"  },
-  { label: "Prices",          icon: Package,         path: "/scrap/prices"    },
+  { label: "Dashboard",     icon: LayoutDashboard, path: "/scrap",           accentColor: "#e64a19" },
+  { label: "Requests",      icon: Recycle,         path: "/scrap/listings",  accentColor: "#f57c00" },
+  { label: "Schedule",      icon: Truck,           path: "/scrap/schedule",  accentColor: "#ff8f00" },
+  { label: "Pricing",       icon: TrendingUp,      path: "/scrap/prices",    accentColor: "#ffa000" },
+  { label: "Analytics",     icon: BarChart3,       path: "/scrap/analytics", accentColor: "#ffb300" },
 ];
 const ADMIN_NAV: NavItem[] = [
   { label: "Dashboard",        icon: LayoutDashboard, path: "/admin"          },
@@ -101,6 +104,84 @@ const NOTIFS: Record<string, Notif[]> = {
     { id:5, icon:"📊", title:"Weekly Digest",    body:"Platform report for this week is ready to review",  time:"Yesterday",  unread:false },
   ],
 };
+
+const ROLE_THEMES: Record<string, {
+  sidebarGradient: string;
+  pageBg: string;
+  headerAccent: string;
+  avatarGradient: string;
+  avatarShadow: string;
+  notifBorder: string;
+  notifShadow: string;
+  profileBorder: string;
+  profileShadow: string;
+  headerMenuColor: string;
+}> = {
+  citizen: {
+    sidebarGradient: "linear-gradient(160deg,#1a3a1a 0%,#1b5e20 45%,#2e7d32 100%)",
+    pageBg:          "linear-gradient(145deg,#e8f5e9 0%,#f1f8e9 50%,#e0f2f1 100%)",
+    headerAccent:    "#2e7d32",
+    avatarGradient:  "linear-gradient(145deg,#2e7d32,#1b5e20)",
+    avatarShadow:    "3px 3px 8px rgba(27,94,32,0.4),-1px -1px 4px rgba(165,214,167,0.3)",
+    notifBorder:     "#c8e6c9",
+    notifShadow:     "#c5d8c5",
+    profileBorder:   "#c8e6c9",
+    profileShadow:   "#c5d8c5",
+    headerMenuColor: "#2e7d32",
+  },
+  worker: {
+    sidebarGradient: "linear-gradient(160deg,#1e0f45 0%,#3b1fa8 45%,#7c3aed 100%)",
+    pageBg:          "linear-gradient(145deg,#f3f0ff 0%,#ede9fe 50%,#e0e7ff 100%)",
+    headerAccent:    "#7c3aed",
+    avatarGradient:  "linear-gradient(145deg,#7c3aed,#4527a0)",
+    avatarShadow:    "3px 3px 8px rgba(109,40,217,0.45),-1px -1px 4px rgba(196,181,253,0.3)",
+    notifBorder:     "#c4b5fd",
+    notifShadow:     "#d8b4fe",
+    profileBorder:   "#c4b5fd",
+    profileShadow:   "#d8b4fe",
+    headerMenuColor: "#7c3aed",
+  },
+  ngo: {
+    sidebarGradient: "linear-gradient(160deg,#003530 0%,#004d40 45%,#00695c 100%)",
+    pageBg:          "linear-gradient(145deg,#e0f2f1 0%,#e8f5e9 50%,#e3f2fd 100%)",
+    headerAccent:    "#00695c",
+    avatarGradient:  "linear-gradient(145deg,#00695c,#004d40)",
+    avatarShadow:    "3px 3px 8px rgba(0,77,64,0.45),-1px -1px 4px rgba(128,203,196,0.3)",
+    notifBorder:     "#80cbc4",
+    notifShadow:     "#b2dfdb",
+    profileBorder:   "#80cbc4",
+    profileShadow:   "#b2dfdb",
+    headerMenuColor: "#00695c",
+  },
+  scrap_dealer: {
+    sidebarGradient: "linear-gradient(160deg,#7f2500 0%,#bf360c 45%,#e64a19 100%)",
+    pageBg:          "linear-gradient(145deg,#fff3e0 0%,#fbe9e7 50%,#fff8e1 100%)",
+    headerAccent:    "#e64a19",
+    avatarGradient:  "linear-gradient(145deg,#e64a19,#bf360c)",
+    avatarShadow:    "3px 3px 8px rgba(191,54,12,0.45),-1px -1px 4px rgba(255,204,188,0.3)",
+    notifBorder:     "#ffccbc",
+    notifShadow:     "#ffe0b2",
+    profileBorder:   "#ffccbc",
+    profileShadow:   "#ffe0b2",
+    headerMenuColor: "#e64a19",
+  },
+  admin: {
+    sidebarGradient: "linear-gradient(160deg,#080d25 0%,#1a237e 45%,#283593 100%)",
+    pageBg:          "linear-gradient(145deg,#e8eaf6 0%,#ede7f6 50%,#e1f5fe 100%)",
+    headerAccent:    "#283593",
+    avatarGradient:  "linear-gradient(145deg,#283593,#1a237e)",
+    avatarShadow:    "3px 3px 8px rgba(26,35,126,0.45),-1px -1px 4px rgba(159,168,218,0.3)",
+    notifBorder:     "#9fa8da",
+    notifShadow:     "#c5cae9",
+    profileBorder:   "#9fa8da",
+    profileShadow:   "#c5cae9",
+    headerMenuColor: "#283593",
+  },
+};
+
+function getRoleTheme(roleKey: string) {
+  return ROLE_THEMES[roleKey] || ROLE_THEMES.citizen;
+}
 
 function getNavForRole(roles: string[]): NavItem[] {
   if (roles.includes("admin"))        return ADMIN_NAV;
@@ -280,6 +361,7 @@ export default function DashboardLayout({ children, title }: DashboardLayoutProp
   const roleKey   = getRoleKey(roles);
   const roleEmoji = getRoleEmoji(roles);
   const initial   = (user?.fullName || "U")[0].toUpperCase();
+  const theme     = getRoleTheme(roleKey);
 
   const notifs      = NOTIFS[roleKey] || NOTIFS.citizen;
   const unreadCount = notifs.filter(n => n.unread && !readIds.has(n.id)).length;
@@ -303,7 +385,7 @@ export default function DashboardLayout({ children, title }: DashboardLayoutProp
 
   /* ── Sidebar content ── */
   const SidebarContent = () => (
-    <div className="dash-sidebar flex flex-col h-full" style={{ fontFamily: "'Inter', 'Roboto', Arial, sans-serif" }}>
+    <div className="dash-sidebar flex flex-col h-full" style={{ fontFamily: "'Inter', 'Roboto', Arial, sans-serif", background: theme.sidebarGradient }}>
 
       {/* ── Logo bar ── */}
       <div style={{
@@ -417,7 +499,7 @@ export default function DashboardLayout({ children, title }: DashboardLayoutProp
   );
 
   return (
-    <div className="dl-page-bg" style={{ display: "flex", height: "100vh", overflow: "hidden", fontFamily: "'Inter', 'Roboto', Arial, sans-serif" }}>
+    <div className="dl-page-bg" style={{ display: "flex", height: "100vh", overflow: "hidden", fontFamily: "'Inter', 'Roboto', Arial, sans-serif", background: theme.pageBg }}>
       <style>{LAYOUT_CSS}</style>
 
       {/* ── Desktop sidebar ── */}
@@ -471,7 +553,7 @@ export default function DashboardLayout({ children, title }: DashboardLayoutProp
             onClick={() => setSidebarOpen(true)}
             data-testid="button-menu"
           >
-            <Menu style={{ width: 16, height: 16, color: "#2e7d32" }} />
+            <Menu style={{ width: 16, height: 16, color: theme.headerMenuColor }} />
           </button>
 
           {/* Mobile brand logo — shown only on mobile when no title */}
@@ -610,7 +692,7 @@ export default function DashboardLayout({ children, title }: DashboardLayoutProp
                 borderColor: profileOpen ? "#81c784" : undefined,
               }}
             >
-              <div className="dl-header-avatar">{initial}</div>
+              <div className="dl-header-avatar" style={{ background: theme.avatarGradient, boxShadow: theme.avatarShadow }}>{initial}</div>
               <span className="hidden sm:inline" style={{ fontSize: 13, fontWeight: 700, color: "#1a2e1a", fontFamily: "'Inter', sans-serif" }}>
                 {user?.fullName?.split(" ")[0] || "User"}
               </span>
@@ -649,7 +731,7 @@ export default function DashboardLayout({ children, title }: DashboardLayoutProp
         </header>
 
         {/* ── Page content ── */}
-        <main className="dl-main-content dash-scroll">
+        <main className="dl-main-content dash-scroll" style={{ background: theme.pageBg }}>
           {children}
         </main>
       </div>
