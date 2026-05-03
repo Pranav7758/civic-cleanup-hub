@@ -170,7 +170,7 @@ export default function SettingsPage() {
   }));
 
   const setPref = (key: string, val: any) => {
-    setPrefs(p => {
+    setPrefs((p: typeof prefs) => {
       const next = { ...p, [key]: val };
       savePrefs(next);
       return next;
